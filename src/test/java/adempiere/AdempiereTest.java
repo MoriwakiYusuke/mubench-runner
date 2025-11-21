@@ -79,8 +79,7 @@ public class AdempiereTest {
     class Misuse extends CommonLogic {
         @Override
         SecureInterface getTarget() {
-            // ★修正: misuse -> missuse (sが2つ)
-            return new adempiere.missuse.Secure();
+            return new adempiere.misuse.Secure();
         }
     }
 
