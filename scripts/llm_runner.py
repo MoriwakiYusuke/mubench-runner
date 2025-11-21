@@ -9,7 +9,7 @@ loaded = load_dotenv(find_dotenv())
 
 client = OpenAI()
 
-input_file = "prompt.md"
+input_file = "./prompts/fix-prompt.md"
 
 
 def main():
