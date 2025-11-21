@@ -25,6 +25,7 @@ replay_pid*
 
 # env file
 *.env
+.env
 
 # llmの出力ログは除く
 llm-results/
@@ -33,3 +34,23 @@ llm-results/
 venv/
 .venv/
 
+# Gradle
+.gradle/
+/build/
+gradle-app.setting
+.gradletasknamecache
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Generated files
+*.class
+*.jar
+*.war
+*.ear
+
+# Virtual machine crash logs
+hs_err_pid*
+
+# mac
+.DS_Store
