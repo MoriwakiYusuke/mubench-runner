@@ -1,16 +1,3 @@
-ご指摘の通り、私が提示した**プロンプトの「出力例 (Output Indicator)」が不適切（ミスリード）でした。**
-
-プロンプト内の「例（Example）」として `assertNotEquals(input, result)` を提示してしまったため、LLMがその形式に引きずられ、**「どんなバグであっても『平文と不一致ならヨシ！』とするテスト」** を生成してしまっています。
-
-これでは、暗号化処理が（文字化けしていても）動いてさえいればテストが通ってしまい、**Misuse（脆弱コード）を検出できません。**
-
-修正したプロンプトを提示します。出力例を「復号して元に戻るかチェックする（ラウンドトリップ）」形式に変更し、論理的な矛盾を解消しました。
-
-### 修正版プロンプト (Corrected Prompt)
-
-`prompt.md` を以下の内容に書き換えてください。
-
-````markdown
 ## Instruction
 You are an expert QA Engineer specializing in Java security testing.
 Your task is to write a **JUnit 5 test case** that reproduces a specific vulnerability/bug.
@@ -39,7 +26,7 @@ public class SourceDriver {
     public String decrypt(String value) { ... }
     public String getDigest(String value) { ... }
 }
-````
+
 
 ## Input Data
 
@@ -862,7 +849,7 @@ Example format:
 @Test
 @DisplayName("Verify encryption correctness and reproducibility")
 void testEncryptionRoundTrip() {
-    SourceDriver driver = getTargetDriver();
+	SecureInterface secure = getTarget();
     
     // 1. Setup test data (include special characters if relevant to the bug)
     String input = "test_value_with_special_chars_@#$";

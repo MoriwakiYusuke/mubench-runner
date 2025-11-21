@@ -9,7 +9,7 @@ loaded = load_dotenv(find_dotenv())
 
 client = OpenAI()
 
-input_file = "./prompts/fix-prompt.md"
+input_file = "./prompts/test-make-prompt.md"
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
         # 4. APIリクエスト
         print("Requesting to OpenAI...")
         completion = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.1-2025-11-13",
             messages=[
                 {"role": "user", "content": prompt_content}
             ]
