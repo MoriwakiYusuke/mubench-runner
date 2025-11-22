@@ -1,4 +1,4 @@
-package adempiere;
+package adempiere._1;
 
 // テストコードはこのクラスを通じて SecureInterface を操作する
 public class SourceDriver {

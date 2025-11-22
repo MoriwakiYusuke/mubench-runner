@@ -1,4 +1,4 @@
-package adempiere;
+package adempiere._1;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +41,7 @@ public class AdempiereTest {
         @Override
         SourceDriver getTargetDriver() {
             // 実装クラスを SourceDriver でラップして返す
-            return new SourceDriver(new adempiere.original.Secure());
+            return new SourceDriver(new adempiere._1.original.Secure());
         }
     }
 
@@ -53,7 +53,7 @@ public class AdempiereTest {
         SourceDriver getTargetDriver() {
             // 実装クラスを SourceDriver でラップして返す
             // パッケージ名のスペルミス修正: missuse -> misuse
-            return new SourceDriver(new adempiere.misuse.Secure());
+            return new SourceDriver(new adempiere._1.misuse.Secure());
         }
     }
 
@@ -65,7 +65,7 @@ public class AdempiereTest {
         SourceDriver getTargetDriver() {
             // 実装クラスを SourceDriver でラップして返す
             // パッケージ名の修正: fit -> fixed
-            return new SourceDriver(new adempiere.fixed.Secure());
+            return new SourceDriver(new adempiere._1.fixed.Secure());
         }
     }
 }

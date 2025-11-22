@@ -1,4 +1,4 @@
-package adempiere;
+package adempiere._1;
 
 // 元のコード(Secure.java)が要求している仕様をここに定義
 public interface SecureInterface {
