@@ -12,12 +12,13 @@ dependencies {
     // テスト用ライブラリ (JUnit 5)
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("com.alibaba:druid:1.2.20")
 }
 
 java {
-    // Java 25 を使う設定 (PCに入っていなければ自動でダウンロードされます)
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
+        languageVersion.set(JavaLanguageVersion.of(17))
+        //languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
