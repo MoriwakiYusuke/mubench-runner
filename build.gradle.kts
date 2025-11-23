@@ -13,6 +13,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("com.alibaba:druid:1.2.20")
+    implementation ("com.google.android:android:4.1.1.4")
 }
 
 java {
