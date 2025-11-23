@@ -13,25 +13,95 @@ The test must meet the following criteria:
 - Always obtain the instance using: `SourceDriver driver = getTargetDriver();`.
 - Output **only** the Java method code (starting with `@Test`). Do not include class declarations, imports, or markdown explanations.
 
-## Reference: SourceDriver API
-```java
-package adempiere;
 
+## Procedure
+Follow these steps to generate the test case:
+
+1.  **Analyze the Bug Description:**
+    Understand the affected class/method and the root cause of the bug (e.g., missing encoding, lack of validation, logic error).
+
+2.  **Examine the Misuse Code (Vulnerable):**
+    Identify the specific lines in the Misuse Code that contain the vulnerability. Understand the mechanism that causes it to produce incorrect results (e.g., corrupted text, exceptions, wrong values) given specific inputs.
+
+3.  **Examine the Original Code (Fixed):**
+    Review the Original Code to confirm how the vulnerability was resolved. Ensure you understand the expected correct behavior for the same input.
+
+4.  **Design the Reproduction Test:**
+    Formulate a test logic that meets the following strict criteria:
+    * **PASS** (Success) when run against the **Original Code**.
+    * **FAIL** (AssertionError or Exception) when run against the **Misuse Code**.
+    * **Critical:** Select specific input data (e.g., multi-byte characters, boundary values, special symbols) that triggers the bug described in the analysis.
+
+5.  **Implement the Test Code:**
+    Write the Java method using **only** the provided `SourceDriver` API to interact with the target.
+
+
+
+## Reference: SourceDriver API
+
+```java
 public class SourceDriver {
-    // Wrapper constructor
-    public SourceDriver(SecureInterface target) { ... }
     
-    // Available methods
-    public String encrypt(String value) { ... }
-    public String decrypt(String value) { ... }
-    public String getDigest(String value) { ... }
+    private final SecureInterface target;
+
+    // コンストラクタで「操作対象の実体」を受け取る
+    public SourceDriver(SecureInterface target) {
+        this.target = target;
+    }
+
+    // String メソッド (既存)
+    public String encrypt(String value) {
+        return target.encrypt(value);
+    }
+
+    public String decrypt(String value) {
+        return target.decrypt(value);
+    }
+
+    public String getDigest(String value) {
+        return target.getDigest(value);
+    }
+    
+    // 【追加部分】Integer 型のメソッド
+    public Integer encrypt(Integer value) {
+        return target.encrypt(value);
+    }
+    
+    public Integer decrypt(Integer value) {
+        return target.decrypt(value);
+    }
+
+    // 【追加部分】BigDecimal 型のメソッド
+    public BigDecimal encrypt(BigDecimal value) {
+        return target.encrypt(value);
+    }
+    
+    public BigDecimal decrypt(BigDecimal value) {
+        return target.decrypt(value);
+    }
+
+    // 【追加部分】Timestamp 型のメソッド
+    public Timestamp encrypt(Timestamp value) {
+        return target.encrypt(value);
+    }
+    
+    public Timestamp decrypt(Timestamp value) {
+        return target.decrypt(value);
+    }
+    
+    // 【追加部分】isDigest メソッド
+    public boolean isDigest(String value) {
+        return target.isDigest(value);
+    }
 }
+```
 
 
 ## Input Data
 
 ### Bug Description
 
+```yml
 api:
 - java.lang.String
 violations:
@@ -54,817 +124,75 @@ pattern:
 - multiple objects
 source:
   name: SourceForge
+```
+
+
 
 
 ### Original Code (Correct Implementation)
 
 ```java
-/******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                        *
- * Copyright (C) 1999-2006 ComPiere, Inc. All Rights Reserved.                *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
- *****************************************************************************/
-package adempiere.original;
-import adempiere.SecureInterface;
-
-import java.math.*;
-import java.security.*;
-import java.sql.Timestamp;
-import java.util.logging.*;
-import javax.crypto.*;
-
-/**
- * Security Services.
- * <p>
- * Change log:
- * <ul>
- * <li>2007-01-27 - teo_sarca - [ 1598095 ] class Secure is not working with UTF8
- * </ul>
- *  
- *  @author     Jorg Janke
- *  @version    $Id: Secure.java,v 1.2 2006/07/30 00:52:23 jjanke Exp $
- */
-public class Secure implements SecureInterface
-{
-	/**************************************************************************
-	 *	Hash checksum number
-	 *  @param key key
-	 *  @return checksum number
-	 */
-	public static int hash (String key)
-	{
-		long tableSize = 2147483647;	// one less than max int
-		long hashValue = 0;
-
-		for (int i = 0; i < key.length(); i++)
-			hashValue = (37 * hashValue) + (key.charAt(i) -31);
-
-		hashValue %= tableSize;
-		if (hashValue < 0)
-			hashValue += tableSize;
-
-		int retValue = (int)hashValue;
-		return retValue;
-	}	//	hash
-
-	
-	/**************************************************************************
-	 *  Convert Byte Array to Hex String
-	 *  @param bytes bytes
-	 *  @return HexString
-	 */
-	public static String convertToHexString (byte[] bytes)
-	{
-		//	see also Util.toHex
-		int size = bytes.length;
-		StringBuffer buffer = new StringBuffer(size*2);
-		for(int i=0; i<size; i++)
-		{
-			// convert byte to an int
-			int x = bytes[i];
-			// account for int being a signed type and byte being unsigned
-			if (x < 0)
-				x += 256;
-			String tmp = Integer.toHexString(x);
-			// pad out "1" to "01" etc.
-			if (tmp.length() == 1)
-				buffer.append("0");
-			buffer.append(tmp);
-		}
-		return buffer.toString();
-	}   //  convertToHexString
-
-
-	/**
-	 *  Convert Hex String to Byte Array
-	 *  @param hexString hex string
-	 *  @return byte array
-	 */
-	public static byte[] convertHexString (String hexString)
-	{
-		if (hexString == null || hexString.length() == 0)
-			return null;
-		int size = hexString.length()/2;
-		byte[] retValue = new byte[size];
-		String inString = hexString.toLowerCase();
-
-		try
-		{
-			for (int i = 0; i < size; i++)
-			{
-				int index = i*2;
-				int ii = Integer.parseInt(inString.substring(index, index+2), 16);
-				retValue[i] = (byte)ii;
-			}
-			return retValue;
-		}
-		catch (Exception e)
-		{
-			log.finest(hexString + " - " + e.getLocalizedMessage());
-		}
-		return null;
-	}   //  convertToHexString
-
-
-	/**************************************************************************
-	 * 	Adempiere Security
-	 */
-	public Secure()
-	{
-		initCipher();
-	}	//	Secure
-
-	/** Adempiere Cipher				*/
-	private Cipher 			m_cipher = null;
-	/** Adempiere Key				*/
-	private SecretKey 		m_key = null;
-	/** Message Digest				*/
-	private MessageDigest	m_md = null;
-
-	/**	Logger						*/
-	private static Logger	log	= Logger.getLogger (Secure.class.getName());
-
-	/**
-	 * 	Initialize Cipher & Key
-	 */
-	private synchronized void initCipher()
-	{
-		if (m_cipher != null)
-			return;
-		Cipher cc = null;
-		try
-		{
-			cc = Cipher.getInstance("DES/ECB/PKCS5Padding");
-			//	Key
-			if (false)
-			{
-				KeyGenerator keygen = KeyGenerator.getInstance("DES");
-				m_key = keygen.generateKey();
-				byte[] key = m_key.getEncoded();
-				StringBuffer sb = new StringBuffer ("Key ")
-					.append(m_key.getAlgorithm())
-					.append("(").append(key.length).append(")= ");
-				for (int i = 0; i < key.length; i++)
-					sb.append(key[i]).append(",");
-				log.info(sb.toString());
-			}
-			else
-				m_key = new javax.crypto.spec.SecretKeySpec
-					(new byte[] {100,25,28,-122,-26,94,-3,-26}, "DES");
-		}
-		catch (Exception ex)
-		{
-			log.log(Level.SEVERE, "", ex);
-		}
-		m_cipher = cc;
-	}	//	initCipher
-
-	
-	
-	/**
-	 *	Encryption.
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public String encrypt (String value)
-	{
-		String clearText = value;
-		if (clearText == null)
-			clearText = "";
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-		//	Encrypt
-		if (m_cipher != null)
-		{
-			try
-			{
-				m_cipher.init(Cipher.ENCRYPT_MODE, m_key);
-				byte[] encBytes = m_cipher.doFinal(clearText.getBytes("UTF8"));
-				String encString = convertToHexString(encBytes);
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + encString);
-				return encString;
-			}
-			catch (Exception ex)
-			{
-				// log.log(Level.INFO, value, ex);
-				log.log(Level.INFO, "Problem encrypting string", ex);
-			}
-		}
-		//	Fallback
-		return CLEARVALUE_START + value + CLEARVALUE_END;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public String decrypt (String value)
-	{
-		if (value == null || value.length() == 0)
-			return value;
-		boolean isEncrypted = value.startsWith(ENCRYPTEDVALUE_START) && value.endsWith(ENCRYPTEDVALUE_END);
-		if (isEncrypted)
-			value = value.substring(ENCRYPTEDVALUE_START.length(), value.length()-ENCRYPTEDVALUE_END.length());
-		//	Needs to be hex String	
-		byte[] data = convertHexString(value);
-		if (data == null)	//	cannot decrypt
-		{
-			if (isEncrypted)
-			{
-				// log.info("Failed: " + value);
-				log.info("Failed");
-				return null;
-			}
-			//	assume not encrypted
-			return value;
-		}
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-
-		//	Encrypt
-		if (m_cipher != null && value != null && value.length() > 0)
-		{
-			try
-			{
-				AlgorithmParameters ap = m_cipher.getParameters();
-				m_cipher.init(Cipher.DECRYPT_MODE, m_key, ap);
-				byte[] out = m_cipher.doFinal(data);
-				String retValue = new String(out, "UTF8");
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + retValue);
-				return retValue;
-			}
-			catch (Exception ex)
-			{
-				// log.info("Failed: " + value + " - " + ex.toString());
-				log.info("Failed decrypting " + ex.toString());
-			}
-		}
-		return null;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Integer encrypt (Integer value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Integer decrypt (Integer value)
-	{
-		return value;
-	}	//	decrypt
-	
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public BigDecimal encrypt (BigDecimal value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public BigDecimal decrypt (BigDecimal value)
-	{
-		return value;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Timestamp encrypt (Timestamp value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Timestamp decrypt (Timestamp value)
-	{
-		return value;
-	}	//	decrypt
-	
-	
-	/**
-	 *  Convert String to Digest.
-	 *  JavaScript version see - http://pajhome.org.uk/crypt/md5/index.html
-	 *
-	 *  @param value message
-	 *  @return HexString of message (length = 32 characters)
-	 */
-	public String getDigest (String value)
-	{
-		if (m_md == null)
-		{
-			try
-			{
-				m_md = MessageDigest.getInstance("MD5");
-			//	m_md = MessageDigest.getInstance("SHA-1");
-			}
-			catch (NoSuchAlgorithmException nsae)
-			{
-				nsae.printStackTrace();
-			}
-		}
-		//	Reset MessageDigest object
-		m_md.reset();
-		//	Convert String to array of bytes
-		byte[] input = value.getBytes();
-		//	feed this array of bytes to the MessageDigest object
-		m_md.update(input);
-		//	 Get the resulting bytes after the encryption process
-		byte[] output = m_md.digest();
-		m_md.reset();
-		//
-		return convertToHexString(output);
-	}	//	getDigest
-
-
-	/**
-	 * 	Checks, if value is a valid digest
-	 *  @param value digest string
-	 *  @return true if valid digest
-	 */
-	public boolean isDigest (String value)
-	{
-		if (value == null || value.length() != 32)
-			return false;
-		//	needs to be a hex string, so try to convert it
-		return (convertHexString(value) != null);
-	}	//	isDigest
-
-	/**
-	 * 	String Representation
-	 *	@return info
-	 */
-	public String toString ()
-	{
-		StringBuffer sb = new StringBuffer ("Secure[");
-		sb.append(m_cipher)
-			.append ("]");
-		return sb.toString ();
-	}	//	toString
-	
-}   //  Secure
 ```
 
 ### Misuse Code (Vulnerable Implementation)
 
 ```java
-/******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                        *
- * Copyright (C) 1999-2006 ComPiere, Inc. All Rights Reserved.                *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
- *****************************************************************************/
-package adempiere.misuse;
-import adempiere.SecureInterface;
-
-import java.math.*;
-import java.security.*;
-import java.sql.Timestamp;
-import java.util.logging.*;
-import javax.crypto.*;
-
-/**
- *  Security Services.
- *
- *  @author     Jorg Janke
- *  @version    $Id: Secure.java,v 1.2 2006/07/30 00:52:23 jjanke Exp $
- */
-public class Secure implements SecureInterface
-{
-	/**************************************************************************
-	 *	Hash checksum number
-	 *  @param key key
-	 *  @return checksum number
-	 */
-	public static int hash (String key)
-	{
-		long tableSize = 2147483647;	// one less than max int
-		long hashValue = 0;
-
-		for (int i = 0; i < key.length(); i++)
-			hashValue = (37 * hashValue) + (key.charAt(i) -31);
-
-		hashValue %= tableSize;
-		if (hashValue < 0)
-			hashValue += tableSize;
-
-		int retValue = (int)hashValue;
-		return retValue;
-	}	//	hash
-
-	
-	/**************************************************************************
-	 *  Convert Byte Array to Hex String
-	 *  @param bytes bytes
-	 *  @return HexString
-	 */
-	public static String convertToHexString (byte[] bytes)
-	{
-		//	see also Util.toHex
-		int size = bytes.length;
-		StringBuffer buffer = new StringBuffer(size*2);
-		for(int i=0; i<size; i++)
-		{
-			// convert byte to an int
-			int x = bytes[i];
-			// account for int being a signed type and byte being unsigned
-			if (x < 0)
-				x += 256;
-			String tmp = Integer.toHexString(x);
-			// pad out "1" to "01" etc.
-			if (tmp.length() == 1)
-				buffer.append("0");
-			buffer.append(tmp);
-		}
-		return buffer.toString();
-	}   //  convertToHexString
-
-
-	/**
-	 *  Convert Hex String to Byte Array
-	 *  @param hexString hex string
-	 *  @return byte array
-	 */
-	public static byte[] convertHexString (String hexString)
-	{
-		if (hexString == null || hexString.length() == 0)
-			return null;
-		int size = hexString.length()/2;
-		byte[] retValue = new byte[size];
-		String inString = hexString.toLowerCase();
-
-		try
-		{
-			for (int i = 0; i < size; i++)
-			{
-				int index = i*2;
-				int ii = Integer.parseInt(inString.substring(index, index+2), 16);
-				retValue[i] = (byte)ii;
-			}
-			return retValue;
-		}
-		catch (Exception e)
-		{
-			log.finest(hexString + " - " + e.getLocalizedMessage());
-		}
-		return null;
-	}   //  convertToHexString
-
-
-	/**************************************************************************
-	 * 	Adempiere Security
-	 */
-	public Secure()
-	{
-		initCipher();
-	}	//	Secure
-
-	/** Adempiere Cipher				*/
-	private Cipher 			m_cipher = null;
-	/** Adempiere Key				*/
-	private SecretKey 		m_key = null;
-	/** Message Digest				*/
-	private MessageDigest	m_md = null;
-
-	/**	Logger						*/
-	private static Logger	log	= Logger.getLogger (Secure.class.getName());
-
-	/**
-	 * 	Initialize Cipher & Key
-	 */
-	private synchronized void initCipher()
-	{
-		if (m_cipher != null)
-			return;
-		Cipher cc = null;
-		try
-		{
-			cc = Cipher.getInstance("DES/ECB/PKCS5Padding");
-			//	Key
-			if (false)
-			{
-				KeyGenerator keygen = KeyGenerator.getInstance("DES");
-				m_key = keygen.generateKey();
-				byte[] key = m_key.getEncoded();
-				StringBuffer sb = new StringBuffer ("Key ")
-					.append(m_key.getAlgorithm())
-					.append("(").append(key.length).append(")= ");
-				for (int i = 0; i < key.length; i++)
-					sb.append(key[i]).append(",");
-				log.info(sb.toString());
-			}
-			else
-				m_key = new javax.crypto.spec.SecretKeySpec
-					(new byte[] {100,25,28,-122,-26,94,-3,-26}, "DES");
-		}
-		catch (Exception ex)
-		{
-			log.log(Level.SEVERE, "", ex);
-		}
-		m_cipher = cc;
-	}	//	initCipher
-
-	
-	
-	/**
-	 *	Encryption.
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public String encrypt (String value)
-	{
-		String clearText = value;
-		if (clearText == null)
-			clearText = "";
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-		//	Encrypt
-		if (m_cipher != null)
-		{
-			try
-			{
-				m_cipher.init(Cipher.ENCRYPT_MODE, m_key);
-				byte[] encBytes = m_cipher.doFinal(clearText.getBytes());
-				String encString = convertToHexString(encBytes);
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + encString);
-				return encString;
-			}
-			catch (Exception ex)
-			{
-				// log.log(Level.INFO, value, ex);
-				log.log(Level.INFO, "Problem encrypting string", ex);
-			}
-		}
-		//	Fallback
-		return CLEARVALUE_START + value + CLEARVALUE_END;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public String decrypt (String value)
-	{
-		if (value == null || value.length() == 0)
-			return value;
-		boolean isEncrypted = value.startsWith(ENCRYPTEDVALUE_START) && value.endsWith(ENCRYPTEDVALUE_END);
-		if (isEncrypted)
-			value = value.substring(ENCRYPTEDVALUE_START.length(), value.length()-ENCRYPTEDVALUE_END.length());
-		//	Needs to be hex String	
-		byte[] data = convertHexString(value);
-		if (data == null)	//	cannot decrypt
-		{
-			if (isEncrypted)
-			{
-				// log.info("Failed: " + value);
-				log.info("Failed");
-				return null;
-			}
-			//	assume not encrypted
-			return value;
-		}
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-
-		//	Encrypt
-		if (m_cipher != null && value != null && value.length() > 0)
-		{
-			try
-			{
-				AlgorithmParameters ap = m_cipher.getParameters();
-				m_cipher.init(Cipher.DECRYPT_MODE, m_key, ap);
-				byte[] out = m_cipher.doFinal(data);
-				String retValue = new String(out);
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + retValue);
-				return retValue;
-			}
-			catch (Exception ex)
-			{
-				// log.info("Failed: " + value + " - " + ex.toString());
-				log.info("Failed decrypting " + ex.toString());
-			}
-		}
-		return null;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Integer encrypt (Integer value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Integer decrypt (Integer value)
-	{
-		return value;
-	}	//	decrypt
-	
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public BigDecimal encrypt (BigDecimal value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public BigDecimal decrypt (BigDecimal value)
-	{
-		return value;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Timestamp encrypt (Timestamp value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Timestamp decrypt (Timestamp value)
-	{
-		return value;
-	}	//	decrypt
-	
-	
-	/**
-	 *  Convert String to Digest.
-	 *  JavaScript version see - http://pajhome.org.uk/crypt/md5/index.html
-	 *
-	 *  @param value message
-	 *  @return HexString of message (length = 32 characters)
-	 */
-	public String getDigest (String value)
-	{
-		if (m_md == null)
-		{
-			try
-			{
-				m_md = MessageDigest.getInstance("MD5");
-			//	m_md = MessageDigest.getInstance("SHA-1");
-			}
-			catch (NoSuchAlgorithmException nsae)
-			{
-				nsae.printStackTrace();
-			}
-		}
-		//	Reset MessageDigest object
-		m_md.reset();
-		//	Convert String to array of bytes
-		byte[] input = value.getBytes();
-		//	feed this array of bytes to the MessageDigest object
-		m_md.update(input);
-		//	 Get the resulting bytes after the encryption process
-		byte[] output = m_md.digest();
-		m_md.reset();
-		//
-		return convertToHexString(output);
-	}	//	getDigest
-
-
-	/**
-	 * 	Checks, if value is a valid digest
-	 *  @param value digest string
-	 *  @return true if valid digest
-	 */
-	public boolean isDigest (String value)
-	{
-		if (value == null || value.length() != 32)
-			return false;
-		//	needs to be a hex string, so try to convert it
-		return (convertHexString(value) != null);
-	}	//	isDigest
-
-	/**
-	 * 	String Representation
-	 *	@return info
-	 */
-	public String toString ()
-	{
-		StringBuffer sb = new StringBuffer ("Secure[");
-		sb.append(m_cipher)
-			.append ("]");
-		return sb.toString ();
-	}	//	toString
-	
-}   //  Secure
 ```
+
+
+「単一のテスト」という制約を外し、**「複数のテストメソッドを作成して、あらゆるパターンを網羅する」** ような指示に変更しました。
+
+これにより、LLMは基本パターンの再現だけでなく、エッジケースや境界値分析などを含めた複数のテストケースを提案するようになります。
+
+-----
 
 ## Output Indicator
 
-Output a single JUnit 5 test method.
-The test logic should strictly verify the correctness of the security function.
-**Crucial:** Do not just check if the output is different from input. Verify that the output behaves correctly (e.g., can be decrypted back to the original text).
+Output **multiple** JUnit 5 test methods to comprehensively verify the security fix.
+Break down the verification logic into separate, granular test methods to cover different scenarios (e.g., standard input, multi-byte characters, boundary values, empty strings).
+
+**Crucial:**
+
+  * **Granularity:** Each test method should focus on a specific aspect of the vulnerability or a specific input type.
+  * **Correctness:** For every test, verify the functional correctness (e.g., successful round-trip encryption/decryption).
+  * **Independence:** Each test method must be self-contained and not rely on the state of other tests.
 
 Example format:
 
 ```java
 @Test
-@DisplayName("Verify encryption correctness and reproducibility")
-void testEncryptionRoundTrip() {
-	SecureInterface secure = getTarget();
+@DisplayName("Base Case: Verify standard functionality")
+void testStandardBehavior() {
+    SourceDriver driver = getTargetDriver();
+    // Use a standard, valid input typical for the target type
+    String input = "standard_valid_input"; 
+    String result = driver.encrypt(input);
     
-    // 1. Setup test data (include special characters if relevant to the bug)
-    String input = "test_value_with_special_chars_@#$";
+    // Verify correct logic (Round-trip)
+    assertEquals(input, driver.decrypt(result), "Standard functionality failed");
+}
+
+@Test
+@DisplayName("Reproduction: Verify fix for reported vulnerability")
+void testVulnerabilityReproduction() {
+    SourceDriver driver = getTargetDriver();
+    // CRITICAL: Use input explicitly derived from the 'Bug Description'
+    // (e.g., multi-byte chars, specific large numbers, or format that caused the bug)
+    String triggerInput = "input_that_triggers_the_bug"; 
+    String result = driver.encrypt(triggerInput);
     
-    // 2. Execute logic via driver
-    String encrypted = driver.encrypt(input);
+    // Assertion should pass on Fixed Code and fail on Misuse Code
+    assertEquals(triggerInput, driver.decrypt(result), "Fix verification failed for specific bug input");
+}
+
+@Test
+@DisplayName("Edge Case: Verify boundary handling")
+void testBoundaryCondition() {
+    SourceDriver driver = getTargetDriver();
+    // Use boundary values (e.g., empty string, 0, -1, max_value)
+    String edgeInput = ""; 
+    String result = driver.encrypt(edgeInput);
     
-    // 3. Verify encryption happened
-    assertNotEquals(input, encrypted, "Encryption failed: Plaintext returned");
-    
-    // 4. Verify Decryption (Round-Trip)
-    // This assertion is key: 
-    // - Original Code should succeed (decrypted == input) -> PASS
-    // - Misuse Code should fail (decrypted != input OR exception) -> FAIL
-    String decrypted = driver.decrypt(encrypted);
-    assertEquals(input, decrypted, "Bug reproduced: Decryption failed to restore original text");
+    assertEquals(edgeInput, driver.decrypt(result), "Edge case handling failed");
 }
 ```
