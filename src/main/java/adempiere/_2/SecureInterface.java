@@ -1,4 +1,4 @@
-package adempiere._1;
+package adempiere._2;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;

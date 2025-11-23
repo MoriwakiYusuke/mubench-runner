@@ -1,6 +1,6 @@
-package adempiere._1;
+package adempiere._2;
 
-import adempiere._1.SecureInterface; // SecureInterfaceの正しいパッケージをインポート
+import adempiere._2.SecureInterface; // SecureInterfaceの正しいパッケージをインポート
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
