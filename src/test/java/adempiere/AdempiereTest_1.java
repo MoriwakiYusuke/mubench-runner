@@ -11,7 +11,7 @@ public class AdempiereTest_1 {
     /**
      * 共通のテストロジック. SourceDriver を経由してテストを実行します.
      */
-    abstract static class CommonLogic {
+    abstract static class InterfaceCommonLogic {
 
         // ★ここが重要: SecureInterface ではなく SourceDriver を取得するように変更
         abstract Driver getTargetDriver();
@@ -117,7 +117,7 @@ void testEncryptDecryptUtf8AsciiMix() {
 
     @Nested
     @DisplayName("Original")
-    class Original extends CommonLogic {
+    class Original extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {
@@ -128,7 +128,7 @@ void testEncryptDecryptUtf8AsciiMix() {
 
     @Nested
     @DisplayName("Misuse")
-    class Misuse extends CommonLogic {
+    class Misuse extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {
@@ -140,7 +140,7 @@ void testEncryptDecryptUtf8AsciiMix() {
 
     @Nested
     @DisplayName("Fixed")
-    class Fit extends CommonLogic {
+    class Fit extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {

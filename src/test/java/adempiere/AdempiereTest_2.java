@@ -11,7 +11,7 @@ public class AdempiereTest_2 {
     /**
      * 共通のテストロジック. Driver を経由してテストを実行します.
      */
-    abstract static class CommonLogic {
+    abstract static class InterfaceCommonLogic {
 
         // ★ここが重要: SecureInterface ではなく Driver を取得するように変更
         abstract Driver getTargetDriver();
@@ -113,7 +113,7 @@ public class AdempiereTest_2 {
     // --- 以下、実行定義 ---
     @Nested
     @DisplayName("Original")
-    class Original extends CommonLogic {
+    class Original extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {
@@ -124,7 +124,7 @@ public class AdempiereTest_2 {
 
     @Nested
     @DisplayName("Misuse")
-    class Misuse extends CommonLogic {
+    class Misuse extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {
@@ -136,7 +136,7 @@ public class AdempiereTest_2 {
 
     @Nested
     @DisplayName("Fixed")
-    class Fit extends CommonLogic {
+    class Fit extends InterfaceCommonLogic {
 
         @Override
         Driver getTargetDriver() {
