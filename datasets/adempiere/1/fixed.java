@@ -235,8 +235,7 @@ public class Secure implements SecureInterface
 		{
 			try
 			{
-				AlgorithmParameters ap = m_cipher.getParameters();
-				m_cipher.init(Cipher.DECRYPT_MODE, m_key, ap);
+				m_cipher.init(Cipher.DECRYPT_MODE, m_key);
 				byte[] out = m_cipher.doFinal(data);
 				String retValue = new String(out);
 				// globalqss - [ 1577737 ] Security Breach - show database password
