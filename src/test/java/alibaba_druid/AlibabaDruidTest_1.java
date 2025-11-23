@@ -1,4 +1,4 @@
-package alibaba_druid;
+package alibaba_druid._1;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
@@ -6,37 +6,16 @@ import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.security.PublicKey;
-import java.security.NoSuchAlgorithmException;
 
 public class AlibabaDruidTest_1 {
 
-    // --- Driver Interface Definition ---
-    // テストコードが必要とするすべてのメソッドを定義します
-    public interface Driver {
-        // Decrypt methods
-        String decrypt(String cipherText) throws Exception;
-        String decrypt(String publicKeyText, String cipherText) throws Exception;
-        String decrypt(PublicKey publicKey, String cipherText) throws Exception;
-        
-        // Encrypt methods
-        String encrypt(String plainText) throws Exception;
-        String encrypt(String key, String plainText) throws Exception;
-        String encrypt(byte[] keyBytes, String plainText) throws Exception;
-        
-        // Key retrieval
-        PublicKey getPublicKey(String publicKeyText);
-        
-        // Key generation (今回エラーが出ていた箇所)
-        String[] genKeyPair(int keySize) throws NoSuchAlgorithmException;
-    }
-
     /**
      * 共通のテストロジック. 
-     * Driverインターフェース経由で操作します.
+     * 外部の alibaba_druid.Driver クラスを使用します.
      */
     abstract static class CommonLogic {
 
-        // テスト対象のドライバを取得する抽象メソッド
+        // 具象クラスで Driver のインスタンスを生成して返す
         abstract Driver getTargetDriver();
 
         // --- テストメソッド ---
@@ -46,20 +25,20 @@ public class AlibabaDruidTest_1 {
         void testDecryptWithPublicKeyInvalidKeyPath() throws Exception {
             Driver driver = getTargetDriver();
 
-            // Generate a fresh RSA key pair so that public/private have valid parameters
+            // Generate a fresh RSA key pair
             String[] keyPair = driver.genKeyPair(512);
             String privateKeyBase64 = keyPair[0];
             String publicKeyBase64 = keyPair[1];
 
-            String original = "Sensitive-Password-IBM-JDK-Path";
+            String original = "Sensitive-Password";
 
-            // Encrypt with the private key (as Base64 string)
+            // Encrypt with the private key
             String encrypted = driver.encrypt(privateKeyBase64, original);
 
-            // Obtain PublicKey instance from the generated public key string
+            // Obtain PublicKey instance
             PublicKey publicKey = driver.getPublicKey(publicKeyBase64);
 
-            // Decrypt using the PublicKey-based API; this is where the IBM JDK workaround logic lives
+            // Decrypt using the PublicKey-based API
             String decrypted = driver.decrypt(publicKey, encrypted);
 
             assertEquals(original, decrypted,
@@ -71,9 +50,9 @@ public class AlibabaDruidTest_1 {
         void testDefaultKeyRoundTripWithStringApi() throws Exception {
             Driver driver = getTargetDriver();
 
-            String original = "DefaultKey-RoundTrip-123!@#";
+            String original = "DefaultKey-Trip";
 
-            // Use default internal key (null) for both encrypt and decrypt
+            // Use default internal key (null)
             String encrypted = driver.encrypt(original);
             String decrypted = driver.decrypt(encrypted);
 
@@ -81,19 +60,20 @@ public class AlibabaDruidTest_1 {
                     "Encrypt/Decrypt using default key and String-based API should be a lossless round-trip");
         }
 
-        // @Test
-        // @DisplayName("Round-trip: multi-byte UTF-8 content survives encrypt/decrypt")
-        // void testMultiByteUtf8RoundTrip() throws Exception {
-        //     Driver driver = getTargetDriver();
+        @Test
+        @DisplayName("Round-trip: multi-byte UTF-8 content survives encrypt/decrypt (Short)")
+        void testMultiByteUtf8RoundTrip() throws Exception {
+            Driver driver = getTargetDriver();
 
-        //     String original = "多言語パスワード-パスワード: €12345\uD834\uDD1E-русский-עברית";
+            // 512bit RSAの上限(53byte)を超えないように短縮したマルチバイト文字列
+            String original = "Pwd:€あ\uD834\uDD1E";
 
-        //     String encrypted = driver.encrypt(original);
-        //     String decrypted = driver.decrypt(encrypted);
+            String encrypted = driver.encrypt(original);
+            String decrypted = driver.decrypt(encrypted);
 
-        //     assertEquals(original, decrypted,
-        //             "Decrypting multi-byte UTF-8 text must yield the original string");
-        // }
+            assertEquals(original, decrypted,
+                    "Decrypting multi-byte UTF-8 text must yield the original string");
+        }
 
         @Test
         @DisplayName("Decrypt: empty string should return empty string")
@@ -115,23 +95,15 @@ public class AlibabaDruidTest_1 {
     }
 
     // --- 以下, 実装定義 ---
-    // 各パッケージの ConfigTools へ処理を委譲するドライバ実装を提供します.
+    // ここで Driver クラスに「どの ConfigTools を操作するか」を Class オブジェクトで渡します
 
     @Nested
     @DisplayName("Original")
     class Original extends CommonLogic {
         @Override
         Driver getTargetDriver() {
-            return new Driver() {
-                public String decrypt(String c) throws Exception { return alibaba_druid._1.original.ConfigTools.decrypt(c); }
-                public String decrypt(String p, String c) throws Exception { return alibaba_druid._1.original.ConfigTools.decrypt(p, c); }
-                public String decrypt(PublicKey k, String c) throws Exception { return alibaba_druid._1.original.ConfigTools.decrypt(k, c); }
-                public String encrypt(String p) throws Exception { return alibaba_druid._1.original.ConfigTools.encrypt(p); }
-                public String encrypt(String k, String p) throws Exception { return alibaba_druid._1.original.ConfigTools.encrypt(k, p); }
-                public String encrypt(byte[] k, String p) throws Exception { return alibaba_druid._1.original.ConfigTools.encrypt(k, p); }
-                public PublicKey getPublicKey(String k) { return alibaba_druid._1.original.ConfigTools.getPublicKey(k); }
-                public String[] genKeyPair(int s) throws NoSuchAlgorithmException { return alibaba_druid._1.original.ConfigTools.genKeyPair(s); }
-            };
+            // Originalのクラスを渡してドライバを生成
+            return new Driver(alibaba_druid._1.original.ConfigTools.class);
         }
     }
 
@@ -140,16 +112,8 @@ public class AlibabaDruidTest_1 {
     class Misuse extends CommonLogic {
         @Override
         Driver getTargetDriver() {
-            return new Driver() {
-                public String decrypt(String c) throws Exception { return alibaba_druid._1.misuse.ConfigTools.decrypt(c); }
-                public String decrypt(String p, String c) throws Exception { return alibaba_druid._1.misuse.ConfigTools.decrypt(p, c); }
-                public String decrypt(PublicKey k, String c) throws Exception { return alibaba_druid._1.misuse.ConfigTools.decrypt(k, c); }
-                public String encrypt(String p) throws Exception { return alibaba_druid._1.misuse.ConfigTools.encrypt(p); }
-                public String encrypt(String k, String p) throws Exception { return alibaba_druid._1.misuse.ConfigTools.encrypt(k, p); }
-                public String encrypt(byte[] k, String p) throws Exception { return alibaba_druid._1.misuse.ConfigTools.encrypt(k, p); }
-                public PublicKey getPublicKey(String k) { return alibaba_druid._1.misuse.ConfigTools.getPublicKey(k); }
-                public String[] genKeyPair(int s) throws NoSuchAlgorithmException { return alibaba_druid._1.misuse.ConfigTools.genKeyPair(s); }
-            };
+            // Misuseのクラスを渡してドライバを生成
+            return new Driver(alibaba_druid._1.misuse.ConfigTools.class);
         }
     }
 
@@ -158,16 +122,8 @@ public class AlibabaDruidTest_1 {
     class Fixed extends CommonLogic {
         @Override
         Driver getTargetDriver() {
-            return new Driver() {
-                public String decrypt(String c) throws Exception { return alibaba_druid._1.fixed.ConfigTools.decrypt(c); }
-                public String decrypt(String p, String c) throws Exception { return alibaba_druid._1.fixed.ConfigTools.decrypt(p, c); }
-                public String decrypt(PublicKey k, String c) throws Exception { return alibaba_druid._1.fixed.ConfigTools.decrypt(k, c); }
-                public String encrypt(String p) throws Exception { return alibaba_druid._1.fixed.ConfigTools.encrypt(p); }
-                public String encrypt(String k, String p) throws Exception { return alibaba_druid._1.fixed.ConfigTools.encrypt(k, p); }
-                public String encrypt(byte[] k, String p) throws Exception { return alibaba_druid._1.fixed.ConfigTools.encrypt(k, p); }
-                public PublicKey getPublicKey(String k) { return alibaba_druid._1.fixed.ConfigTools.getPublicKey(k); }
-                public String[] genKeyPair(int s) throws NoSuchAlgorithmException { return alibaba_druid._1.fixed.ConfigTools.genKeyPair(s); }
-            };
+            // Fixedのクラスを渡してドライバを生成
+            return new Driver(alibaba_druid._1.fixed.ConfigTools.class);
         }
     }
 }
