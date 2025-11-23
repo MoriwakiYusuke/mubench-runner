@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 // テストコードはこのクラスを通じて SecureInterface を操作する
-public class SourceDriver {
+public class Driver {
     
     private final SecureInterface target;
 
     // コンストラクタで「操作対象の実体」を受け取る
-    public SourceDriver(SecureInterface target) {
+    public Driver(SecureInterface target) {
         this.target = target;
     }
 

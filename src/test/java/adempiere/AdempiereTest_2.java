@@ -4,22 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
-import adempiere._2.SourceDriver;
+import adempiere._2.Driver;
 
 public class AdempiereTest_2 {
 
     /**
-     * 共通のテストロジック. SourceDriver を経由してテストを実行します.
+     * 共通のテストロジック. Driver を経由してテストを実行します.
      */
     abstract static class CommonLogic {
 
-        // ★ここが重要: SecureInterface ではなく SourceDriver を取得するように変更
-        abstract SourceDriver getTargetDriver();
+        // ★ここが重要: SecureInterface ではなく Driver を取得するように変更
+        abstract Driver getTargetDriver();
 
         @Test
         @DisplayName("Round-trip with ASCII string works")
         void testEncryptDecryptAsciiRoundTrip() {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             String input = "SimpleASCII123!@#";
             String encrypted = driver.encrypt(input);
             String decrypted = driver.decrypt(encrypted);
@@ -30,7 +30,7 @@ public class AdempiereTest_2 {
         @Test
         @DisplayName("Round-trip with multi-byte UTF-8 characters works")
         void testEncryptDecryptUtf8RoundTrip() {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             // Contains characters that are multi-byte in UTF-8
             String input = "äöüÄÖÜß日本語テスト🙂";
             String encrypted = driver.encrypt(input);
@@ -42,7 +42,7 @@ public class AdempiereTest_2 {
         @Test
         @DisplayName("Different encodings: UTF-8 correctness against raw bytes behavior")
         void testEncryptUtf8ConsistencyWithExpectedCiphertext() throws Exception {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             // Choose a deterministic multi-byte string so ciphertext differs between UTF-8 and platform default
             String input = "€"; // 0xE2 0x82 0xAC in UTF-8
 
@@ -76,7 +76,7 @@ public class AdempiereTest_2 {
         @Test
         @DisplayName("Empty string encryption/decryption")
         void testEncryptDecryptEmptyString() {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             String input = "";
             String encrypted = driver.encrypt(input);
             String decrypted = driver.decrypt(encrypted);
@@ -87,7 +87,7 @@ public class AdempiereTest_2 {
         @Test
         @DisplayName("Null string treated as empty during encryption")
         void testEncryptNullAsEmptyAndDecryptBack() {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             String input = null;
 
             String encrypted = driver.encrypt(input);
@@ -100,7 +100,7 @@ public class AdempiereTest_2 {
         @Test
         @DisplayName("Digest generation remains deterministic for UTF-8 multi-byte content")
         void testDigestDeterministicForUtf8() {
-            SourceDriver driver = getTargetDriver();
+            Driver driver = getTargetDriver();
             String input = "äöüß€日本語";
 
             String digest1 = driver.getDigest(input);
@@ -116,9 +116,9 @@ public class AdempiereTest_2 {
     class Original extends CommonLogic {
 
         @Override
-        SourceDriver getTargetDriver() {
-            // 実装クラスを SourceDriver でラップして返す
-            return new SourceDriver(new adempiere._2.original.Secure());
+        Driver getTargetDriver() {
+            // 実装クラスを Driver でラップして返す
+            return new Driver(new adempiere._2.original.Secure());
         }
     }
 
@@ -127,10 +127,10 @@ public class AdempiereTest_2 {
     class Misuse extends CommonLogic {
 
         @Override
-        SourceDriver getTargetDriver() {
-            // 実装クラスを SourceDriver でラップして返す
+        Driver getTargetDriver() {
+            // 実装クラスを Driver でラップして返す
             // パッケージ名のスペルミス修正: missuse -> misuse
-            return new SourceDriver(new adempiere._2.misuse.Secure());
+            return new Driver(new adempiere._2.misuse.Secure());
         }
     }
 
@@ -139,10 +139,10 @@ public class AdempiereTest_2 {
     class Fit extends CommonLogic {
 
         @Override
-        SourceDriver getTargetDriver() {
-            // 実装クラスを SourceDriver でラップして返す
+        Driver getTargetDriver() {
+            // 実装クラスを Driver でラップして返す
             // パッケージ名の修正: fit -> fixed
-            return new SourceDriver(new adempiere._2.fixed.Secure());
+            return new Driver(new adempiere._2.fixed.Secure());
         }
     }
 }
