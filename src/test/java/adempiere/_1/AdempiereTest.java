@@ -34,8 +34,9 @@ public class AdempiereTest {
     }
 
     // --- 以下、実行定義 ---
+
     @Nested
-    @DisplayName("Original (正解コード)")
+    @DisplayName("Original")
     class Original extends CommonLogic {
 
         @Override
@@ -46,7 +47,7 @@ public class AdempiereTest {
     }
 
     @Nested
-    @DisplayName("Misuse (脆弱コード)")
+    @DisplayName("Misuse")
     class Misuse extends CommonLogic {
 
         @Override
@@ -58,7 +59,7 @@ public class AdempiereTest {
     }
 
     @Nested
-    @DisplayName("Fit (修正コード)")
+    @DisplayName("Fixed")
     class Fit extends CommonLogic {
 
         @Override
