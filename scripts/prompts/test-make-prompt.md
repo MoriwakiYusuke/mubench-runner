@@ -8,9 +8,9 @@ The test must meet the following criteria:
 
 ## Context & Constraints
 - The test will be inserted into a pre-defined test class named `CommonLogic`.
-- You **MUST** use the provided wrapper class `SourceDriver` to interact with the target code.
+- You **MUST** use the provided wrapper class `Driver` to interact with the target code.
 - **Do NOT** instantiate the target classes (e.g., `new Secure()`) directly.
-- Always obtain the instance using: `SourceDriver driver = getTargetDriver();`.
+- Always obtain the instance using: `Driver Driver = getTargetDriver();`.
 - Output **only** the Java method code (starting with `@Test`). Do not include class declarations, imports, or markdown explanations.
 
 
@@ -33,65 +33,65 @@ Follow these steps to generate the test case:
     * **Critical:** Select specific input data (e.g., multi-byte characters, boundary values, special symbols) that triggers the bug described in the analysis.
 
 5.  **Implement the Test Code:**
-    Write the Java method using **only** the provided `SourceDriver` API to interact with the target.
+    Write the Java method using **only** the provided `Driver` API to interact with the target.
 
 
 
-## Reference: SourceDriver API
+## Reference: Driver API
 
 ```java
-public class SourceDriver {
-    
-    private final SecureInterface target;
+public class Driver {
 
-    // コンストラクタで「操作対象の実体」を受け取る
-    public SourceDriver(SecureInterface target) {
-        this.target = target;
-    }
+    private final Class<?> targetClass;
 
-    // String メソッド (既存)
-    public String encrypt(String value) {
-        return target.encrypt(value);
+    /**
+     * @param targetClass テスト対象の StorageUtils クラス (例: androiduil._1.original.StorageUtils.class)
+     */
+    public Driver(Class<?> targetClass) {
+        this.targetClass = targetClass;
     }
 
-    public String decrypt(String value) {
-        return target.decrypt(value);
+    /**
+     * 静的メソッド呼び出しのヘルパー
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T callStatic(String methodName, Class<?>[] paramTypes, Object... args) throws Exception {
+        try {
+            Method method = targetClass.getMethod(methodName, paramTypes);
+            return (T) method.invoke(null, args);
+        } catch (InvocationTargetException e) {
+            // テストで期待される例外を捕捉しやすくするため、アンラップしてスロー
+            if (e.getTargetException() instanceof Exception) {
+                throw (Exception) e.getTargetException();
+            }
+            throw e;
+        }
     }
 
-    public String getDigest(String value) {
-        return target.getDigest(value);
-    }
-    
-    // 【追加部分】Integer 型のメソッド
-    public Integer encrypt(Integer value) {
-        return target.encrypt(value);
-    }
-    
-    public Integer decrypt(Integer value) {
-        return target.decrypt(value);
+    // --- Public API Mapping ---
+
+    public File getCacheDirectory(Context context) throws Exception {
+        return callStatic("getCacheDirectory",
+                new Class<?>[]{Context.class},
+                context);
     }
 
-    // 【追加部分】BigDecimal 型のメソッド
-    public BigDecimal encrypt(BigDecimal value) {
-        return target.encrypt(value);
-    }
-    
-    public BigDecimal decrypt(BigDecimal value) {
-        return target.decrypt(value);
+    public File getCacheDirectory(Context context, boolean preferExternal) throws Exception {
+        return callStatic("getCacheDirectory",
+                new Class<?>[]{Context.class, boolean.class}, // boolean.class (プリミティブ) に注意
+                context, preferExternal);
     }
 
-    // 【追加部分】Timestamp 型のメソッド
-    public Timestamp encrypt(Timestamp value) {
-        return target.encrypt(value);
+    public File getIndividualCacheDirectory(Context context) throws Exception {
+        return callStatic("getIndividualCacheDirectory",
+                new Class<?>[]{Context.class},
+                context);
     }
-    
-    public Timestamp decrypt(Timestamp value) {
-        return target.decrypt(value);
-    }
-    
-    // 【追加部分】isDigest メソッド
-    public boolean isDigest(String value) {
-        return target.isDigest(value);
+
+    public File getOwnCacheDirectory(Context context, String cacheDir) throws Exception {
+        return callStatic("getOwnCacheDirectory",
+                new Class<?>[]{Context.class, String.class},
+                context, cacheDir);
     }
 }
 ```
@@ -103,27 +103,27 @@ public class SourceDriver {
 
 ```yml
 api:
-- java.lang.String
+- android.os.Environment
 violations:
-- missing/call
-- redundant/call
-crash: false
+- missing/exception_handling
+crash: true
 description: >
-  A string is converted to bytes without specifying an explicit encoding.
-  The bytes are then passed to Cipher.doFinal(). The fix specifies the encoding "UTF-8".
+  Environment.getExternalStorageState() may throw NullPointerException.
 location:
-  file: org/compiere/util/Secure.java
-  method: encrypt(String)
+  file: com/nostra13/universalimageloader/utils/StorageUtils.java
+  method: "getCacheDirectory(Context, boolean)"
 fix:
-  commit: https://sourceforge.net/p/adempiere/svn/1312/tree/trunk/looks/src/org/compiere/util/Secure.java?diff=5139a2ef34309d2ec1827857:1311
-  before: https://sourceforge.net/p/adempiere/svn/1311/tree/trunk/looks/src/org/compiere/util/Secure.java#l1
-  after: https://sourceforge.net/p/adempiere/svn/1312/tree/trunk/looks/src/org/compiere/util/Secure.java
-  revision: 1312
+  commit: https://github.com/nostra13/Android-Universal-Image-Loader/commit/54a9038d7cc13fd46a922ce1c059610d0690115d
+  description: >
+    Catch the exception and do fallback handling.
+  revision: 54a9038d7cc13fd46a922ce1c059610d0690115d
 internal: false
 pattern:
-- multiple objects
+- single object
+report: https://github.com/nostra13/Android-Universal-Image-Loader/issues/660
 source:
-  name: SourceForge
+  name: QACrashFix
+  url: http://sei.pku.edu.cn/~gaoqing11/qacrashfix/home.htm
 ```
 
 
@@ -132,17 +132,325 @@ source:
 ### Original Code (Correct Implementation)
 
 ```java
+/*******************************************************************************
+ * Copyright 2011-2013 Sergey Tarasevich
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+package androiduil._1.original;
+
+import androiduil._1.mocks.Context;
+import androiduil._1.mocks.PackageManager;
+import androiduil._1.mocks.Environment;
+import androiduil._1.mocks.L;
+
+import java.io.File;
+import java.io.IOException;
+
+import static android.os.Environment.MEDIA_MOUNTED;
+
+/**
+ * Provides application storage paths
+ *
+ * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
+ * @since 1.0.0
+ */
+public final class StorageUtils {
+
+	private static final String EXTERNAL_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
+	private static final String INDIVIDUAL_DIR_NAME = "uil-images";
+
+	private StorageUtils() {
+	}
+
+	/**
+	 * Returns application cache directory. Cache directory will be created on SD card
+	 * <i>("/Android/data/[app_package_name]/cache")</i> if card is mounted and app has appropriate permission. Else -
+	 * Android defines cache directory on device's file system.
+	 *
+	 * @param context Application context
+	 * @return Cache {@link File directory}.<br />
+	 * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
+	 * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+	 */
+	public static File getCacheDirectory(Context context) {
+		return getCacheDirectory(context, true);
+	}
+
+	/**
+	 * Returns application cache directory. Cache directory will be created on SD card
+	 * <i>("/Android/data/[app_package_name]/cache")</i> (if card is mounted and app has appropriate permission) or
+	 * on device's file system depending incoming parameters.
+	 *
+	 * @param context        Application context
+	 * @param preferExternal Whether prefer external location for cache
+	 * @return Cache {@link File directory}.<br />
+	 * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
+	 * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+	 */
+	public static File getCacheDirectory(Context context, boolean preferExternal) {
+		File appCacheDir = null;
+		String externalStorageState;
+		try {
+			externalStorageState = Environment.getExternalStorageState();
+		} catch (NullPointerException e) { // (sh)it happens (Issue #660)
+			externalStorageState = "";
+		}
+		if (preferExternal && MEDIA_MOUNTED.equals(externalStorageState) && hasExternalStoragePermission(context)) {
+			appCacheDir = getExternalCacheDir(context);
+		}
+		if (appCacheDir == null) {
+			appCacheDir = context.getCacheDir();
+		}
+		if (appCacheDir == null) {
+			String cacheDirPath = "/data/data/" + context.getPackageName() + "/cache/";
+			L.w("Can't define system cache directory! '%s' will be used.", cacheDirPath);
+			appCacheDir = new File(cacheDirPath);
+		}
+		return appCacheDir;
+	}
+
+	/**
+	 * Returns individual application cache directory (for only image caching from ImageLoader). Cache directory will be
+	 * created on SD card <i>("/Android/data/[app_package_name]/cache/uil-images")</i> if card is mounted and app has
+	 * appropriate permission. Else - Android defines cache directory on device's file system.
+	 *
+	 * @param context Application context
+	 * @return Cache {@link File directory}
+	 */
+	public static File getIndividualCacheDirectory(Context context) {
+		File cacheDir = getCacheDirectory(context);
+		File individualCacheDir = new File(cacheDir, INDIVIDUAL_DIR_NAME);
+		if (!individualCacheDir.exists()) {
+			if (!individualCacheDir.mkdir()) {
+				individualCacheDir = cacheDir;
+			}
+		}
+		return individualCacheDir;
+	}
+
+	/**
+	 * Returns specified application cache directory. Cache directory will be created on SD card by defined path if card
+	 * is mounted and app has appropriate permission. Else - Android defines cache directory on device's file system.
+	 *
+	 * @param context  Application context
+	 * @param cacheDir Cache directory path (e.g.: "AppCacheDir", "AppDir/cache/images")
+	 * @return Cache {@link File directory}
+	 */
+	public static File getOwnCacheDirectory(Context context, String cacheDir) {
+		File appCacheDir = null;
+		if (MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && hasExternalStoragePermission(context)) {
+			appCacheDir = new File(Environment.getExternalStorageDirectory(), cacheDir);
+		}
+		if (appCacheDir == null || (!appCacheDir.exists() && !appCacheDir.mkdirs())) {
+			appCacheDir = context.getCacheDir();
+		}
+		return appCacheDir;
+	}
+
+	private static File getExternalCacheDir(Context context) {
+		File dataDir = new File(new File(Environment.getExternalStorageDirectory(), "Android"), "data");
+		File appCacheDir = new File(new File(dataDir, context.getPackageName()), "cache");
+		if (!appCacheDir.exists()) {
+			if (!appCacheDir.mkdirs()) {
+				L.w("Unable to create external cache directory");
+				return null;
+			}
+			try {
+				new File(appCacheDir, ".nomedia").createNewFile();
+			} catch (IOException e) {
+				L.i("Can't create \".nomedia\" file in application external cache directory");
+			}
+		}
+		return appCacheDir;
+	}
+
+	private static boolean hasExternalStoragePermission(Context context) {
+		int perm = context.checkCallingOrSelfPermission(EXTERNAL_STORAGE_PERMISSION);
+		return perm == PackageManager.PERMISSION_GRANTED;
+	}
+}
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### Misuse Code (Vulnerable Implementation)
 
+
 ```java
+/*******************************************************************************
+ * Copyright 2011-2013 Sergey Tarasevich
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
+package androiduil._1.misuse;
+
+import androiduil._1.mocks.Context;
+import androiduil._1.mocks.PackageManager;
+import androiduil._1.mocks.Environment;
+import androiduil._1.mocks.L;
+
+import java.io.File;
+import java.io.IOException;
+
+import static android.os.Environment.MEDIA_MOUNTED;
+
+/**
+ * Provides application storage paths
+ *
+ * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
+ * @since 1.0.0
+ */
+public final class StorageUtils {
+
+	private static final String EXTERNAL_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
+	private static final String INDIVIDUAL_DIR_NAME = "uil-images";
+
+	private StorageUtils() {
+	}
+
+	/**
+	 * Returns application cache directory. Cache directory will be created on SD card
+	 * <i>("/Android/data/[app_package_name]/cache")</i> if card is mounted and app has appropriate permission. Else -
+	 * Android defines cache directory on device's file system.
+	 *
+	 * @param context Application context
+	 * @return Cache {@link File directory}.<br />
+	 * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
+	 * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+	 */
+	public static File getCacheDirectory(Context context) {
+		return getCacheDirectory(context, true);
+	}
+
+	/**
+	 * Returns application cache directory. Cache directory will be created on SD card
+	 * <i>("/Android/data/[app_package_name]/cache")</i> (if card is mounted and app has appropriate permission) or
+	 * on device's file system depending incoming parameters.
+	 *
+	 * @param context        Application context
+	 * @param preferExternal Whether prefer external location for cache
+	 * @return Cache {@link File directory}.<br />
+	 * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
+	 * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+	 */
+	public static File getCacheDirectory(Context context, boolean preferExternal) {
+		File appCacheDir = null;
+		if (preferExternal && MEDIA_MOUNTED
+				.equals(Environment.getExternalStorageState()) && hasExternalStoragePermission(context)) {
+			appCacheDir = getExternalCacheDir(context);
+		}
+		if (appCacheDir == null) {
+			appCacheDir = context.getCacheDir();
+		}
+		if (appCacheDir == null) {
+			String cacheDirPath = "/data/data/" + context.getPackageName() + "/cache/";
+			L.w("Can't define system cache directory! '%s' will be used.", cacheDirPath);
+			appCacheDir = new File(cacheDirPath);
+		}
+		return appCacheDir;
+	}
+
+	/**
+	 * Returns individual application cache directory (for only image caching from ImageLoader). Cache directory will be
+	 * created on SD card <i>("/Android/data/[app_package_name]/cache/uil-images")</i> if card is mounted and app has
+	 * appropriate permission. Else - Android defines cache directory on device's file system.
+	 *
+	 * @param context Application context
+	 * @return Cache {@link File directory}
+	 */
+	public static File getIndividualCacheDirectory(Context context) {
+		File cacheDir = getCacheDirectory(context);
+		File individualCacheDir = new File(cacheDir, INDIVIDUAL_DIR_NAME);
+		if (!individualCacheDir.exists()) {
+			if (!individualCacheDir.mkdir()) {
+				individualCacheDir = cacheDir;
+			}
+		}
+		return individualCacheDir;
+	}
+
+	/**
+	 * Returns specified application cache directory. Cache directory will be created on SD card by defined path if card
+	 * is mounted and app has appropriate permission. Else - Android defines cache directory on device's file system.
+	 *
+	 * @param context  Application context
+	 * @param cacheDir Cache directory path (e.g.: "AppCacheDir", "AppDir/cache/images")
+	 * @return Cache {@link File directory}
+	 */
+	public static File getOwnCacheDirectory(Context context, String cacheDir) {
+		File appCacheDir = null;
+		if (MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) && hasExternalStoragePermission(context)) {
+			appCacheDir = new File(Environment.getExternalStorageDirectory(), cacheDir);
+		}
+		if (appCacheDir == null || (!appCacheDir.exists() && !appCacheDir.mkdirs())) {
+			appCacheDir = context.getCacheDir();
+		}
+		return appCacheDir;
+	}
+
+	private static File getExternalCacheDir(Context context) {
+		File dataDir = new File(new File(Environment.getExternalStorageDirectory(), "Android"), "data");
+		File appCacheDir = new File(new File(dataDir, context.getPackageName()), "cache");
+		if (!appCacheDir.exists()) {
+			if (!appCacheDir.mkdirs()) {
+				L.w("Unable to create external cache directory");
+				return null;
+			}
+			try {
+				new File(appCacheDir, ".nomedia").createNewFile();
+			} catch (IOException e) {
+				L.i("Can't create \".nomedia\" file in application external cache directory");
+			}
+		}
+		return appCacheDir;
+	}
+
+	private static boolean hasExternalStoragePermission(Context context) {
+		int perm = context.checkCallingOrSelfPermission(EXTERNAL_STORAGE_PERMISSION);
+		return perm == PackageManager.PERMISSION_GRANTED;
+	}
+}
 ```
-
-
-「単一のテスト」という制約を外し、**「複数のテストメソッドを作成して、あらゆるパターンを網羅する」** ような指示に変更しました。
-
-これにより、LLMは基本パターンの再現だけでなく、エッジケースや境界値分析などを含めた複数のテストケースを提案するようになります。
 
 -----
 
@@ -160,39 +468,19 @@ Break down the verification logic into separate, granular test methods to cover 
 Example format:
 
 ```java
-@Test
-@DisplayName("Base Case: Verify standard functionality")
-void testStandardBehavior() {
-    SourceDriver driver = getTargetDriver();
-    // Use a standard, valid input typical for the target type
-    String input = "standard_valid_input"; 
-    String result = driver.encrypt(input);
-    
-    // Verify correct logic (Round-trip)
-    assertEquals(input, driver.decrypt(result), "Standard functionality failed");
-}
-
-@Test
-@DisplayName("Reproduction: Verify fix for reported vulnerability")
-void testVulnerabilityReproduction() {
-    SourceDriver driver = getTargetDriver();
-    // CRITICAL: Use input explicitly derived from the 'Bug Description'
-    // (e.g., multi-byte chars, specific large numbers, or format that caused the bug)
-    String triggerInput = "input_that_triggers_the_bug"; 
-    String result = driver.encrypt(triggerInput);
-    
-    // Assertion should pass on Fixed Code and fail on Misuse Code
-    assertEquals(triggerInput, driver.decrypt(result), "Fix verification failed for specific bug input");
-}
-
-@Test
-@DisplayName("Edge Case: Verify boundary handling")
-void testBoundaryCondition() {
-    SourceDriver driver = getTargetDriver();
-    // Use boundary values (e.g., empty string, 0, -1, max_value)
-    String edgeInput = ""; 
-    String result = driver.encrypt(edgeInput);
-    
-    assertEquals(edgeInput, driver.decrypt(result), "Edge case handling failed");
-}
+        @Test
+        @DisplayName("test information")
+        void test1() throws Exception {
+            Driver driver = getTargetDriver();
+            
+			//test
+        }
+        
+        @Test
+        @DisplayName("test information")
+        void test2() throws Exception {
+            Driver driver = getTargetDriver();
+            
+            // test
+        }
 ```
