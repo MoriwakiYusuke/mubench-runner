@@ -13,8 +13,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("com.alibaba:druid:1.2.20")
-    implementation ("com.google.android:android:4.1.1.4")
-    implementation ("junit:junit:4.13.2")
+    implementation("com.google.android:android:4.1.1.4")
+    implementation("junit:junit:4.13.2")
+    implementation("org.scribe:scribe:1.3.7")
+    implementation("org.codehaus.jackson:jackson-mapper-asl:1.9.13")
 }
 
 java {
