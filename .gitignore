@@ -54,3 +54,9 @@ hs_err_pid*
 
 # mac
 .DS_Store
+
+# tmp
+temp/
+
+# mcp
+.serena/

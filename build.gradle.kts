@@ -17,6 +17,9 @@ dependencies {
     implementation("junit:junit:4.13.2")
     implementation("org.scribe:scribe:1.3.7")
     implementation("org.codehaus.jackson:jackson-mapper-asl:1.9.13")
+    // ivantrendafilov-confucius用 SLF4J
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 java {
