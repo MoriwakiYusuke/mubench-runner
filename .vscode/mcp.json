@@ -10,7 +10,7 @@
         "--context",
         "ide-assistant",
         "--project",
-        "/home/moriwaki-y/aiot/ai/ai-dev-manual-speecker"
+        "/home/moriwaki-y/ritsumei/llm/mubench-runner"
       ]
     },
     "filesystem": {
@@ -18,14 +18,14 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/home/moriwaki-y/aiot/ai/ai-dev-manual-speecker"
+        "/home/moriwaki-y/ritsumei/llm/mubench-runner"
       ]
     },
     "memory": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-memory"
+        "/home/moriwaki-y/ritsumei/llm/mubench-runner"
       ]
     }
   }
