@@ -60,3 +60,72 @@ src/main/java/<project>/_<case>/
 - Java 17（Gradle Toolchain）
 - JUnit Jupiter 5.10.2
 - UTF-8 エンコーディング
+
+## Driver.java の役割
+
+各ケースの `Driver.java` は、バリアント（original/misuse/fixed）を切り替えるためのエントリポイント。
+
+```java
+public class Driver {
+    private static final String BASE_PACKAGE = "ivantrendafilov_confucius._98";
+
+    public Driver(String variant, Properties properties) throws Exception {
+        String className = BASE_PACKAGE + "." + variant + ".AbstractConfiguration";
+        Class<?> clazz = Class.forName(className);
+        Constructor<?> constructor = clazz.getConstructor(InputStream.class, String.class);
+        this.configInstance = (Configurable) constructor.newInstance(inputStream, null);
+    }
+}
+```
+
+- リフレクションを使用してバリアントのクラスを動的にロード
+- 共通インターフェース経由で各バリアントのメソッドを呼び出し可能
+- テストコードから統一的にアクセスできる
+
+## テストクラスの動作
+
+テストクラスはソースコードを静的解析し、バグ修正パターンの有無を検証する。
+
+```java
+public class Ivantrendafilov_confuciusTest_98 {
+
+    abstract static class CommonLogic {
+        abstract String getSourceFilePath();
+
+        @Test
+        void testSourceCodeHandlesNumberFormatException() throws Exception {
+            String sourceCode = Files.readString(Paths.get(getSourceFilePath()));
+            // メソッド内に NumberFormatException の catch があるか検証
+            boolean hasHandling = methodBody.contains("catch (NumberFormatException");
+            assertTrue(hasHandling, "...");
+        }
+    }
+
+    @Nested
+    class Original extends CommonLogic {
+        @Override
+        String getSourceFilePath() {
+            return "src/main/java/.../original/AbstractConfiguration.java";
+        }
+    }
+
+    @Nested
+    class Fixed extends CommonLogic {
+        @Override
+        String getSourceFilePath() {
+            return "src/main/java/.../fixed/AbstractConfiguration.java";
+        }
+    }
+}
+```
+
+### テストの仕組み
+
+1. `CommonLogic` に共通のテストロジックを定義
+2. `@Nested` クラスで各バリアントのソースファイルパスを指定
+3. ソースコードを文字列として読み込み、特定パターン（例外ハンドリング等）の有無を検証
+4. original と fixed は検証に通過し、misuse は失敗することを期待
+
+### Misuse のテスト
+
+misuse バリアントはバグを含むため、テストは失敗する。通常はコメントアウトまたは `@Disabled` で無効化している。
