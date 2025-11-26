@@ -9,8 +9,8 @@ loaded = load_dotenv(find_dotenv())
 
 client = OpenAI()
 
-input_file = "./prompts/test-make-prompt.md"
-
+input_file = "./prompts/fix-prompt.md"
+# input_file = "./prompts/test-make-prompt2.md"
 
 def main():
     # APIキー確認

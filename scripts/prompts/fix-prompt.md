@@ -18,393 +18,315 @@ Use the guidelines below to make any necessary modifications.
 
 ## Input Code
 ```java
-/******************************************************************************
- * Product: Adempiere ERP & CRM Smart Business Solution                        *
- * Copyright (C) 1999-2006 ComPiere, Inc. All Rights Reserved.                *
- * This program is free software; you can redistribute it and/or modify it    *
- * under the terms version 2 of the GNU General Public License as published   *
- * by the Free Software Foundation. This program is distributed in the hope   *
- * that it will be useful, but WITHOUT ANY WARRANTY; without even the implied *
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.           *
- * See the GNU General Public License for more details.                       *
- * You should have received a copy of the GNU General Public License along    *
- * with this program; if not, write to the Free Software Foundation, Inc.,    *
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.                     *
- * For the text or an alternative of this public license, you may reach us    *
- * ComPiere, Inc., 2620 Augustine Dr. #245, Santa Clara, CA 95054, USA        *
- * or via info@compiere.org or http://www.compiere.org/license.html           *
- *****************************************************************************/
-package org.compiere.util;
-
-import java.math.*;
-import java.security.*;
-import java.sql.Timestamp;
-import java.util.logging.*;
-import javax.crypto.*;
-
-/**
- *  Security Services.
+/* 
+ * Copyright 2013-2014 Ivan Trendafilov and contributors
  *
- *  @author     Jorg Janke
- *  @version    $Id: Secure.java,v 1.2 2006/07/30 00:52:23 jjanke Exp $
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-public class Secure implements SecureInterface
-{
-	/**************************************************************************
-	 *	Hash checksum number
-	 *  @param key key
-	 *  @return checksum number
-	 */
-	public static int hash (String key)
-	{
-		long tableSize = 2147483647;	// one less than max int
-		long hashValue = 0;
 
-		for (int i = 0; i < key.length(); i++)
-			hashValue = (37 * hashValue) + (key.charAt(i) -31);
+package org.trendafilov.confucius.core;
 
-		hashValue %= tableSize;
-		if (hashValue < 0)
-			hashValue += tableSize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.trendafilov.confucius.Configurable;
 
-		int retValue = (int)hashValue;
-		return retValue;
-	}	//	hash
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
 
-	
-	/**************************************************************************
-	 *  Convert Byte Array to Hex String
-	 *  @param bytes bytes
-	 *  @return HexString
-	 */
-	public static String convertToHexString (byte[] bytes)
-	{
-		//	see also Util.toHex
-		int size = bytes.length;
-		StringBuffer buffer = new StringBuffer(size*2);
-		for(int i=0; i<size; i++)
-		{
-			// convert byte to an int
-			int x = bytes[i];
-			// account for int being a signed type and byte being unsigned
-			if (x < 0)
-				x += 256;
-			String tmp = Integer.toHexString(x);
-			// pad out "1" to "01" etc.
-			if (tmp.length() == 1)
-				buffer.append("0");
-			buffer.append(tmp);
-		}
-		return buffer.toString();
-	}   //  convertToHexString
+public abstract class AbstractConfiguration implements Configurable {
+	private final static Logger LOG = LoggerFactory.getLogger(AbstractConfiguration.class);
 
+	private final static String ITEM_SEPARATOR = ",";
+	protected static String FILE_PARAM = "conf.properties";
+	protected static String CONTEXT_PARAM = "conf.context";
+
+	private final ConfigurationDataProvider configurationDataProvider;
+	private final String context;
+	private final Map<String, String> initialState;
+
+	public AbstractConfiguration() {
+		this.configurationDataProvider = new FileConfigurationDataProvider(System.getProperty(FILE_PARAM));
+		this.context = System.getProperty(CONTEXT_PARAM);
+		this.initialState = Collections.unmodifiableMap(Utils.propertiesToMap(System.getProperties()));
+		init();
+	}
+
+	public AbstractConfiguration(String filePath, String context) {
+		if (filePath == null)
+			throw new ConfigurationException("filePath cannot be null. Use no arg constructor instead.");
+		if (context != null)
+			setProperty(CONTEXT_PARAM, context);
+		setProperty(FILE_PARAM, filePath);
+		this.configurationDataProvider = new FileConfigurationDataProvider(filePath);
+		this.context = context;
+		this.initialState = Collections.unmodifiableMap(Utils.propertiesToMap(System.getProperties()));
+		init();
+	}
+
+	public AbstractConfiguration(InputStream inputStream, String context) {
+		this.configurationDataProvider = new StreamConfigurationDataProvider(inputStream);
+		this.context = context;
+		this.initialState = Collections.unmodifiableMap(Utils.propertiesToMap(System.getProperties()));
+		init();
+	}
+
+	private void init() {
+		LOG.info("Initializing configuration...");
+		setProperties(initialState);
+		setProperties(new Parser(configurationDataProvider, context).getConfiguration());
+	}
+
+	public synchronized Set<String> keySet() {
+		return Utils.propertiesToMap(getProperties()).keySet();
+	}
+
+	public boolean getBooleanValue(String key) {
+		return Boolean.parseBoolean(getKey(key));
+	}
+
+	public synchronized boolean getBooleanValue(String key, boolean defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Boolean.parseBoolean(value);
+	}
+
+	public List<Boolean> getBooleanList(String key, String separator) {
+		List<Boolean> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Boolean.parseBoolean(value.trim()));
+		return parts;
+	}
+
+	public List<Boolean> getBooleanList(String key) {
+		return getBooleanList(key, ITEM_SEPARATOR);
+	}
+
+	public byte getByteValue(String key) {
+		return Byte.parseByte(getKey(key));
+	}
+
+	public synchronized byte getByteValue(String key, byte defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Byte.parseByte(value);
+	}
+
+	public List<Byte> getByteList(String key, String separator) {
+		List<Byte> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Byte.parseByte(value.trim()));
+		return parts;
+	}
+
+	public List<Byte> getByteList(String key) {
+		return getByteList(key, ITEM_SEPARATOR);
+	}
+
+	public char getCharValue(String key) {
+		return getKey(key).charAt(0);
+	}
+
+	public synchronized char getCharValue(String key, char defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : value.charAt(0);
+	}
+
+	public List<Character> getCharList(String key, String separator) {
+		List<Character> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(value.trim().charAt(0));
+		return parts;
+	}
+
+	public List<Character> getCharList(String key) {
+		return getCharList(key, ITEM_SEPARATOR);
+	}
+
+	public double getDoubleValue(String key) {
+		return Double.parseDouble(getKey(key));
+	}
+
+	public synchronized double getDoubleValue(String key, double defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Double.parseDouble(value);
+	}
+
+	public List<Double> getDoubleList(String key, String separator) {
+		List<Double> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Double.parseDouble(value.trim()));
+		return parts;
+	}
+
+	public List<Double> getDoubleList(String key) {
+		return getDoubleList(key, ITEM_SEPARATOR);
+	}
+
+	public float getFloatValue(String key) {
+		return Float.parseFloat(getKey(key));
+	}
+
+	public synchronized float getFloatValue(String key, float defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Float.parseFloat(value);
+	}
+
+	public List<Float> getFloatList(String key, String separator) {
+		List<Float> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Float.parseFloat(value.trim()));
+		return parts;
+	}
+
+	public List<Float> getFloatList(String key) {
+		return getFloatList(key, ITEM_SEPARATOR);
+	}
+
+	public int getIntValue(String key) {
+		return Integer.parseInt(getKey(key));
+	}
+
+	public synchronized int getIntValue(String key, int defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Integer.parseInt(value);
+	}
+
+	public List<Integer> getIntList(String key, String separator) {
+		List<Integer> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Integer.parseInt(value.trim()));
+		return parts;
+	}
+
+	public List<Integer> getIntList(String key) {
+		return getIntList(key, ITEM_SEPARATOR);
+	}
+
+	public long getLongValue(String key) {
+		return Long.parseLong(getKey(key));
+	}
+
+	public synchronized long getLongValue(String key, long defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Long.parseLong(value);
+	}
+
+	public List<Long> getLongList(String key, String separator) {
+		List<Long> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Long.parseLong(value.trim()));
+		return parts;
+	}
+
+	public List<Long> getLongList(String key) {
+		return getLongList(key, ITEM_SEPARATOR);
+	}
+
+	public short getShortValue(String key) {
+		return Short.parseShort(getKey(key));
+	}
+
+	public synchronized short getShortValue(String key, short defaultValue) {
+		String value = System.getProperty(key);
+		return value == null ? defaultValue : Short.parseShort(value);
+	}
+
+	public List<Short> getShortList(String key, String separator) {
+		List<Short> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(Short.parseShort(value.trim()));
+		return parts;
+	}
+
+	public List<Short> getShortList(String key) {
+		return getShortList(key, ITEM_SEPARATOR);
+	}
+
+	public String getStringValue(String key) {
+		return getKey(key);
+	}
+
+	public synchronized String getStringValue(String key, String defautValue) {
+		String value = System.getProperty(key);
+		return value == null ? defautValue : value;
+	}
+
+	public List<String> getStringList(String key, String separator) {
+		List<String> parts = new ArrayList<>();
+		for (String value : getKey(key).split(separator))
+			parts.add(value.trim());
+		return parts;
+	}
+
+	public List<String> getStringList(String key) {
+		return getStringList(key, ITEM_SEPARATOR);
+	}
+
+	public synchronized Properties getProperties() {
+		return System.getProperties();
+	}
+
+	public synchronized <T> void setProperty(String key, T value) {
+		String item = value.toString();
+		System.setProperty(key, item);
+		LOG.info("Set configuration property: [{}] => [{}]", key, item);
+	}
+
+	public synchronized <T> void setProperties(Map<String, T> properties) {
+		for (Entry<String, T> entry : properties.entrySet())
+			setProperty(entry.getKey(), entry.getValue());
+	}
+
+	public synchronized void setProperties(Properties properties) {
+		for (Object e : properties.keySet())
+			setProperty((String) e, properties.getProperty((String) e));
+	}
+
+	public synchronized void clearProperty(String key) {
+		System.clearProperty(key);
+		LOG.info("Unset configuration property: [{}]", key);
+	}
 
 	/**
-	 *  Convert Hex String to Byte Array
-	 *  @param hexString hex string
-	 *  @return byte array
+	 * {@inheritDoc}
+	 * <p/>
+	 * <p>
+	 * The reset procedure restores configuration properties to their initial
+	 * values at the time of creation of the <tt>Configurable</tt> instance.
+	 * Configuration properties specified via a file are re-processed.
+	 * </p>
 	 */
-	public static byte[] convertHexString (String hexString)
-	{
-		if (hexString == null || hexString.length() == 0)
-			return null;
-		int size = hexString.length()/2;
-		byte[] retValue = new byte[size];
-		String inString = hexString.toLowerCase();
+	public synchronized void reset() {
+		for (String key : Utils.propertiesToMap(getProperties()).keySet())
+			clearProperty(key);
+		init();
+		LOG.info("Configuration properties have been reset");
+	}
 
-		try
-		{
-			for (int i = 0; i < size; i++)
-			{
-				int index = i*2;
-				int ii = Integer.parseInt(inString.substring(index, index+2), 16);
-				retValue[i] = (byte)ii;
-			}
-			return retValue;
-		}
-		catch (Exception e)
-		{
-			log.finest(hexString + " - " + e.getLocalizedMessage());
-		}
-		return null;
-	}   //  convertToHexString
-
-
-	/**************************************************************************
-	 * 	Adempiere Security
-	 */
-	public Secure()
-	{
-		initCipher();
-	}	//	Secure
-
-	/** Adempiere Cipher				*/
-	private Cipher 			m_cipher = null;
-	/** Adempiere Key				*/
-	private SecretKey 		m_key = null;
-	/** Message Digest				*/
-	private MessageDigest	m_md = null;
-
-	/**	Logger						*/
-	private static Logger	log	= Logger.getLogger (Secure.class.getName());
-
-	/**
-	 * 	Initialize Cipher & Key
-	 */
-	private synchronized void initCipher()
-	{
-		if (m_cipher != null)
-			return;
-		Cipher cc = null;
-		try
-		{
-			cc = Cipher.getInstance("DES/ECB/PKCS5Padding");
-			//	Key
-			if (false)
-			{
-				KeyGenerator keygen = KeyGenerator.getInstance("DES");
-				m_key = keygen.generateKey();
-				byte[] key = m_key.getEncoded();
-				StringBuffer sb = new StringBuffer ("Key ")
-					.append(m_key.getAlgorithm())
-					.append("(").append(key.length).append(")= ");
-				for (int i = 0; i < key.length; i++)
-					sb.append(key[i]).append(",");
-				log.info(sb.toString());
-			}
-			else
-				m_key = new javax.crypto.spec.SecretKeySpec
-					(new byte[] {100,25,28,-122,-26,94,-3,-26}, "DES");
-		}
-		catch (Exception ex)
-		{
-			log.log(Level.SEVERE, "", ex);
-		}
-		m_cipher = cc;
-	}	//	initCipher
-
-	
-	
-	/**
-	 *	Encryption.
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public String encrypt (String value)
-	{
-		String clearText = value;
-		if (clearText == null)
-			clearText = "";
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-		//	Encrypt
-		if (m_cipher != null)
-		{
-			try
-			{
-				m_cipher.init(Cipher.ENCRYPT_MODE, m_key);
-				byte[] encBytes = m_cipher.doFinal(clearText.getBytes());
-				String encString = convertToHexString(encBytes);
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + encString);
-				return encString;
-			}
-			catch (Exception ex)
-			{
-				// log.log(Level.INFO, value, ex);
-				log.log(Level.INFO, "Problem encrypting string", ex);
-			}
-		}
-		//	Fallback
-		return CLEARVALUE_START + value + CLEARVALUE_END;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public String decrypt (String value)
-	{
-		if (value == null || value.length() == 0)
-			return value;
-		boolean isEncrypted = value.startsWith(ENCRYPTEDVALUE_START) && value.endsWith(ENCRYPTEDVALUE_END);
-		if (isEncrypted)
-			value = value.substring(ENCRYPTEDVALUE_START.length(), value.length()-ENCRYPTEDVALUE_END.length());
-		//	Needs to be hex String	
-		byte[] data = convertHexString(value);
-		if (data == null)	//	cannot decrypt
-		{
-			if (isEncrypted)
-			{
-				// log.info("Failed: " + value);
-				log.info("Failed");
-				return null;
-			}
-			//	assume not encrypted
-			return value;
-		}
-		//	Init
-		if (m_cipher == null)
-			initCipher();
-
-		//	Encrypt
-		if (m_cipher != null && value != null && value.length() > 0)
-		{
-			try
-			{
-				AlgorithmParameters ap = m_cipher.getParameters();
-				m_cipher.init(Cipher.DECRYPT_MODE, m_key, ap);
-				byte[] out = m_cipher.doFinal(data);
-				String retValue = new String(out);
-				// globalqss - [ 1577737 ] Security Breach - show database password
-				// log.log (Level.ALL, value + " => " + retValue);
-				return retValue;
-			}
-			catch (Exception ex)
-			{
-				// log.info("Failed: " + value + " - " + ex.toString());
-				log.info("Failed decrypting " + ex.toString());
-			}
-		}
-		return null;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Integer encrypt (Integer value)
-	{
+	private synchronized String getKey(String key) {
+		String value = System.getProperty(key);
+		if (value == null)
+			throw new ConfigurationException(String.format("Unable to find configuration value for key [%s]", key));
 		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Integer decrypt (Integer value)
-	{
-		return value;
-	}	//	decrypt
-	
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public BigDecimal encrypt (BigDecimal value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public BigDecimal decrypt (BigDecimal value)
-	{
-		return value;
-	}	//	decrypt
-
-	/**
-	 *	Encryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value clear value
-	 *  @return encrypted String
-	 */
-	public Timestamp encrypt (Timestamp value)
-	{
-		return value;
-	}	//	encrypt
-
-	/**
-	 *	Decryption.
-	 * 	The methods must recognize clear text values
-	 *  @param value encrypted value
-	 *  @return decrypted String
-	 */
-	public Timestamp decrypt (Timestamp value)
-	{
-		return value;
-	}	//	decrypt
-	
-	
-	/**
-	 *  Convert String to Digest.
-	 *  JavaScript version see - http://pajhome.org.uk/crypt/md5/index.html
-	 *
-	 *  @param value message
-	 *  @return HexString of message (length = 32 characters)
-	 */
-	public String getDigest (String value)
-	{
-		if (m_md == null)
-		{
-			try
-			{
-				m_md = MessageDigest.getInstance("MD5");
-			//	m_md = MessageDigest.getInstance("SHA-1");
-			}
-			catch (NoSuchAlgorithmException nsae)
-			{
-				nsae.printStackTrace();
-			}
-		}
-		//	Reset MessageDigest object
-		m_md.reset();
-		//	Convert String to array of bytes
-		byte[] input = value.getBytes();
-		//	feed this array of bytes to the MessageDigest object
-		m_md.update(input);
-		//	 Get the resulting bytes after the encryption process
-		byte[] output = m_md.digest();
-		m_md.reset();
-		//
-		return convertToHexString(output);
-	}	//	getDigest
-
-
-	/**
-	 * 	Checks, if value is a valid digest
-	 *  @param value digest string
-	 *  @return true if valid digest
-	 */
-	public boolean isDigest (String value)
-	{
-		if (value == null || value.length() != 32)
-			return false;
-		//	needs to be a hex string, so try to convert it
-		return (convertHexString(value) != null);
-	}	//	isDigest
-
-	/**
-	 * 	String Representation
-	 *	@return info
-	 */
-	public String toString ()
-	{
-		StringBuffer sb = new StringBuffer ("Secure[");
-		sb.append(m_cipher)
-			.append ("]");
-		return sb.toString ();
-	}	//	toString
-	
-}   //  Secure
+	}
+}
 ```
 
 ## Context
-In this class, the method 'public static File getCacheDirectory(Context context, boolean preferExternal)' has the following issue 'Environment.getExternalStorageState() may throw NullPointerException'.
-Can you idenfity and /fix it?
+
+**Bug Location**: File `org/trendafilov/confucius/core/AbstractConfiguration.java`, Method `getShortList(String, String)`
+**Bug Type**: missing/exception_handling - `AbstractConfiguration.java` calls `java.lang.Short.parseShort` without first checking whether the argument parses. This leads to an uncaught `NumberFormatException`.
+
+Can you identify and fix it?
 
 ## Output Indicator
 Update the ### Input Code as per the latest API specification, making necessary modifications.
