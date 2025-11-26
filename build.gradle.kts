@@ -51,3 +51,100 @@ tasks.named<Test>("test") {
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
+
+// =============================================================================
+// バイナリ解析者向けエクスポートタスク
+// =============================================================================
+
+// バリアント別JAR出力
+listOf("original", "misuse", "fixed").forEach { variant ->
+    tasks.register<Jar>("export${variant.replaceFirstChar { it.uppercase() }}") {
+        group = "export"
+        description = "Export $variant variant classes as JAR"
+        archiveBaseName.set("mubench-$variant")
+        archiveVersion.set("1.0")
+        
+        from(sourceSets.main.get().output) {
+            include("**/$variant/**/*.class")
+        }
+        
+        destinationDirectory.set(file("$buildDir/exports/variants"))
+    }
+}
+
+// 全バリアントを一括出力
+tasks.register("exportAll") {
+    group = "export"
+    description = "Export all variant JARs (original, misuse, fixed)"
+    dependsOn("exportOriginal", "exportMisuse", "exportFixed")
+    doLast {
+        println("✓ Exported JARs to build/exports/variants/")
+    }
+}
+
+// プロジェクト別・バリアント別にクラスファイルをコピー
+tasks.register<Copy>("exportClasses") {
+    group = "export"
+    description = "Export class files organized by project/case/variant"
+    dependsOn("compileJava")
+    
+    from("$buildDir/classes/java/main")
+    into("$buildDir/exports/classes")
+    
+    // フォルダ構造を維持
+    includeEmptyDirs = false
+    include("**/*.class")
+    
+    doLast {
+        println("✓ Exported class files to build/exports/classes/")
+    }
+}
+
+// ペア比較用: プロジェクト/ケース単位でまとめる
+tasks.register("exportPairs") {
+    group = "export"
+    description = "Export class files as comparison pairs (original vs misuse vs fixed)"
+    dependsOn("compileJava")
+    
+    doLast {
+        val mainClassesDir = file("$buildDir/classes/java/main")
+        val pairsDir = file("$buildDir/exports/pairs")
+        pairsDir.mkdirs()
+        
+        // プロジェクトディレクトリを走査
+        mainClassesDir.listFiles()?.filter { it.isDirectory }?.forEach { projectDir ->
+            projectDir.listFiles()?.filter { it.isDirectory && it.name.startsWith("_") }?.forEach { caseDir ->
+                val caseName = "${projectDir.name}${caseDir.name}"
+                val pairDir = File(pairsDir, caseName)
+                
+                listOf("original", "misuse", "fixed").forEach { variant ->
+                    val variantDir = File(caseDir, variant)
+                    if (variantDir.exists()) {
+                        val targetDir = File(pairDir, variant)
+                        targetDir.mkdirs()
+                        variantDir.copyRecursively(targetDir, overwrite = true)
+                    }
+                }
+            }
+        }
+        println("✓ Exported pairs to build/exports/pairs/")
+    }
+}
+
+// 全エクスポートタスク
+tasks.register("exportBinaries") {
+    group = "export"
+    description = "Run all export tasks for binary analysis"
+    dependsOn("exportAll", "exportClasses", "exportPairs")
+    doLast {
+        println("""
+            |
+            |=== Export Complete ===
+            |  build/exports/
+            |  ├── variants/     - Variant JARs (mubench-original.jar, etc.)
+            |  ├── classes/      - Raw class files by project
+            |  └── pairs/        - Comparison pairs by case
+            |
+        """.trimMargin())
+    }
+}
