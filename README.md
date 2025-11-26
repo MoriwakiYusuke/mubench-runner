@@ -1,56 +1,94 @@
 # mubench-runner
 
-## リポジトリの説明
-MuBench 由来の Java コード片を対象に、LLM によるバグ修正提案と既存テストの検証を自動化するためのランナーです。`scripts/llm_runner.py` で OpenAI API を用いた修正案の生成とログ保存を行い、`gradlew test` で Java テストスイートを実行します。
+MuBench ベンチマークデータセットを用いた Java API 誤用パターンの検証・解析基盤です。
+
+## 概要
+
+このリポジトリは、MuBench（API誤用検出ベンチマーク）由来のコードを対象に、バグ検出・修正の研究を支援します。各ケースは original（元コード）/ misuse（バグあり）/ fixed（修正済み）の3バリアントで構成され、JUnit 5 テストで検証可能です。
 
 ## 要件
-- Python 3.10 以上
-- pip または互換パッケージマネージャ
-- OpenAI API キー (`OPENAI_API_KEY`)
-- macOS または Linux 環境 (Windows でも WSL 等で動作可能)
-- Gradle Wrapper が自動取得する JDK (ツールチェーンで Java 25 を利用)
 
-## セットアップ
-1. リポジトリを取得します。
-	```bash
-	git clone https://github.com/MoriwakiYusuke/mubench-runner.git
-	cd mubench-runner
-	```
-2. Python 仮想環境を作成し、有効化します。
-	```bash
-	python3 -m venv venv
-	source venv/bin/activate
-	```
-3. 依存パッケージをインストールします。
-	```bash
-	pip install -r scripts/requirements.txt
-	```
-4. `.env` を作成し、OpenAI API キーを設定します。
-	```bash
-	echo "OPENAI_API_KEY=sk-..." > .env
-	```
-5. LLM 推論を実行して結果を保存します。
-	```bash
-	python scripts/llm_runner.py
-	```
-6. Java 側テストで修正案を検証します。
-	```bash
-	./gradlew test
-	```
+- Java 17 以上（Gradle Toolchain で自動取得）
+- macOS / Linux / Windows（WSL）
+
+## クイックスタート
+
+```bash
+# リポジトリ取得
+git clone https://github.com/MoriwakiYusuke/mubench-runner.git
+cd mubench-runner
+
+# ビルドとテスト実行
+./gradlew build
+
+# ビルドに失敗した場合（依存JARを手動取得）
+./gradlew dependencies --configuration compileClasspath
+# または Maven Central から直接取得:
+# https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar
+
+# テストのみ実行
+./gradlew test
+
+# テスト結果を確認（build/reports/tests/test/index.html）
+```
 
 ## ディレクトリ構成
+
 ```
 .
-├── datasets/                 # MuBench ベンチマークの対象コードとメタデータ
-├── scripts/                  # LLM 推論や評価の補助スクリプト
-│   ├── llm_runner.py
-│   └── requirements.txt
+├── datasets/                 # MuBench メタデータ（出典から変更なし）
+│   └── <project>/
+│       └── <case>/
+│           ├── misuse.yml    # バグ情報
+│           ├── original.java # 元コード
+│           ├── misuse.java   # バグあり
+│           └── fix.java      # 正解修正
 ├── src/
-│   ├── main/java/            # ベースコードと修正案 (original/misuse/fixed)
-│   └── test/java/            # テストスイート
-├── build.gradle.kts          # Gradle 設定 (Java 25, JUnit 5)
-├── gradlew / gradlew.bat     # プラットフォーム別 Gradle ラッパー
-└── README.md
+│   ├── main/java/            # テスト対象コード（※1）
+│   │   └── <project>/
+│   │       └── _<case>/
+│   │           ├── original/
+│   │           ├── misuse/
+│   │           ├── fixed/
+│   │           ├── requirements/ # （※2）
+│   │           ├── mocks/        # （※3）
+│   │           └── Driver.java
+│   └── test/java/            # JUnit 5 テストスイート
+├── docs/                     # ドキュメント
+│   ├── ARCHITECTURE.md       # プロジェクト構造
+│   ├── DATASETS.md           # データセット一覧
+│   ├── TESTING.md            # テスト
+│   └── BINARY_EXPORT.md      # バイナリエクスポート
+├── build.gradle.kts          # Gradle 設定
+└── gradlew / gradlew.bat     # Gradle Wrapper
 ```
 
-LLM 推論結果は `scripts/llm_runner.py` 実行時に `scripts/llm-results/` 以下へタイムスタンプ付きで保存され、Gradle テスト結果は `build/reports/tests/` に出力されます。
+### 注記
+
+- **※1 `src/main/java/`**: datasets/ のコードをビルド可能にするため、パッケージ宣言・インポート文・public クラス修飾子のみ修正しています。ロジックは変更していません。
+- **※2 `requirements/`**: 元プロジェクトから依存クラスを取得し、同様にパッケージ宣言・インポート文・public クラス修飾子のみ修正しています。すべてのケースに存在するわけではありません。
+- **※3 `mocks/`**: ビルドを通すためのダミー実装や簡易実装です。すべてのケースに存在するわけではありません。
+
+## ドキュメント
+
+| ドキュメント | 説明 |
+|-------------|------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | プロジェクト構造 |
+| [docs/DATASETS.md](docs/DATASETS.md) | データセット一覧 |
+| [docs/TESTING.md](docs/TESTING.md) | テスト |
+| [docs/BINARY_EXPORT.md](docs/BINARY_EXPORT.md) | バイナリエクスポート |
+
+## バイナリエクスポート
+
+クラスファイルをエクスポートできます。
+
+```bash
+# 全エクスポート（推奨）
+./gradlew exportBinaries
+```
+
+詳細は [docs/BINARY_EXPORT.md](docs/BINARY_EXPORT.md) を参照してください。
+
+## ライセンス
+
+各データセットは元プロジェクトのライセンスに従います。
