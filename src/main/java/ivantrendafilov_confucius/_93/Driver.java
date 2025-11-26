@@ -1,25 +1,20 @@
 package ivantrendafilov_confucius._93;
 
 import ivantrendafilov_confucius._93.requirements.Configurable;
-import ivantrendafilov_confucius._93.mocks.InjectableConfigurationOriginal;
-import ivantrendafilov_confucius._93.mocks.InjectableConfigurationMisuse;
-import ivantrendafilov_confucius._93.mocks.InjectableConfigurationFixed;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 
 /**
- * AbstractConfiguration (Original/Misuse/Fixed) のメソッドを
- * 呼び出すための汎用ドライバ。
- * 
- * 各バリアント（original, misuse, fixed）のAbstractConfigurationを
- * InputStreamベースのコンストラクタでインスタンス化する。
+ * Reflection-based driver for AbstractConfiguration variants.
  */
 public class Driver {
 
+    private static final String BASE_PACKAGE = "ivantrendafilov_confucius._93";
     private final Configurable configInstance;
 
     /**
@@ -28,23 +23,18 @@ public class Driver {
      */
     public Driver(String variant, Properties properties) throws Exception {
         InputStream inputStream = propertiesToInputStream(properties);
+        String className = BASE_PACKAGE + "." + variant + ".AbstractConfiguration";
         
-        switch (variant) {
-            case "original":
-                this.configInstance = new InjectableConfigurationOriginal(inputStream, null);
-                break;
-            case "misuse":
-                this.configInstance = new InjectableConfigurationMisuse(inputStream, null);
-                break;
-            case "fixed":
-                this.configInstance = new InjectableConfigurationFixed(inputStream, null);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown variant: " + variant);
+        try {
+            Class<?> clazz = Class.forName(className);
+            Constructor<?> constructor = clazz.getConstructor(InputStream.class, String.class);
+            this.configInstance = (Configurable) constructor.newInstance(inputStream, null);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unknown variant: " + variant, e);
         }
     }
 
-    private InputStream propertiesToInputStream(Properties properties) throws Exception {
+    private InputStream propertiesToInputStream(Properties properties) {
         StringBuilder sb = new StringBuilder();
         for (String key : properties.stringPropertyNames()) {
             sb.append(key).append("=").append(properties.getProperty(key)).append("\n");
@@ -69,8 +59,6 @@ public class Driver {
     public List<Byte> getByteList(String key) {
         return configInstance.getByteList(key);
     }
-
-    // --- 追加メソッド (他のケース用) ---
 
     public long getLongValue(String key) {
         return configInstance.getLongValue(key);

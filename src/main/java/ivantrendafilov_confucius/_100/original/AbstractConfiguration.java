@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.Map.Entry;
 
-public abstract class AbstractConfiguration implements Configurable {
+public class AbstractConfiguration implements Configurable {
 	private final static Logger LOG = LoggerFactory.getLogger(AbstractConfiguration.class);
 
 	private final static String ITEM_SEPARATOR = ",";
