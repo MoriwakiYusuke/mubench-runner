@@ -15,7 +15,7 @@
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
 package adempiere._2.fixed;
-import adempiere._2.SecureInterface;
+import adempiere._2.requirements.SecureInterface;
 
 import java.math.*;
 import java.nio.charset.StandardCharsets;

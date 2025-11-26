@@ -15,7 +15,7 @@
  * or via info@compiere.org or http://www.compiere.org/license.html           *
  *****************************************************************************/
 package adempiere._1.misuse;
-import adempiere._1.SecureInterface;
+import adempiere._1.requirements.SecureInterface;
 
 import java.math.*;
 import java.security.*;
