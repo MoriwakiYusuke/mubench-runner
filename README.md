@@ -2,6 +2,8 @@
 
 MuBench ベンチマークデータセットを用いた Java API 誤用パターンの検証・解析基盤です。
 
+**作成元**: ASE Lab at Ritsumeikan University
+
 ## 概要
 
 このリポジトリは、MuBench（API誤用検出ベンチマーク）由来のコードを対象に、バグ検出・修正の研究を支援します。各ケースは original（元コード）/ misuse（バグあり）/ fixed（修正済み）の3バリアントで構成され、JUnit 5 テストで検証可能です。
@@ -47,12 +49,12 @@ cd mubench-runner
 │   ├── main/java/            # テスト対象コード（※1）
 │   │   └── <project>/
 │   │       └── _<case>/
-│   │           ├── original/
-│   │           ├── misuse/
-│   │           ├── fixed/
+│   │           ├── original/          # 実際に修正が行われた修正後のコード
+│   │           ├── misuse/            # 誤用（バグを含むコード）
+│   │           ├── fixed/             # LLM によって修正されたコード
 │   │           ├── requirements/ # （※2）
 │   │           ├── mocks/        # （※3）
-│   │           └── Driver.java
+│   │           └── Driver.java   # バリアント切替用（※4）
 │   └── test/java/            # JUnit 5 テストスイート
 ├── docs/                     # ドキュメント
 │   ├── ARCHITECTURE.md       # プロジェクト構造
@@ -68,6 +70,7 @@ cd mubench-runner
 - **※1 `src/main/java/`**: datasets/ のコードをビルド可能にするため、パッケージ宣言・インポート文・public クラス修飾子のみ修正しています。ロジックは変更していません。
 - **※2 `requirements/`**: 元プロジェクトから依存クラスを取得し、同様にパッケージ宣言・インポート文・public クラス修飾子のみ修正しています。すべてのケースに存在するわけではありません。
 - **※3 `mocks/`**: ビルドを通すためのダミー実装や簡易実装です。すべてのケースに存在するわけではありません。
+- **※4 `Driver.java`**: リフレクションを使用して original/misuse/fixed バリアントを切り替えます。テストクラスから呼び出されます。
 
 ## ドキュメント
 
