@@ -1,23 +1,3 @@
-## Instruction
-You are a software engineer specializing in REST API.
-Use the guidelines below to make any necessary modifications.
-
-### Modification Procedure
-0. First, familiarise yourself with the following steps and ### Notes.
-1. Check the technical specifications of the Java API that you have studied or in the official documentation. If you don't know, output the ### Input Code as it is.
-2. Based on the technical specifications of the Java API you have reviewed in step 1, identify the code according to the deprecated specifications contained in the ### Input Code. In this case, the deprecated specifications are the Java API calls that have been deprecated. If no code according to the deprecated specification is found, identify code that is not based on best practice. If you are not sure, output the ### Input Code as it is.
-3. If you find code according to the deprecated specification or not based on best practice in step 2, check the technical specifications in the Java API that you have studied or in the official documentation. If you are not sure, output the ### Input Code as it is.
-4. With attention to the points listed in ### Notes below, modify the code identified in step 2 to follow the recommended specification analysed in step 3.
-5. Verify again that the modified code works correctly.
-6. If you determine that it works correctly, output the modified code.
-7. If it is judged to fail, output the ### Input Code as it is.
-8. If you are not sure, output the ### Input Code as it is.
-
-### Notes.
-- You must follow the ## Context.
-
-## Input Code
-```java
 /*
  * JMRTD - A Java API for accessing machine readable travel documents.
  *
@@ -40,7 +20,7 @@ Use the guidelines below to make any necessary modifications.
  * $Id$
  */
 
-package sos.mrtd;
+package jmrtd._1.original;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,9 +35,10 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import sos.smartcards.Apdu;
-import sos.smartcards.ISO7816;
-import sos.util.Hex;
+import jmrtd._1.requirements.Apdu;
+import jmrtd._1.requirements.ISO7816;
+import jmrtd._1.requirements.Hex;
+import jmrtd._1.requirements.Util;
 
 /**
  * Secure messaging wrapper for apdus.
@@ -284,6 +265,8 @@ public class SecureMessagingWrapper implements Apdu.Wrapper
     */
    private byte[] unwrapResponseAPDU(byte[] rapdu, int len)
    throws GeneralSecurityException, IOException {
+      long oldssc = ssc;
+      try {
       if (rapdu == null || rapdu.length < 2 || len < 2) {
          throw new IllegalArgumentException("Invalid type");
       }
@@ -305,6 +288,16 @@ public class SecureMessagingWrapper implements Apdu.Wrapper
       out.write((sw & 0x0000FF00) >> 8);
       out.write(sw & 0x000000FF);
       return out.toByteArray();
+      } finally {
+         /*
+          * If we fail to unwrap, at least make sure we have
+          * the same counter as the ICC, so that we can continue
+          * to communicate using secure messaging...
+          */
+         if (ssc == oldssc) {
+            ssc++;
+         }
+      }
    }
 
    /**
@@ -322,8 +315,8 @@ public class SecureMessagingWrapper implements Apdu.Wrapper
          length = buf;
          buf = in.readUnsignedByte(); /* should be 0x01... */
          if (buf != 0x01) {
-            throw new IllegalStateException("DO'87 expected 0x01 marker "
-                + Integer.toHexString(buf));
+            throw new IllegalStateException("DO'87 expected 0x01 marker, found "
+                  + Hex.byteToHexString((byte)buf));
          }
       } else {
          /* Long form */
@@ -368,13 +361,13 @@ public class SecureMessagingWrapper implements Apdu.Wrapper
     * @param in inputstream to read from.
     */
    private void readDO8E(DataInputStream in, byte[] rapdu) throws IOException, GeneralSecurityException {
+      
       int length = in.readUnsignedByte();
       if (length != 8) {
          throw new IllegalStateException("DO'8E wrong length");
       }
       byte[] cc1 = new byte[8];
       in.readFully(cc1);
-      mac.init(ksMac);
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       DataOutputStream dataOut = new DataOutputStream(out);
       ssc++;
@@ -382,24 +375,11 @@ public class SecureMessagingWrapper implements Apdu.Wrapper
       byte[] paddedData = Util.pad(rapdu, 0, rapdu.length - 2 - 8 - 2);
       dataOut.write(paddedData, 0, paddedData.length);
       dataOut.flush();
+      mac.init(ksMac);
       byte[] cc2 = mac.doFinal(out.toByteArray());
+      dataOut.close();
       if (!Arrays.equals(cc1, cc2)) {
          throw new IllegalStateException("Incorrect MAC!");
       }
    }
 }
-```
-
-## Context
-
-API: java.io.DataOutputStream
-Violation: missing/call
-Description: DataOutputStream is left open.
-Location: sos/mrtd/SecureMessagingWrapper.java, method: readDO8E(DataInputStream, byte[])
-Fix description: Add a call to DataOutputStream.close()
-
-Can you identify and fix it?
-
-## Output Indicator
-Update the ### Input Code as per the latest API specification, making necessary modifications.
-Ensure the structure and format remain as close as possible to the original, but deprecated code must be updated. Output the all revised code without additional explanations or comments.
