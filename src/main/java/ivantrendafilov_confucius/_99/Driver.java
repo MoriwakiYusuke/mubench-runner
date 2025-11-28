@@ -99,4 +99,132 @@ public class Driver {
     public String getStringValue(String key, String defaultValue) {
         return configInstance.getStringValue(key, defaultValue);
     }
+
+    public List<String> getStringList(String key, String separator) {
+        return configInstance.getStringList(key, separator);
+    }
+
+    public List<String> getStringList(String key) {
+        return configInstance.getStringList(key);
+    }
+
+    // === Boolean methods ===
+
+    public boolean getBooleanValue(String key) {
+        return configInstance.getBooleanValue(key);
+    }
+
+    public boolean getBooleanValue(String key, boolean defaultValue) {
+        return configInstance.getBooleanValue(key, defaultValue);
+    }
+
+    public List<Boolean> getBooleanList(String key, String separator) {
+        return configInstance.getBooleanList(key, separator);
+    }
+
+    public List<Boolean> getBooleanList(String key) {
+        return configInstance.getBooleanList(key);
+    }
+
+    // === Char methods ===
+
+    public char getCharValue(String key) {
+        return configInstance.getCharValue(key);
+    }
+
+    public char getCharValue(String key, char defaultValue) {
+        return configInstance.getCharValue(key, defaultValue);
+    }
+
+    public List<Character> getCharList(String key, String separator) {
+        return configInstance.getCharList(key, separator);
+    }
+
+    public List<Character> getCharList(String key) {
+        return configInstance.getCharList(key);
+    }
+
+    // === Double methods ===
+
+    public double getDoubleValue(String key) {
+        return configInstance.getDoubleValue(key);
+    }
+
+    public double getDoubleValue(String key, double defaultValue) {
+        return configInstance.getDoubleValue(key, defaultValue);
+    }
+
+    public List<Double> getDoubleList(String key, String separator) {
+        return configInstance.getDoubleList(key, separator);
+    }
+
+    public List<Double> getDoubleList(String key) {
+        return configInstance.getDoubleList(key);
+    }
+
+    // === Float methods ===
+
+    public float getFloatValue(String key) {
+        return configInstance.getFloatValue(key);
+    }
+
+    public float getFloatValue(String key, float defaultValue) {
+        return configInstance.getFloatValue(key, defaultValue);
+    }
+
+    public List<Float> getFloatList(String key, String separator) {
+        return configInstance.getFloatList(key, separator);
+    }
+
+    public List<Float> getFloatList(String key) {
+        return configInstance.getFloatList(key);
+    }
+
+    // === Int methods ===
+
+    public int getIntValue(String key) {
+        return configInstance.getIntValue(key);
+    }
+
+    public int getIntValue(String key, int defaultValue) {
+        return configInstance.getIntValue(key, defaultValue);
+    }
+
+    public List<Integer> getIntList(String key, String separator) {
+        return configInstance.getIntList(key, separator);
+    }
+
+    public List<Integer> getIntList(String key) {
+        return configInstance.getIntList(key);
+    }
+
+    // === Properties/utility methods ===
+
+    public java.util.Set<String> keySet() {
+        return configInstance.keySet();
+    }
+
+    public Properties getProperties() {
+        return configInstance.getProperties();
+    }
+
+    public <T> void setProperty(String key, T value) {
+        configInstance.setProperty(key, value);
+    }
+
+    public <T> void setProperties(java.util.Map<String, T> properties) {
+        configInstance.setProperties(properties);
+    }
+
+    public void setProperties(Properties properties) {
+        configInstance.setProperties(properties);
+    }
+
+    public void clearProperty(String key) {
+        configInstance.clearProperty(key);
+    }
+
+    public void reset() {
+        configInstance.reset();
+    }
 }

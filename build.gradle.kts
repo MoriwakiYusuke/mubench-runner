@@ -20,6 +20,8 @@ dependencies {
     // ivantrendafilov-confucius用 SLF4J
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("org.slf4j:slf4j-simple:2.0.9")
+    // jmrtd用 BouncyCastle (ISO9797Alg3Mac等の暗号プリミティブ)
+    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
 }
 
 java {

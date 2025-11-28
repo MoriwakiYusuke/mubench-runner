@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * Helper that interacts with AsyncAgiEvent variants only via reflection so tests
- * can execute without depending on the original library.
+ * Reflection-based adapter for AsyncAgiEvent variants.
+ * Provides full method coverage for LLM analysis.
  */
 public class Driver {
 
@@ -24,7 +24,7 @@ public class Driver {
         }
     }
 
-    private Object newInstance() {
+    public Object newInstance() {
         try {
             return targetClass.getConstructor(Object.class).newInstance("test-source");
         } catch (ReflectiveOperationException e) {
@@ -32,20 +32,99 @@ public class Driver {
         }
     }
 
+    // === UniqueId methods ===
+    public String getUniqueId(Object instance) throws Exception {
+        return (String) invoke(instance, "getUniqueId");
+    }
+
+    public void setUniqueId(Object instance, String value) throws Exception {
+        invoke(instance, "setUniqueId", value);
+    }
+
+    // === Channel methods ===
+    public String getChannel(Object instance) throws Exception {
+        return (String) invoke(instance, "getChannel");
+    }
+
+    public void setChannel(Object instance, String value) throws Exception {
+        invoke(instance, "setChannel", value);
+    }
+
+    // === SubEvent methods ===
+    public String getSubEvent(Object instance) throws Exception {
+        return (String) invoke(instance, "getSubEvent");
+    }
+
+    public void setSubEvent(Object instance, String value) throws Exception {
+        invoke(instance, "setSubEvent", value);
+    }
+
+    // === CommandId methods ===
+    public String getCommandId(Object instance) throws Exception {
+        return (String) invoke(instance, "getCommandId");
+    }
+
+    public void setCommandId(Object instance, String value) throws Exception {
+        invoke(instance, "setCommandId", value);
+    }
+
+    // === Result methods ===
+    public String getResult(Object instance) throws Exception {
+        return (String) invoke(instance, "getResult");
+    }
+
+    public void setResult(Object instance, String value) throws Exception {
+        invoke(instance, "setResult", value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> decodeResult(Object instance) throws Exception {
+        return (List<String>) invoke(instance, "decodeResult");
+    }
+
+    // === Env methods ===
+    public String getEnv(Object instance) throws Exception {
+        return (String) invoke(instance, "getEnv");
+    }
+
+    public void setEnv(Object instance, String value) throws Exception {
+        invoke(instance, "setEnv", value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> decodeEnv(Object instance) throws Exception {
+        return (List<String>) invoke(instance, "decodeEnv");
+    }
+
+    // === Boolean check methods ===
+    public boolean isStart(Object instance) throws Exception {
+        return (Boolean) invoke(instance, "isStart");
+    }
+
+    public boolean isExec(Object instance) throws Exception {
+        return (Boolean) invoke(instance, "isExec");
+    }
+
+    public boolean isEnd(Object instance) throws Exception {
+        return (Boolean) invoke(instance, "isEnd");
+    }
+
+    // === Convenience methods (backward compatible) ===
     @SuppressWarnings("unchecked")
     public List<String> decodeEnv(String encoded) throws Exception {
         Object instance = newInstance();
-        invoke(instance, "setEnv", encoded);
-        return (List<String>) invoke(instance, "decodeEnv");
+        setEnv(instance, encoded);
+        return decodeEnv(instance);
     }
 
     @SuppressWarnings("unchecked")
     public List<String> decodeResult(String encoded) throws Exception {
         Object instance = newInstance();
-        invoke(instance, "setResult", encoded);
-        return (List<String>) invoke(instance, "decodeResult");
+        setResult(instance, encoded);
+        return decodeResult(instance);
     }
 
+    // === Reflective invocation support ===
     private Object invoke(Object instance, String method, Object... args) throws Exception {
         try {
             Method target = findMethod(method, parameterTypes(args));

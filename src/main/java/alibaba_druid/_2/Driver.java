@@ -130,4 +130,16 @@ public class Driver {
             throw new RuntimeException(e);
         }
     }
+
+    // --- Main method ---
+
+    /**
+     * Invoke main method of ConfigTools.
+     * This generates a key pair and prints it to stdout.
+     */
+    public void main(String[] args) throws Exception {
+        callStatic("main", 
+            new Class<?>[]{String[].class}, 
+            (Object) args);
+    }
 }

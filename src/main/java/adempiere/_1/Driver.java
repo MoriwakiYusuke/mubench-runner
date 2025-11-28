@@ -58,4 +58,56 @@ public class Driver {
     public boolean isDigest(String value) {
         return target.isDigest(value);
     }
+
+    // 【追加部分】toString メソッド
+    public String targetToString() {
+        return target.toString();
+    }
+
+    // === Static methods (リフレクション経由でアクセス) ===
+    
+    /**
+     * hash - 静的メソッド
+     * @param targetClass 対象クラス (original/misuse/fixed)
+     * @param key ハッシュ対象の文字列
+     * @return ハッシュ値
+     */
+    public static int hash(Class<?> targetClass, String key) {
+        try {
+            java.lang.reflect.Method method = targetClass.getMethod("hash", String.class);
+            return (int) method.invoke(null, key);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to invoke hash", e);
+        }
+    }
+
+    /**
+     * convertToHexString - バイト配列を16進文字列に変換
+     * @param targetClass 対象クラス
+     * @param bytes バイト配列
+     * @return 16進文字列
+     */
+    public static String convertToHexString(Class<?> targetClass, byte[] bytes) {
+        try {
+            java.lang.reflect.Method method = targetClass.getMethod("convertToHexString", byte[].class);
+            return (String) method.invoke(null, bytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to invoke convertToHexString", e);
+        }
+    }
+
+    /**
+     * convertHexString - 16進文字列をバイト配列に変換
+     * @param targetClass 対象クラス
+     * @param hexString 16進文字列
+     * @return バイト配列
+     */
+    public static byte[] convertHexString(Class<?> targetClass, String hexString) {
+        try {
+            java.lang.reflect.Method method = targetClass.getMethod("convertHexString", String.class);
+            return (byte[]) method.invoke(null, hexString);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to invoke convertHexString", e);
+        }
+    }
 }
