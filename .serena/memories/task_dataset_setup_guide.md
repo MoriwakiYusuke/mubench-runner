@@ -122,15 +122,64 @@ C. requirements/ + mocks/ 併用
 | 依存が深い（さらに依存がある） | | ✓ |
 | Android/フレームワーク依存 | | ✓ |
 | テストで実行されない部分 | | ✓ |
+| package-private クラス | | ✓ |
+
+#### package-private クラスの制限
+
+元ライブラリのクラスが package-private の場合：
+- Gradle 依存追加ではアクセス不可（サブパッケージからも不可）
+- **解決策:** モック作成
+
+#### Gradle 依存関係の追加
+
+必要に応じて `build.gradle.kts` に依存を追加：
+
+```kotlin
+dependencies {
+    // 例: Apache Commons
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+}
+```
+
+**注意事項:**
+- 元プロジェクトの pom.xml / build.gradle からバージョンを確認
+- package-private クラスは依存追加しても使用不可
+- Android SDK (`com.google.android:android`) は実行時にスタブ例外が発生（コンパイルのみ有効）
 
 4. 決定後、requirements/ または mocks/ に配置（同じ変換制約を適用）
 
 ### Step 5: Driver.java の作成
 
+#### テストパターンの選択基準
+
+**基本方針: リフレクション実行パターンを優先する**
+
+| 条件 | 推奨パターン |
+|------|-------------|
+| 純粋なJavaロジック、依存が少ない | リフレクション実行 |
+| Android/フレームワーク依存が深い | リフレクション実行 + モック |
+| 暗号/ネットワーク等、実行困難 | リフレクション実行 + モック |
+| package-private 依存 | リフレクション実行 + モック |
+
 パターンは2種類：
 
-#### A. ソースコード静的解析パターン（推奨）
-実行が難しいケース向け（暗号、ネットワーク等）
+#### A. リフレクション実行パターン（推奨）
+実行可能なケース向け（基本的にこちらを使用）
+
+```java
+public class Driver {
+    private final Object instance;
+    
+    public Driver(String targetClassName, Object... args) {
+        Class<?> clazz = Class.forName(targetClassName);
+        Constructor<?> ctor = clazz.getConstructor(...);
+        this.instance = ctor.newInstance(args);
+    }
+}
+```
+
+#### B. ソースコード静的解析パターン（極力避ける）
+リフレクション実行が本当に困難な場合のみ使用
 
 ```java
 public class Driver {
@@ -149,21 +198,6 @@ public class Driver {
         String source = readSourceCode();
         // 特定パターンの有無を検査
         return source.contains("expectedPattern");
-    }
-}
-```
-
-#### B. リフレクション実行パターン
-実行可能なケース向け
-
-```java
-public class Driver {
-    private final Object instance;
-    
-    public Driver(String targetClassName, Object... args) {
-        Class<?> clazz = Class.forName(targetClassName);
-        Constructor<?> ctor = clazz.getConstructor(...);
-        this.instance = ctor.newInstance(args);
     }
 }
 ```
