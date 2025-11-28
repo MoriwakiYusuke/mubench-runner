@@ -114,15 +114,33 @@ C. requirements/ + mocks/ 併用
 
 #### requirements/ vs mocks/ の判断基準
 
+**重要: requirements/ と mocks/ は明確に使い分けること**
+
+- **requirements/**: 元ソースをパッケージ変更のみでそのまま配置。ロジック改変不可。
+- **mocks/**: 独自に作成したダミー実装。元ソースと異なる実装が許可される。
+
+**原則: 可能な限り requirements/ を使用し、mocks/ は最小限に抑える**
+
 | 条件 | requirements/ | mocks/ |
 |------|---------------|--------|
-| 元プロジェクトから取得可能 | ✓ | |
-| インターフェース/抽象クラスのみ必要 | ✓ | |
-| 実際のロジックが必要 | ✓ | |
-| 依存が深い（さらに依存がある） | | ✓ |
-| Android/フレームワーク依存 | | ✓ |
-| テストで実行されない部分 | | ✓ |
-| package-private クラス | | ✓ |
+| 元プロジェクトから取得可能 | ✅ 必須 | ❌ |
+| インターフェース/抽象クラスのみ必要 | ✅ | |
+| 実際のロジックが必要 | ✅ 必須 | ❌ |
+| 依存が深い（さらに依存がある） | ✅ 全依存を追加 | △ 最終手段 |
+| Android/フレームワーク依存 | | ✅ |
+| テストで実行されない部分 | | ✅ |
+| package-private クラス | | ✅ |
+
+**requirements/ 配置時のルール:**
+1. 元ソースのディレクトリ構造を維持（例: `entry/blob/PaintingBlob.java`）
+2. 変更はパッケージ宣言とインポート文のみ
+3. 依存がある場合は依存先も requirements/ に追加
+4. Lombok等の外部ライブラリが必要な場合は build.gradle.kts に追加
+
+**mocks/ 配置時のルール:**
+1. 独自実装であることを明示（コメント等）
+2. テストに必要な最小限のインターフェースのみ実装
+3. 元ソースの改変版は mocks/ に置かない（それは requirements/ の役割）
 
 #### package-private クラスの制限
 
@@ -202,6 +220,136 @@ public class Driver {
 }
 ```
 
+### Step 5.5: Driverメソッドの完全網羅（必須）
+
+**重要: 元クラスのすべてのパブリックメソッドがDriver経由でアクセス可能であること**
+
+テスト対象に関係なく、元クラスのパブリックAPIをすべてDriverに公開する。
+
+#### 網羅の目的
+
+1. **LLMが任意のメソッドを使ってテストを生成できる** - テスト対象メソッド以外も検証に必要な場合がある
+2. **統一されたインターフェース** - テストコードからは常にDriverを通してアクセス
+3. **将来の拡張性** - 新しいテストケース追加時にDriverを修正不要
+
+#### 網羅確認コマンド
+
+```bash
+# 元クラスのパブリックメソッド数
+grep -E "^\s+public\s+" src/main/java/<project>/_<case>/original/<ClassName>.java | grep -v "class\|interface" | wc -l
+
+# Driverのパブリックメソッド数
+grep -E "^\s+public\s+" src/main/java/<project>/_<case>/Driver.java | grep -v "class\|Driver(" | wc -l
+
+# 元クラス ≤ Driver であること
+```
+
+#### 実装パターン
+
+##### パターン1: インターフェース委譲（推奨）
+元クラスが共通インターフェースを実装している場合：
+
+```java
+// requirements/Configurable.java - 元クラスのパブリックAPIをすべて定義
+public interface Configurable {
+    String getValue(String key);
+    void setValue(String key, String value);
+    // ... 元クラスのすべてのパブリックメソッド
+}
+
+// Driver.java
+public class Driver {
+    private final Configurable instance;
+    
+    public Driver(String variant) throws Exception {
+        Class<?> clazz = Class.forName(BASE_PACKAGE + "." + variant + ".TargetClass");
+        this.instance = (Configurable) clazz.getConstructor().newInstance();
+    }
+    
+    // すべてのメソッドを委譲
+    public String getValue(String key) { return instance.getValue(key); }
+    public void setValue(String key, String value) { instance.setValue(key, value); }
+    // ...
+}
+```
+
+##### パターン2: リフレクション直接呼び出し
+インターフェースが使えない場合：
+
+```java
+public class Driver {
+    private final Class<?> targetClass;
+    private final Object instance;
+    
+    public Driver(String variant) throws Exception {
+        this.targetClass = Class.forName(BASE_PACKAGE + "." + variant + ".TargetClass");
+        this.instance = targetClass.getConstructor().newInstance();
+    }
+    
+    // 各メソッドをリフレクションで呼び出し
+    public String getValue(String key) throws Exception {
+        Method method = targetClass.getMethod("getValue", String.class);
+        return (String) method.invoke(instance, key);
+    }
+    
+    // privateメソッドもアクセス可能にする場合
+    public void internalMethod() throws Exception {
+        Method method = targetClass.getDeclaredMethod("internalMethod");
+        method.setAccessible(true);
+        method.invoke(instance);
+    }
+}
+```
+
+##### パターン3: staticメソッドの網羅
+元クラスがstaticメソッドを持つ場合：
+
+```java
+public class Driver {
+    private Class<?> targetClass;
+    
+    public void setTargetClass(String variant) throws Exception {
+        this.targetClass = Class.forName(BASE_PACKAGE + "." + variant + ".UtilClass");
+    }
+    
+    // staticメソッドをリフレクションで呼び出し
+    public String hash(String input) throws Exception {
+        Method method = targetClass.getMethod("hash", String.class);
+        return (String) method.invoke(null, input);  // null = static呼び出し
+    }
+}
+```
+
+##### パターン4: ファクトリメソッドの網羅
+多数のファクトリメソッドがある場合（例: 70+メソッド）：
+
+```java
+public class Driver {
+    private Class<?> targetClass;
+    
+    // 戻り値の型解決問題を避けるため Object を返す
+    public Object createFoo(String param) throws Exception {
+        Method method = targetClass.getMethod("createFoo", String.class);
+        return method.invoke(null, param);
+    }
+    
+    public Object createBar(int id, String name) throws Exception {
+        Method method = targetClass.getMethod("createBar", int.class, String.class);
+        return method.invoke(null, id, name);
+    }
+    // ... すべてのファクトリメソッド
+}
+```
+
+#### チェックリスト
+
+- [ ] 元クラスのパブリックメソッドをすべて列挙
+- [ ] Driverに対応するメソッドをすべて実装
+- [ ] getter/setterも漏れなく実装
+- [ ] staticメソッドも対応
+- [ ] オーバーロードされたメソッドもすべて実装
+- [ ] `元クラスメソッド数 ≤ Driverメソッド数` を確認
+
 ### Step 6: テストクラスの作成
 
 ```
@@ -269,6 +417,7 @@ diff <(grep -v "^package\|^import" datasets/<project>/<case>/original.java | gre
 - [ ] コメント追加・削除なし
 - [ ] データセットと一致確認済み
 - [ ] Driverはクラス名を受け取るコンストラクタ
+- [ ] **Driverは元クラスのパブリックメソッドをすべて網羅**
 - [ ] テストは@Nested + abstract CommonCases構造
 - [ ] Misuseはコメントアウト
 - [ ] ビルド成功

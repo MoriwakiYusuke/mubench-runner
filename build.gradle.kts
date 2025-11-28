@@ -12,6 +12,9 @@ dependencies {
     // テスト用ライブラリ (JUnit 5)
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
     implementation("com.alibaba:druid:1.2.20")
     implementation("com.google.android:android:4.1.1.4")
     implementation("junit:junit:4.13.2")
