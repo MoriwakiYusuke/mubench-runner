@@ -83,8 +83,10 @@ Ensure the structure and format remain as close as possible to the original, but
 
 ```bash
 cd scripts
-python llm_runner.py
+source venv/bin/activate && python llm_runner.py
 ```
+
+**注意**: 必ず venv 環境をアクティベートしてから実行すること。
 
 結果は `scripts/llm-results/YYYYMMDD_HHMMSS/result.txt` に保存される。
 
