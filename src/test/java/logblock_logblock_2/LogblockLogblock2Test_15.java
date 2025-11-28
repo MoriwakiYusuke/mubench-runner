@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -12,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * Bug: DataOutputStream wrapping ByteArrayOutputStream should be flushed/closed
  * before calling toByteArray() on the underlying ByteArrayOutputStream.
+ * 
+ * This test uses source code analysis to verify the bug pattern.
  */
 class LogblockLogblock2Test_15 {
 
@@ -19,15 +23,25 @@ class LogblockLogblock2Test_15 {
         abstract Driver driver() throws Exception;
 
         @Test
-        void testPaintingBlobRoundTrip() throws Exception {
-            // This test verifies that the paintingTest method works correctly
-            // The bug is that misuse variant doesn't call close() before toByteArray()
-            driver().paintingTest();
+        @DisplayName("Source file should exist and be readable")
+        void testSourceFileExists() throws Exception {
+            Driver d = driver();
+            String sourceCode = d.readSourceCode();
+            assertNotNull(sourceCode);
+            assertFalse(sourceCode.isEmpty(), "Source code should not be empty");
+        }
+
+        @Test
+        @DisplayName("Should close or flush DataOutputStream before toByteArray()")
+        void testProperStreamClose() throws Exception {
+            Driver d = driver();
+            assertTrue(d.hasProperStreamClose(),
+                "DataOutputStream should be closed or flushed before calling toByteArray()");
         }
     }
 
     @Nested
-    @DisplayName("Original - has outStream.close() before toByteArray()")
+    @DisplayName("Original")
     class Original extends CommonCases {
         @Override
         Driver driver() throws Exception {
@@ -35,11 +49,9 @@ class LogblockLogblock2Test_15 {
         }
     }
 
-    // Misuse is commented out because it may work in this simple case
-    // (DataOutputStream over ByteArrayOutputStream doesn't buffer significantly)
-    // but the bug pattern is still bad practice
+    // Misuseは常にコメントアウト（バグがあるため必ず失敗）
     // @Nested
-    // @DisplayName("Misuse - missing outStream.close() before toByteArray()")
+    // @DisplayName("Misuse")
     // class Misuse extends CommonCases {
     //     @Override
     //     Driver driver() throws Exception {
@@ -48,7 +60,7 @@ class LogblockLogblock2Test_15 {
     // }
 
     @Nested
-    @DisplayName("Fixed - has outStream.flush() and outStream.close() before toByteArray()")
+    @DisplayName("Fixed")
     class Fixed extends CommonCases {
         @Override
         Driver driver() throws Exception {

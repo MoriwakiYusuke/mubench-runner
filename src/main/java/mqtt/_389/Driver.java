@@ -2,18 +2,24 @@ package mqtt._389;
 
 import mqtt._389.requirements.MqttException;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Driver for MqttSubscribe variants.
- * Provides access to all public methods of MqttSubscribe via reflection.
+ * Provides access to all public methods of MqttSubscribe via reflection,
+ * and source code analysis for bug pattern detection.
  */
 public class Driver {
     private static final String BASE_PACKAGE = "mqtt._389";
 
+    private final String variant;
     private final Object instance;
     private final Class<?> targetClass;
+    private final String sourceFilePath;
 
     /**
      * Create a Driver for the specified variant.
@@ -23,8 +29,10 @@ public class Driver {
      * @param qos     QoS levels for each topic
      */
     public Driver(String variant, String[] names, int[] qos) throws Exception {
+        this.variant = variant;
         String className = BASE_PACKAGE + "." + variant + ".MqttSubscribe";
         this.targetClass = Class.forName(className);
+        this.sourceFilePath = "src/main/java/" + className.replace('.', '/') + ".java";
         Constructor<?> ctor = targetClass.getConstructor(String[].class, int[].class);
         this.instance = ctor.newInstance(names, qos);
     }
@@ -37,10 +45,55 @@ public class Driver {
      * @param data    wire data
      */
     public Driver(String variant, byte info, byte[] data) throws Exception {
+        this.variant = variant;
         String className = BASE_PACKAGE + "." + variant + ".MqttSubscribe";
         this.targetClass = Class.forName(className);
+        this.sourceFilePath = "src/main/java/" + className.replace('.', '/') + ".java";
         Constructor<?> ctor = targetClass.getConstructor(byte.class, byte[].class);
         this.instance = ctor.newInstance(info, data);
+    }
+
+    // ========== Source Code Analysis Methods ==========
+
+    /**
+     * Read the source code of the MqttSubscribe class.
+     */
+    public String readSourceCode() throws IOException {
+        return Files.readString(Paths.get(sourceFilePath));
+    }
+
+    /**
+     * Check if getPayload() method properly flushes the DataOutputStream before toByteArray().
+     * The bug pattern is: calling toByteArray() without first calling dos.flush().
+     */
+    public boolean hasProperFlushInGetPayload() throws IOException {
+        String source = readSourceCode();
+        
+        // Find the getPayload method
+        int getPayloadStart = source.indexOf("public byte[] getPayload()");
+        if (getPayloadStart == -1) {
+            return false;
+        }
+        
+        // Find the end of getPayload method (next public/protected method or end of class)
+        int methodEnd = source.indexOf("public ", getPayloadStart + 1);
+        if (methodEnd == -1) {
+            methodEnd = source.indexOf("protected ", getPayloadStart + 1);
+        }
+        if (methodEnd == -1) {
+            methodEnd = source.length();
+        }
+        
+        String getPayloadMethod = source.substring(getPayloadStart, methodEnd);
+        
+        // Check if dos.flush() is called before baos.toByteArray()
+        int toByteArrayIndex = getPayloadMethod.indexOf("toByteArray()");
+        if (toByteArrayIndex == -1) {
+            return false;
+        }
+        
+        String codeBeforeToByteArray = getPayloadMethod.substring(0, toByteArrayIndex);
+        return codeBeforeToByteArray.contains("dos.flush()") || codeBeforeToByteArray.contains(".flush()");
     }
 
     // ========== Public Methods ==========
