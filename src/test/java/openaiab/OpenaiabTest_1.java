@@ -1,32 +1,29 @@
-package onosendai;
+package openaiab;
 
-import onosendai._1.Driver;
-
+import openaiab._1.Driver;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+class OpenaiabTest_1 {
 
-class OnosendaiTest_1 {
-
-    private static final String BASE_PACKAGE = "onosendai._1";
-    private static final String TARGET_CLASS = ".AlarmReceiver";
+    private static final String BASE_PACKAGE = "openaiab._1";
+    private static final String TARGET_CLASS = ".BillingActivity";
 
     abstract static class CommonCases {
-
         abstract Driver driver();
         abstract String variantName();
 
         @Test
-        @DisplayName("BatteryHelper must use application context")
-        void batteryHelperUsesApplicationContext() throws IOException {
-            String source = driver().readSourceCode();
-            boolean usesAppContext = source.contains("BatteryHelper.level(context.getApplicationContext())")
-                    || source.contains("BatteryHelper.level(appContext)");
-            assertTrue(usesAppContext, "BatteryHelper must be called with application context for " + variantName());
+        @DisplayName("onDestroy should call through to super")
+        void onDestroyShouldCallSuper() {
+            Driver driver = driver();
+            driver.resetLifecycleFlags();
+            driver.onDestroy();
+            assertEquals(true, driver.wasUnityOnDestroyCalled(),
+                    "Expected super.onDestroy() to be called for " + variantName());
         }
     }
 
@@ -39,9 +36,8 @@ class OnosendaiTest_1 {
         }
 
         @Override
-        String variantName() {
-            return "original";
-        }
+        String variantName() { return "original"; }
+
     }
 
 //    @Nested
@@ -51,7 +47,12 @@ class OnosendaiTest_1 {
 //        Driver driver() {
 //            return new Driver(BASE_PACKAGE + ".misuse" + TARGET_CLASS);
 //        }
+//
+//        @Override
+//        String variantName() { return "misuse"; }
+//
 //    }
+
 
     @Nested
     @DisplayName("Fixed")
@@ -62,8 +63,7 @@ class OnosendaiTest_1 {
         }
 
         @Override
-        String variantName() {
-            return "fixed";
-        }
+        String variantName() { return "fixed"; }
+
     }
 }

@@ -15,6 +15,7 @@ dependencies {
     // Lombok
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+    compileOnly("org.jetbrains:annotations:24.1.0")
     implementation("com.alibaba:druid:1.2.20")
     implementation("com.google.android:android:4.1.1.4")
     implementation("junit:junit:4.13.2")
