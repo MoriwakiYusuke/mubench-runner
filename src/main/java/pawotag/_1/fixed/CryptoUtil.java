@@ -1,23 +1,3 @@
-## Instruction
-You are a software engineer specializing in REST API.
-Use the guidelines below to make any necessary modifications.
-
-### Modification Procedure
-0. First, familiarise yourself with the following steps and ### Notes.
-1. Check the technical specifications of the Java API that you have studied or in the official documentation. If you don't know, output the ### Input Code as it is.
-2. Based on the technical specifications of the Java API you have reviewed in step 1, identify the code according to the deprecated specifications contained in the ### Input Code. In this case, the deprecated specifications are the Java API calls that have been deprecated. If no code according to the deprecated specification is found, identify code that is not based on best practice. If you are not sure, output the ### Input Code as it is.
-3. If you find code according to the deprecated specification or not based on best practice in step 2, check the technical specifications in the Java API that you have studied or in the official documentation. If you are not sure, output the ### Input Code as it is.
-4. With attention to the points listed in ### Notes below, modify the code identified in step 2 to follow the recommended specification analysed in step 3.
-5. Verify again that the modified code works correctly.
-6. If you determine that it works correctly, output the modified code.
-7. If it is judged to fail, output the ### Input Code as it is.
-8. If you are not sure, output the ### Input Code as it is.
-
-### Notes.
-- You must follow the ## Context.
-
-## Input Code
-```java
 /* Copyright 2005-2006 Tim Fennell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +12,7 @@ Use the guidelines below to make any necessary modifications.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.sourceforge.stripes.util;
+package pawotag._1.fixed;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -45,9 +25,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
+import pawotag._1.requirements.config.Configuration;
+import pawotag._1.requirements.controller.StripesFilter;
+import pawotag._1.requirements.exception.StripesRuntimeException;
+import pawotag._1.requirements.util.Log;
+import pawotag._1.requirements.util.Base64;
 
 /**
  * <p>Cryptographic utility that can encrypt and decrypt Strings using a key stored in
@@ -157,7 +139,13 @@ public class CryptoUtil {
             byte[] hash = generateHashCode(nonce, inbytes);
             int index = cipher.update(hash, 0, HASH_CODE_SIZE, output, 0);
             index = cipher.update(nonce, 0, NONCE_SIZE, output, index);
-            cipher.doFinal(inbytes, 0, inbytes.length, output, index);
+
+            if (inputLength == 0) {
+                cipher.doFinal(output, index);
+            }
+            else {
+                cipher.doFinal(inbytes, 0, inbytes.length, output, index);
+            }
 
             // Then base64 encode the bytes
             return Base64.encodeBytes(output, BASE64_OPTIONS);
@@ -379,15 +367,3 @@ public class CryptoUtil {
         return true;
     }
 }
-```
-
-## Context
-
-**Bug Location**: File `net/sourceforge/stripes/util/CryptoUtil.java`, Method `encrypt(String)`
-**Bug Type**: missing/condition/value_or_state - `CryptoUtil.java` calls `Cipher.doFinal(byte[], int, int, byte[], int)` without first checking whether the input byte array is empty. On some JVMs (particularly IBM JVM 6), passing a zero-length byte array to this method causes an issue. The fix is to check if `inbytes.length == 0` and use a different `doFinal()` variant if the array is empty.
-
-Can you identify and fix it?
-
-## Output Indicator
-Update the ### Input Code as per the latest API specification, making necessary modifications.
-Ensure the structure and format remain as close as possible to the original, but deprecated code must be updated. Output the all revised code without additional explanations or comments.

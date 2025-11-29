@@ -26,6 +26,11 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.9")
     // jmrtd用 BouncyCastle (ISO9797Alg3Mac等の暗号プリミティブ)
     implementation("org.bouncycastle:bcprov-jdk18on:1.77")
+    // pawotag用 Servlet API, JSP API, Commons Logging
+    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    testImplementation("javax.servlet:javax.servlet-api:4.0.1")
+    compileOnly("javax.servlet.jsp:javax.servlet.jsp-api:2.3.3")
+    implementation("commons-logging:commons-logging:1.2")
 }
 
 java {
