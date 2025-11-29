@@ -1,4 +1,4 @@
-package openaiab._1.requirements.org.onepf.oms.util;
+package openaiab._1.requirements;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Simple wrapper for {@link android.util.Log}.
  * <br/>
- * To enable logging, call {@link openaiab._1.requirements.org.onepf.oms.util.Logger#setLoggable(boolean)} or use <code>adb shell setprop log.tag.YOUR_TAG<code>.
+ * To enable logging, call {@link openaiab._1.requirements.Logger#setLoggable(boolean)} or use <code>adb shell setprop log.tag.YOUR_TAG<code>.
  *
  * @author Kirill Rozov
  * @since 25.07.14
@@ -19,7 +19,7 @@ public final class Logger {
     }
 
     /**
-     * Default log tag. To change the tag value, use {@link openaiab._1.requirements.org.onepf.oms.util.Logger#setLogTag(String)}.
+     * Default log tag. To change the tag value, use {@link openaiab._1.requirements.Logger#setLogTag(String)}.
      */
     public static final String LOG_TAG = "OpenIAB";
 

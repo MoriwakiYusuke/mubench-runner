@@ -1,6 +1,6 @@
 package openaiab._1.mocks.com.openiab;
 
-import openaiab._1.requirements.org.onepf.oms.util.Logger;
+import openaiab._1.requirements.Logger;
 
 /**
  * Minimal wrapper that mimics the original OpenIAB singleton used by BillingActivity.
