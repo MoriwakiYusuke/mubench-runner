@@ -401,6 +401,12 @@ class ProjectTest_1 {
 ./gradlew test --tests "<project>.*"
 ```
 
+ Misuse 失敗をコメントアウトを一時的に外して確認する上記コマンドに加えて必ず以下も実行し、Misuse バリアントが意図通り失敗することを記録する：
+
+```bash
+./gradlew test --tests "onosendai.*"
+```
+
 ### Step 8: データセット一致確認
 
 ```bash
@@ -419,6 +425,7 @@ diff <(grep -v "^package\|^import" datasets/<project>/<case>/original.java | gre
 - [ ] Driverはクラス名を受け取るコンストラクタ
 - [ ] **Driverは元クラスのパブリックメソッドをすべて網羅**
 - [ ] テストは@Nested + abstract CommonCases構造
+- [ ] Misuseのコメントアウトを一時的に外してpassしないことを確認
 - [ ] Misuseはコメントアウト
 - [ ] ビルド成功
 - [ ] 全テストPASS
