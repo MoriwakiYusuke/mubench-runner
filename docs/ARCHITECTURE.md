@@ -44,6 +44,15 @@ src/main/java/<project>/_<case>/
 | gnucrasha | 2 |
 | hoverruan_weiboclient4j | 1 |
 | ivantrendafilov_confucius | 9 |
+| jmrtd | 2 |
+| jriecken_gae_java_mini_profiler | 1 |
+| lnreadera | 2 |
+| logblock_logblock_2 | 1 |
+| mqtt | 1 |
+| onosendai | 1 |
+| openaiab | 1 |
+| pawotag | 1 |
+| rhino | 1 |
 
 ## パッケージ命名規則
 

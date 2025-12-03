@@ -79,6 +79,9 @@ cd mubench-runner
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | プロジェクト構造 |
 | [docs/DATASETS.md](docs/DATASETS.md) | データセット一覧 |
 | [docs/TESTING.md](docs/TESTING.md) | テスト |
+| [docs/TEST_CLASSIFICATION.md](docs/TEST_CLASSIFICATION.md) | テストコード分類一覧 |
+| [docs/LLM_TASK.md](docs/LLM_TASK.md) | LLMタスク |
+| [docs/CONCERNS.md](docs/CONCERNS.md) | 懸念事項 |
 | [docs/BINARY_EXPORT.md](docs/BINARY_EXPORT.md) | バイナリエクスポート |
 
 ## バイナリエクスポート
