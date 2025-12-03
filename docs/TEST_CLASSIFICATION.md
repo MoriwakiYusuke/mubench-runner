@@ -72,6 +72,8 @@
 | `PawotagTest_1.java` | 📝+🔄 混合 | 動的（encrypt/decrypt往復テスト）+ 静的（`hasEmptyArrayCheck()`） |
 | **rhino** | | |
 | `RhinoTest_1.java` | 📝 静的 | `Files.readString()`でParser.javaを読み込み、`nf.initFunction(`パターンの出現回数を検査 |
+| **screen_notifications** | | |
+| `ScreenNotificationsTest_1.java` | 🔄 動的 | Driver経由で`loadInBackground()`を実行し、OOMスロー時のハンドリングを検証 |
 
 ---
 
@@ -79,9 +81,9 @@
 
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
-| 📝 **静的テスト** | 12件 | 約33% |
-| 🔄 **動的テスト** | 22件 | 約61% |
-| 📝+🔄 **混合** | 2件 | 約6% |
-| **合計** | 36件 | 100% |
+| 📝 **静的テスト** | 12件 | 約32% |
+| 🔄 **動的テスト** | 23件 | 約62% |
+| 📝+🔄 **混合** | 2件 | 約5% |
+| **合計** | 37件 | 100% |
 
 ---
