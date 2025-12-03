@@ -41,17 +41,17 @@
 | `GnucrashaTest_1a.java` | 🔄 動的 | `executeOnResume()`、`executeOnPause()`の実行結果を検証 |
 | `GnucrashaTest_1b.java` | 🔄 動的 | `submitPasscode()`、`pressBack()`の実行結果を検証 |
 | **hoverruan_weiboclient4j** | | |
-| `HoverruanWeiboclient4jTest_128.java` | 📝 静的 | `catch (NumberFormatException`パターンを検査 |
+| `HoverruanWeiboclient4jTest_128.java` | 🔄 動的 | Driver経由で`cid(String)`、`cid(long)`の実行結果を検証 |
 | **ivantrendafilov_confucius** | | |
-| `Ivantrendafilov_confuciusTest_93.java` | 📝 静的 | `getByteValue`で`NumberFormatException`処理を検査 |
-| `Ivantrendafilov_confuciusTest_94.java` | 📝 静的 | `getByteValue(String, byte)`で同上 |
-| `Ivantrendafilov_confuciusTest_95.java` | 📝 静的 | `getByteList`で同上 |
-| `Ivantrendafilov_confuciusTest_96.java` | 📝 静的 | `getLongValue`で同上 |
-| `Ivantrendafilov_confuciusTest_97.java` | 📝 静的 | `getLongValue(String, long)`で同上 |
-| `Ivantrendafilov_confuciusTest_98.java` | 📝 静的 | `getLongList`で同上 |
-| `Ivantrendafilov_confuciusTest_99.java` | 📝 静的 | `getShortValue`で同上 |
-| `Ivantrendafilov_confuciusTest_100.java` | 📝 静的 | `getShortValue(String, short)`で同上 |
-| `Ivantrendafilov_confuciusTest_101.java` | 📝 静的 | `getShortList`で同上 |
+| `Ivantrendafilov_confuciusTest_93.java` | 🔄 動的 | Driver経由で`getByteValue(String)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_94.java` | 🔄 動的 | Driver経由で`getByteValue(String, byte)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_95.java` | 🔄 動的 | Driver経由で`getByteList(String, String)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_96.java` | 🔄 動的 | Driver経由で`getLongValue(String)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_97.java` | 🔄 動的 | Driver経由で`getLongValue(String, long)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_98.java` | 🔄 動的 | Driver経由で`getLongList(String, String)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_99.java` | 🔄 動的 | Driver経由で`getShortValue(String)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_100.java` | 🔄 動的 | Driver経由で`getShortValue(String, short)`の実行結果を検証 |
+| `Ivantrendafilov_confuciusTest_101.java` | 🔄 動的 | Driver経由で`getShortList(String, String)`の実行結果を検証 |
 | **jmrtd** | | |
 | `JmrtdTest_1.java` | 📝 静的 | `dataOut.close()`パターンを検査（Driver経由） |
 | `JmrtdTest_2.java` | 📝 静的 | `Cipher.DECRYPT_MODE`パターンを検査（Driver経由） |
@@ -61,9 +61,9 @@
 | `LnreaderaTest_1.java` | 🔄 動的 | `executeOnDestroyAndCheckSuperCalled()`で検証 |
 | `LnreaderaTest_2.java` | 🔄 動的 | 同上 |
 | **logblock_logblock_2** | | |
-| `LogblockLogblock2Test_15.java` | 📝 静的 | `hasProperStreamClose()`でソース検査（Driver経由） |
+| `LogblockLogblock2Test_15.java` | 🔄 動的 | Driver経由で`paintingTest()`、`writeBlobToBytes()`、`readBlobFromBytes()`の実行結果を検証 |
 | **mqtt** | | |
-| `MqttTest_389.java` | 📝 静的 | `hasProperFlushInGetPayload()`でソース検査（Driver経由） |
+| `MqttTest_389.java` | 🔄 動的 | Driver経由で`getPayload()`、`getHeader()`、`getType()`等の実行結果を検証 |
 | **onosendai** | | |
 | `OnosendaiTest_1.java` | 📝 静的 | `BatteryHelper.level(context.getApplicationContext())`パターンを検査 |
 | **openaiab** | | |
@@ -77,9 +77,9 @@
 
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
-| 📝 **静的テスト** | 23件 | 約66% |
-| 🔄 **動的テスト** | 10件 | 約29% |
-| 📝+🔄 **混合** | 2件 | 約5% |
+| 📝 **静的テスト** | 11件 | 約31% |
+| 🔄 **動的テスト** | 22件 | 約63% |
+| 📝+🔄 **混合** | 2件 | 約6% |
 | **合計** | 35件 | 100% |
 
 ---

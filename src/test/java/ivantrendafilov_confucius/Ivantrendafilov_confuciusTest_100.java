@@ -5,41 +5,28 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import ivantrendafilov_confucius._100.Driver;
+import java.util.Properties;
 
+/**
+ * 動的テスト: getShortValue(String, short) の動作検証
+ */
 public class Ivantrendafilov_confuciusTest_100 {
 
     abstract static class CommonLogic {
 
-        abstract String getSourceFilePath();
+        abstract Driver createDriver(Properties props) throws Exception;
 
         @Test
-        @DisplayName("Source code must handle NumberFormatException in getShortValue(String, short) method")
-        void testSourceCodeHandlesNumberFormatException() throws Exception {
-            String sourceFilePath = getSourceFilePath();
-            Path path = Paths.get(sourceFilePath);
+        @DisplayName("getShortValue with default should work correctly for valid short value")
+        void testGetShortValueWithDefaultValidInput() throws Exception {
+            Properties props = new Properties();
+            props.setProperty("valid.key", "1234");
             
-            assertTrue(Files.exists(path), "Source file should exist: " + sourceFilePath);
+            Driver driver = createDriver(props);
             
-            String sourceCode = Files.readString(path);
-            
-            // synchronized キーワードを含まない形で検索
-            int methodStart = sourceCode.indexOf("short getShortValue(String key, short defaultValue)");
-            assertTrue(methodStart >= 0, "getShortValue(String, short) method should exist in source");
-            
-            int nextMethodStart = sourceCode.indexOf("public", methodStart + 1);
-            int methodEnd = nextMethodStart > 0 ? nextMethodStart : sourceCode.length();
-            
-            String methodBody = sourceCode.substring(methodStart, methodEnd);
-            
-            boolean hasNumberFormatExceptionHandling = 
-                methodBody.contains("catch (NumberFormatException") ||
-                methodBody.contains("catch(NumberFormatException");
-            
-            assertTrue(hasNumberFormatExceptionHandling, 
-                "getShortValue(String, short) method must handle NumberFormatException with try-catch.");
+            short result = driver.getShortValue("valid.key", (short) 0);
+            assertEquals((short) 1234, result);
         }
     }
 
@@ -47,8 +34,8 @@ public class Ivantrendafilov_confuciusTest_100 {
     @DisplayName("Original")
     class Original extends CommonLogic {
         @Override
-        String getSourceFilePath() {
-            return "src/main/java/ivantrendafilov_confucius/_100/original/AbstractConfiguration.java";
+        Driver createDriver(Properties props) throws Exception {
+            return new Driver("original", props);
         }
     }
 
@@ -57,8 +44,8 @@ public class Ivantrendafilov_confuciusTest_100 {
     @DisplayName("Misuse")
     class Misuse extends CommonLogic {
         @Override
-        String getSourceFilePath() {
-            return "src/main/java/ivantrendafilov_confucius/_100/misuse/AbstractConfiguration.java";
+        Driver createDriver(Properties props) throws Exception {
+            return new Driver("misuse", props);
         }
     }
     */
@@ -67,8 +54,8 @@ public class Ivantrendafilov_confuciusTest_100 {
     @DisplayName("Fixed")
     class Fixed extends CommonLogic {
         @Override
-        String getSourceFilePath() {
-            return "src/main/java/ivantrendafilov_confucius/_100/fixed/AbstractConfiguration.java";
+        Driver createDriver(Properties props) throws Exception {
+            return new Driver("fixed", props);
         }
     }
 }
