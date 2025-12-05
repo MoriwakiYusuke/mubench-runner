@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sf.ntru.sign;
+package tbuktu_ntru._474.original;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,8 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 
-import net.sf.ntru.polynomial.DenseTernaryPolynomial;
-import net.sf.ntru.polynomial.SparseTernaryPolynomial;
 
 /**
  * A set of parameters for NtruSign. Several predefined parameter sets are available and new ones can be created as well.

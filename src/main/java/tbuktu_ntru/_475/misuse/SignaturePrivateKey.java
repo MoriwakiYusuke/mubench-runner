@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sf.ntru.sign;
+package tbuktu_ntru._475.misuse;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,9 +36,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.ntru.exception.NtruException;
-import net.sf.ntru.sign.SignatureParameters.BasisType;
-import net.sf.ntru.sign.SignatureParameters.TernaryPolynomialType;
+import tbuktu_ntru._475.requirements.NtruException;
+import tbuktu_ntru._475.requirements.SignatureParameters.BasisType;
+import tbuktu_ntru._475.requirements.Basis;
+import tbuktu_ntru._475.requirements.SignatureParameters;
+import tbuktu_ntru._475.requirements.SignatureParameters.TernaryPolynomialType;
 
 /**
  * A NtruSign private key comprises one or more {@link Basis} of three polynomials each,
@@ -130,27 +132,27 @@ public class SignaturePrivateKey {
    public byte[] getEncoded() {
        int numBases = bases.size();
        
-       ByteArrayOutputStream os = new ByteArrayOutputStream();
-       try (DataOutputStream dataStream = new DataOutputStream(os)) {
-           dataStream.writeShort(N);
-           dataStream.writeShort(q);
-           
-           int flags = sparse ? 1 : 0;
-           flags |= polyType==TernaryPolynomialType.PRODUCT ? 4 : 0;
-           flags |= basisType==BasisType.TRANSPOSE ? 8 : 0;
-           dataStream.write(flags);
-           
-           dataStream.writeFloat(keyNormBoundSq);
-           dataStream.write(numBases);   // 1 byte
-           
-           for (int i=0; i<numBases; i++)
-               // all bases except for the first one contain a public key
-               bases.get(i).encode(os, i!=0);
-           dataStream.flush();
-       } catch (IOException e) {
-           throw new NtruException(e);
-       }
-       return os.toByteArray();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        DataOutputStream dataStream = new DataOutputStream(os);
+        try {
+            dataStream.writeShort(N);
+            dataStream.writeShort(q);
+            
+            int flags = sparse ? 1 : 0;
+            flags |= polyType==TernaryPolynomialType.PRODUCT ? 4 : 0;
+            flags |= basisType==BasisType.TRANSPOSE ? 8 : 0;
+            dataStream.write(flags);
+            
+            dataStream.writeFloat(keyNormBoundSq);
+            dataStream.write(numBases);   // 1 byte
+            
+            for (int i=0; i<numBases; i++)
+                // all bases except for the first one contain a public key
+                bases.get(i).encode(os, i!=0);
+        } catch (IOException e) {
+            throw new NtruException(e);
+        }
+        return os.toByteArray();
     }
     
    /**

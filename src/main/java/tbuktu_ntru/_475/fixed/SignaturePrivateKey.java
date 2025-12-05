@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sf.ntru.sign;
+package tbuktu_ntru._475.fixed;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,9 +36,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.ntru.exception.NtruException;
-import net.sf.ntru.sign.SignatureParameters.BasisType;
-import net.sf.ntru.sign.SignatureParameters.TernaryPolynomialType;
+import tbuktu_ntru._475.requirements.NtruException;
+import tbuktu_ntru._475.requirements.SignatureParameters.BasisType;
+import tbuktu_ntru._475.requirements.Basis;
+import tbuktu_ntru._475.requirements.SignatureParameters;
+import tbuktu_ntru._475.requirements.SignatureParameters.TernaryPolynomialType;
 
 /**
  * A NtruSign private key comprises one or more {@link Basis} of three polynomials each,

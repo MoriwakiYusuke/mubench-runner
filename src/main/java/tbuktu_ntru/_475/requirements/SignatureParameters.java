@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sf.ntru.sign;
+package tbuktu_ntru._475.requirements;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,8 +33,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 
-import net.sf.ntru.polynomial.DenseTernaryPolynomial;
-import net.sf.ntru.polynomial.SparseTernaryPolynomial;
+import tbuktu_ntru._475.requirements.DenseTernaryPolynomial;
+import tbuktu_ntru._475.requirements.SparseTernaryPolynomial;
 
 /**
  * A set of parameters for NtruSign. Several predefined parameter sets are available and new ones can be created as well.
@@ -62,18 +62,18 @@ public class SignatureParameters implements Cloneable {
     public enum TernaryPolynomialType {SIMPLE, PRODUCT};
     
     public int N;
-    int q;
+    public int q;
     public int d, d1, d2, d3, B;
-    float beta, betaSq, normBound, normBoundSq;
-    int signFailTolerance = 100;
-    float keyNormBound, keyNormBoundSq;
-    boolean primeCheck;   // true if N and 2N+1 are prime
-    BasisType basisType;
-    int bitsF = 6;   // max #bits needed to encode one coefficient of the polynomial F
-    boolean sparse;   // whether to treat ternary polynomials as sparsely populated
-    KeyGenAlg keyGenAlg;
-    String hashAlg;
-    TernaryPolynomialType polyType;
+    public float beta, betaSq, normBound, normBoundSq;
+    public int signFailTolerance = 100;
+    public float keyNormBound, keyNormBoundSq;
+    public boolean primeCheck;   // true if N and 2N+1 are prime
+    public BasisType basisType;
+    public int bitsF = 6;   // max #bits needed to encode one coefficient of the polynomial F
+    public boolean sparse;   // whether to treat ternary polynomials as sparsely populated
+    public KeyGenAlg keyGenAlg;
+    public String hashAlg;
+    public TernaryPolynomialType polyType;
     
     /**
      * Constructs a parameter set that uses ternary private keys (i.e. </code>polyType=SIMPLE</code>).
@@ -213,7 +213,6 @@ public class SignatureParameters implements Cloneable {
         dos.write(keyGenAlg.ordinal());
         dos.writeUTF(hashAlg);
         dos.write(polyType.ordinal());
-        dos.flush();
     }
 
     @Override

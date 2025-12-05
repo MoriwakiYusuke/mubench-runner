@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.sf.ntru.sign;
+package tbuktu_ntru._476.original;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import net.sf.ntru.exception.NtruException;
-import net.sf.ntru.polynomial.IntegerPolynomial;
+import tbuktu_ntru._476.requirements.NtruException;
+import tbuktu_ntru._476.requirements.IntegerPolynomial;
 
 /**
  * A NtruSign public key is essentially a polynomial named <code>h</code>.
@@ -92,7 +92,7 @@ public class SignaturePublicKey {
             dataStream.writeShort(h.coeffs.length);
             dataStream.writeShort(q);
             dataStream.write(h.toBinary(q));
-            dataStream.flush();
+            dataStream.close();
         } catch (IOException e) {
             throw new NtruException(e);
         }
