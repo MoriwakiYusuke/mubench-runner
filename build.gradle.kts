@@ -31,6 +31,8 @@ dependencies {
     testImplementation("javax.servlet:javax.servlet-api:4.0.1")
     compileOnly("javax.servlet.jsp:javax.servlet.jsp-api:2.3.3")
     implementation("commons-logging:commons-logging:1.2")
+    // asterisk-java用 Asterisk-Java library
+    implementation("org.asteriskjava:asterisk-java:3.41.0")
 }
 
 java {

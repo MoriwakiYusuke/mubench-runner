@@ -16,7 +16,7 @@
  */
 package asterisk_java._194.fixed;
 
-import asterisk_java._194.mocks.AbstractRtcpEvent;
+import org.asteriskjava.manager.event.AbstractRtcpEvent;
 import java.net.InetAddress;
 
 /**

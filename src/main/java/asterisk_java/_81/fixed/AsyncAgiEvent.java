@@ -1,6 +1,6 @@
 package asterisk_java._81.fixed;
 
-import asterisk_java._81.mocks.ResponseEvent;
+import org.asteriskjava.manager.event.ResponseEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
