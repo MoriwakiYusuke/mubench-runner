@@ -5,34 +5,44 @@ plugins {
 
 repositories {
     // ライブラリのダウンロード先 (Maven Central)
+    // テストフレームワーク(JUnit5)とアノテーションプロセッサ(Lombok)のみMaven Centralから取得
     mavenCentral()
 }
 
 dependencies {
-    // テスト用ライブラリ (JUnit 5)
+    // テスト用ライブラリ (JUnit 5) - テストフレームワークはMaven Centralから
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    // Lombok
+    // Lombok - アノテーションプロセッサはMaven Centralから
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     compileOnly("org.jetbrains:annotations:24.1.0")
-    implementation("com.alibaba:druid:1.2.20")
-    implementation("com.google.android:android:4.1.1.4")
-    implementation("junit:junit:4.13.2")
-    implementation("org.scribe:scribe:1.3.7")
-    implementation("org.codehaus.jackson:jackson-mapper-asl:1.9.13")
+    
+    // ==========================================================================
+    // ローカルJAR依存 (libs/配下に永続化)
+    // データセットの再現性を保証するため、外部依存をリポジトリ内に保存
+    // ==========================================================================
+    implementation(files("libs/druid-1.2.20.jar"))
+    implementation(files("libs/android-4.1.1.4.jar"))
+    implementation(files("libs/junit-4.13.2.jar"))
+    implementation(files("libs/hamcrest-core-1.3.jar"))
+    implementation(files("libs/scribe-1.3.7.jar"))
+    implementation(files("libs/jackson-mapper-asl-1.9.13.jar"))
+    implementation(files("libs/jackson-core-asl-1.9.13.jar"))
     // ivantrendafilov-confucius用 SLF4J
-    implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation(files("libs/slf4j-api-2.0.9.jar"))
+    implementation(files("libs/slf4j-simple-2.0.9.jar"))
     // jmrtd用 BouncyCastle (ISO9797Alg3Mac等の暗号プリミティブ)
-    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
+    implementation(files("libs/bcprov-jdk18on-1.77.jar"))
     // pawotag用 Servlet API, JSP API, Commons Logging
-    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
-    testImplementation("javax.servlet:javax.servlet-api:4.0.1")
-    compileOnly("javax.servlet.jsp:javax.servlet.jsp-api:2.3.3")
-    implementation("commons-logging:commons-logging:1.2")
+    compileOnly(files("libs/javax.servlet-api-4.0.1.jar"))
+    testImplementation(files("libs/javax.servlet-api-4.0.1.jar"))
+    compileOnly(files("libs/javax.servlet.jsp-api-2.3.3.jar"))
+    implementation(files("libs/commons-logging-1.2.jar"))
     // asterisk-java用 Asterisk-Java library
-    implementation("org.asteriskjava:asterisk-java:3.41.0")
+    implementation(files("libs/asterisk-java-3.41.0.jar"))
+    // tap-apps用 Commons Codec (Base64)
+    implementation(files("libs/commons-codec-1.16.0.jar"))
 }
 
 java {

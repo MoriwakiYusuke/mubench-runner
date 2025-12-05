@@ -56,9 +56,11 @@ cd mubench-runner
 │   │           ├── mocks/        # （※3）
 │   │           └── Driver.java   # バリアント切替用（※4）
 │   └── test/java/            # JUnit 5 テストスイート
+├── libs/                     # 依存ライブラリ JAR（※5）
 ├── docs/                     # ドキュメント
 │   ├── ARCHITECTURE.md       # プロジェクト構造
 │   ├── DATASETS.md           # データセット一覧
+│   ├── DEPENDENCIES.md       # 依存ライブラリ一覧
 │   ├── TESTING.md            # テスト
 │   └── BINARY_EXPORT.md      # バイナリエクスポート
 ├── build.gradle.kts          # Gradle 設定
@@ -71,6 +73,7 @@ cd mubench-runner
 - **※2 `requirements/`**: 元プロジェクトから依存クラスを取得し、同様にパッケージ宣言・インポート文・public クラス修飾子のみ修正しています。すべてのケースに存在するわけではありません。
 - **※3 `mocks/`**: ビルドを通すためのダミー実装や簡易実装です。すべてのケースに存在するわけではありません。
 - **※4 `Driver.java`**: リフレクションを使用して original/misuse/fixed バリアントを切り替えます。テストクラスから呼び出されます。
+- **※5 `libs/`**: 依存ライブラリの JAR ファイルを格納しています。一般的に JAR ファイルをリポジトリに含めることはアンチパターンとされていますが、本プロジェクトはベンチマーク**データセット**としての永続性・再現性を重視し、外部リポジトリ（Maven Central 等）の将来的な変更や廃止に依存しない形で配布するため、あえて JAR ファイルを直接管理しています。詳細は [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) を参照してください。
 
 ## ドキュメント
 

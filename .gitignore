@@ -40,14 +40,17 @@ venv/
 gradle-app.setting
 .gradletasknamecache
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
 # Generated files
 *.class
 *.jar
 *.war
 *.ear
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignoring libs directory (local JAR dependencies for dataset persistence)
+!libs/*.jar
 
 # Virtual machine crash logs
 hs_err_pid*
