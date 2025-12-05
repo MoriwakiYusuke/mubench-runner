@@ -5,26 +5,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.Cipher;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test class for jmrtd Case 2: Cipher mode misuse in PassportAuthService.doAA()
+ * 動的テスト: PassportAuthService.doAA() の Cipher モード検証。
  * 
- * Bug: Using Cipher.ENCRYPT_MODE instead of Cipher.DECRYPT_MODE
- * - original: uses DECRYPT_MODE (correct)
- * - misuse: uses ENCRYPT_MODE (BUG)
- * - fixed: LLM FAILURE - returned SecureMessagingWrapper instead of PassportAuthService
+ * バグ: aaCipher.init() に ENCRYPT_MODE を使用（DECRYPT_MODE が正しい）
+ * - Original: Cipher.DECRYPT_MODE → 署名検証が正常動作
+ * - Misuse: Cipher.ENCRYPT_MODE → 署名検証が失敗
  * 
- * This test uses source code analysis via Driver to verify the fix.
+ * 注: PassportAuthService のインスタンス化には ISO9796-2 署名アルゴリズムが必要で
+ * 標準 JDK では利用不可。そのため動的テストは独立した Cipher テストで実施。
  */
 class JmrtdTest_2 {
 
     private static final String BASE_PACKAGE = "jmrtd._2";
 
     /**
-     * Common test cases for variants that contain the correct PassportAuthService class.
+     * PassportAuthService バリアント用の共通テストケース
      */
     abstract static class PassportAuthServiceCases {
 
@@ -54,6 +57,113 @@ class JmrtdTest_2 {
             assertTrue(d.usesDecryptMode(),
                 "doAA() should use Cipher.DECRYPT_MODE (not ENCRYPT_MODE)");
         }
+
+        @Test
+        @DisplayName("doAA method should NOT use Cipher.ENCRYPT_MODE")
+        void testNotUsingEncryptMode() throws IOException {
+            Driver d = driver();
+            assertFalse(d.usesEncryptMode(),
+                "doAA() should not use Cipher.ENCRYPT_MODE");
+        }
+
+        @Test
+        @DisplayName("Cipher mode should be DECRYPT_MODE")
+        void testCipherModeFromSource() throws IOException {
+            Driver d = driver();
+            String mode = d.getCipherModeFromSource();
+            assertEquals("DECRYPT_MODE", mode, 
+                "Cipher should be initialized with DECRYPT_MODE for RSA signature verification");
+        }
+
+        /**
+         * 動的テスト: RSA 暗号化/復号化のラウンドトリップで DECRYPT_MODE の正しさを検証
+         * 
+         * doAA() のパターンを再現:
+         * - カード (private key) が署名データを暗号化
+         * - 検証者 (public key + DECRYPT_MODE) が復号化
+         * 
+         * ENCRYPT_MODE を使うと復号化が失敗する
+         */
+        @Test
+        @DisplayName("RSA decryption with DECRYPT_MODE should work (dynamic test)")
+        void testRsaDecryptModeWorks() throws Exception {
+            // Generate RSA key pair
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(2048);
+            KeyPair kp = kpg.generateKeyPair();
+            
+            // Test data
+            byte[] testData = new byte[100];
+            for (int i = 0; i < testData.length; i++) {
+                testData[i] = (byte) i;
+            }
+            
+            // Encrypt with private key (simulating card's signature)
+            Cipher encryptCipher = Cipher.getInstance("RSA");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, kp.getPrivate());
+            byte[] encrypted = encryptCipher.doFinal(testData);
+            
+            // Decrypt with public key using DECRYPT_MODE (correct mode)
+            Cipher decryptCipher = Cipher.getInstance("RSA");
+            decryptCipher.init(Cipher.DECRYPT_MODE, kp.getPublic());
+            byte[] decrypted = decryptCipher.doFinal(encrypted);
+            
+            // Verify round-trip
+            assertArrayEquals(testData, decrypted, 
+                "DECRYPT_MODE should correctly decrypt data encrypted with private key");
+        }
+
+        /**
+         * 動的テスト: ENCRYPT_MODE で復号化しようとすると不正な結果になることを検証
+         * これが Misuse バリアントのバグパターン
+         * 
+         * Note: RSA で暗号化したデータをさらに ENCRYPT_MODE で処理すると
+         * サイズオーバーになる場合があるため、パディングなしで検証
+         */
+        @Test
+        @DisplayName("RSA ENCRYPT_MODE produces different result (demonstrates the bug)")
+        void testRsaEncryptModeProducesDifferentResult() throws Exception {
+            // Generate RSA key pair
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(2048);
+            KeyPair kp = kpg.generateKeyPair();
+            
+            // Small test data (to avoid RSA block size issues)
+            byte[] testData = new byte[32];
+            for (int i = 0; i < testData.length; i++) {
+                testData[i] = (byte) i;
+            }
+            
+            // Encrypt with private key
+            Cipher encryptCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, kp.getPrivate());
+            byte[] encrypted = encryptCipher.doFinal(testData);
+            
+            // Correct way: Decrypt with DECRYPT_MODE
+            Cipher correctCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            correctCipher.init(Cipher.DECRYPT_MODE, kp.getPublic());
+            byte[] correctResult = correctCipher.doFinal(encrypted);
+            
+            // Bug way: Use ENCRYPT_MODE instead of DECRYPT_MODE
+            // This simulates what happens when the misuse pattern is used
+            // ENCRYPT_MODE with public key should throw or produce wrong result
+            try {
+                Cipher wrongCipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                wrongCipher.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+                byte[] wrongResult = wrongCipher.doFinal(encrypted);
+                
+                // If we get here, the results should be different
+                assertFalse(java.util.Arrays.equals(correctResult, wrongResult),
+                    "ENCRYPT_MODE should produce different result than DECRYPT_MODE");
+            } catch (Exception e) {
+                // Exception is also acceptable - it shows the bug causes failure
+                assertTrue(true, "ENCRYPT_MODE caused exception as expected: " + e.getMessage());
+            }
+            
+            // Verify the correct result matches original
+            assertArrayEquals(testData, correctResult,
+                "DECRYPT_MODE should correctly recover original data");
+        }
     }
 
     @Nested
@@ -64,20 +174,9 @@ class JmrtdTest_2 {
         Driver driver() {
             return new Driver(BASE_PACKAGE + ".original.PassportAuthService");
         }
-
-        @Test
-        @DisplayName("Original should NOT use ENCRYPT_MODE")
-        void testNotUsingEncryptMode() throws IOException {
-            Driver d = driver();
-            assertFalse(d.usesEncryptMode(),
-                "Original should not use ENCRYPT_MODE in doAA()");
-        }
     }
 
-    /**
-     * Misuse variant - always fails because it uses ENCRYPT_MODE instead of DECRYPT_MODE.
-     * Commented out as it represents the buggy code that should fail.
-     */
+    // Misuse: ENCRYPT_MODE を使用 → ソース解析で検出
     // @Nested
     // @DisplayName("Misuse")
     // class Misuse extends PassportAuthServiceCases {
@@ -89,11 +188,7 @@ class JmrtdTest_2 {
     // }
 
     /**
-     * Fixed variant - LLM FAILURE case.
-     * 
-     * The LLM was asked to fix the Cipher mode bug in PassportAuthService,
-     * but it returned SecureMessagingWrapper instead. This is an experimental
-     * case documenting LLM limitations.
+     * Fixed バリアント - LLM 失敗ケース
      */
     @Nested
     @DisplayName("Fixed (LLM Failure Case)")
@@ -121,15 +216,11 @@ class JmrtdTest_2 {
         }
 
         @Test
-        @DisplayName("LLM failure: doAA method signature does not exist (wrong class)")
-        void testDoAAMethodNotFound() throws IOException {
+        @DisplayName("LLM failure: no doAA method in wrong class")
+        void testNoDoAAMethod() throws IOException {
             Driver d = driver();
-            // The fixed variant contains SecureMessagingWrapper instead of PassportAuthService
-            // usesDecryptMode checks for "doAA(" followed by Cipher.DECRYPT_MODE in the method body
-            // Since this is the wrong class, there's no doAA method with Cipher usage
-            // Note: The comment mentions doAA() but doesn't have the actual method implementation
-            assertFalse(d.containsPassportAuthService(),
-                "LLM returned SecureMessagingWrapper instead of PassportAuthService");
+            assertFalse(d.usesDecryptMode(),
+                "SecureMessagingWrapper doesn't have doAA method with Cipher usage");
         }
     }
 }

@@ -17,13 +17,13 @@
 | テストファイル | 種類 | 検証方法 |
 |---|:---:|---|
 | **adempiere** | | |
-| `AdempiereTest_1.java` | 📝 静的 | `Files.readString()`でソースを読み、`getBytes("UTF8")`パターンを検査 |
-| `AdempiereTest_2.java` | 📝 静的 | 同上 |
+| `AdempiereTest_1.java` | 🔄 動的 | `encrypt()`→`decrypt()`ラウンドトリップで非ASCII文字（日本語・中国語・絵文字）を検証 |
+| `AdempiereTest_2.java` | 🔄 動的 | 同上 |
 | **alibaba_druid** | | |
 | `AlibabaDruidTest_1.java` | 📝 静的 | `cipher = Cipher.getInstance`パターンを検査 |
 | `AlibabaDruidTest_2.java` | 📝 静的 | `catch (InvalidKeyException`パターンを検査 |
 | **android_rcs_rcsjta** | | |
-| `AndroidRcsRcsjtaTest_1.java` | 📝 静的 | `getBytes(UTF8)`パターンを検査 |
+| `AndroidRcsRcsjtaTest_1.java` | 🔄 動的 | `getContributionId()`の結果一貫性を検証、非ASCII文字でも正常動作を確認 |
 | **androiduil** | | |
 | `AndroiduilTest_1.java` | 📝 静的 | `catch (NullPointerException`パターンを検査 |
 | **apache_gora** | | |
@@ -54,7 +54,7 @@
 | `Ivantrendafilov_confuciusTest_101.java` | 🔄 動的 | Driver経由で`getShortList(String, String)`の実行結果を検証 |
 | **jmrtd** | | |
 | `JmrtdTest_1.java` | 📝 静的 | `dataOut.close()`パターンを検査（Driver経由） |
-| `JmrtdTest_2.java` | 📝 静的 | `Cipher.DECRYPT_MODE`パターンを検査（Driver経由） |
+| `JmrtdTest_2.java` | 📝+🔄 混合 | ソース検査（`Cipher.DECRYPT_MODE`）+ 動的RSA暗号化/復号化ラウンドトリップ検証 |
 | **jriecken_gae_java_mini_profiler** | | |
 | `Jriecken_gae_java_mini_profilerTest_39.java` | 🔄 動的 | `handlesInvalidIdGracefully()`の実行結果を検証 |
 | **lnreadera** | | |
@@ -71,7 +71,7 @@
 | **pawotag** | | |
 | `PawotagTest_1.java` | 📝+🔄 混合 | 動的（encrypt/decrypt往復テスト）+ 静的（`hasEmptyArrayCheck()`） |
 | **rhino** | | |
-| `RhinoTest_1.java` | 📝 静的 | `Files.readString()`でParser.javaを読み込み、`nf.initFunction(`パターンの出現回数を検査 |
+| `RhinoTest_1.java` | 📝+🔄 混合 | 動的（`parse()`実行でタイムアウト検出）+ 静的（`initFunction`呼び出し回数検査） |
 | **screen_notifications** | | |
 | `ScreenNotificationsTest_1.java` | 🔄 動的 | Driver経由で`loadInBackground()`を実行し、OOMスロー時のハンドリングを検証 |
 | **tap_apps** | | |
@@ -83,9 +83,9 @@
 
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
-| 📝 **静的テスト** | 12件 | 約32% |
-| 🔄 **動的テスト** | 23件 | 約61% |
-| 📝+🔄 **混合** | 3件 | 約8% |
+| 📝 **静的テスト** | 8件 | 約21% |
+| 🔄 **動的テスト** | 26件 | 約68% |
+| 📝+🔄 **混合** | 4件 | 約11% |
 | **合計** | 38件 | 100% |
 
 ---

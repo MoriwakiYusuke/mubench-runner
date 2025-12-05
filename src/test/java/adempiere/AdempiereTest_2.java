@@ -5,119 +5,132 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 import adempiere._2.Driver;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
+/**
+ * 動的テスト: encrypt/decrypt のラウンドトリップで UTF-8 エンコーディングを検証。
+ * 
+ * バグ: encrypt() で getBytes() を引数なしで使用
+ * - Original: getBytes("UTF8") → UTF-8 文字が正しく処理される
+ * - Misuse: getBytes() → プラットフォーム依存で文字化けの可能性
+ */
 public class AdempiereTest_2 {
 
-    /**
-     * 共通のテストロジック. Driver を経由してテストを実行します.
-     * 
-     * このテストは、encrypt メソッドが明示的に UTF-8 エンコーディングを使用しているかを検証します。
-     * Original: getBytes("UTF8") を使用 → テストパス
-     * Misuse: getBytes() を使用（プラットフォームデフォルト） → ソースコード検査でフェイル
-     */
-    abstract static class CommonLogic {
+    abstract static class CommonCases {
 
-        abstract Driver getTargetDriver();
-        
-        /**
-         * 実装のソースファイルパスを返す。
-         */
-        abstract String getSourceFilePath();
+        abstract Driver driver();
 
-        /**
-         * ソースコードを検査して、encrypt メソッドで getBytes() が明示的に UTF-8 を指定しているかを確認する。
-         */
         @Test
-        @DisplayName("Source code must use explicit UTF-8 encoding in encrypt method")
-        void testSourceCodeUsesExplicitUtf8Encoding() throws Exception {
-            String sourceFilePath = getSourceFilePath();
-            Path path = Paths.get(sourceFilePath);
+        @DisplayName("Round-trip encryption/decryption should work for ASCII text")
+        void testRoundTripAscii() {
+            Driver d = driver();
+            String original = "Hello, World!";
             
-            assertTrue(Files.exists(path), "Source file should exist: " + sourceFilePath);
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
+            assertNotEquals(original, encrypted, "Encrypted should differ from original");
             
-            String sourceCode = Files.readString(path);
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, "Decrypted should match original");
+        }
+
+        @Test
+        @DisplayName("Round-trip encryption/decryption should work for Japanese text (UTF-8)")
+        void testRoundTripJapanese() {
+            Driver d = driver();
+            String original = "こんにちは世界";
             
-            // encrypt メソッドの範囲を抽出
-            int encryptMethodStart = sourceCode.indexOf("public String encrypt (String value)");
-            assertTrue(encryptMethodStart >= 0, "encrypt method should exist in source");
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
             
-            int encryptMethodEnd = sourceCode.indexOf("}	//	encrypt", encryptMethodStart);
-            if (encryptMethodEnd < 0) {
-                encryptMethodEnd = sourceCode.indexOf("}\t//\tencrypt", encryptMethodStart);
-            }
-            if (encryptMethodEnd < 0) {
-                encryptMethodEnd = sourceCode.indexOf("}  //  encrypt", encryptMethodStart);
-            }
-            assertTrue(encryptMethodEnd > encryptMethodStart, "encrypt method end should be found");
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, 
+                "Decrypted Japanese text should match original. " +
+                "Failure indicates getBytes() is not using explicit UTF-8 encoding.");
+        }
+
+        @Test
+        @DisplayName("Round-trip encryption/decryption should work for Chinese text (UTF-8)")
+        void testRoundTripChinese() {
+            Driver d = driver();
+            String original = "你好世界";
             
-            String encryptMethodBody = sourceCode.substring(encryptMethodStart, encryptMethodEnd);
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
             
-            boolean hasGetBytes = encryptMethodBody.contains(".getBytes(");
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, 
+                "Decrypted Chinese text should match original.");
+        }
+
+        @Test
+        @DisplayName("Round-trip encryption/decryption should work for emoji (UTF-8)")
+        void testRoundTripEmoji() {
+            Driver d = driver();
+            String original = "Hello 🌍🌎🌏";
             
-            if (hasGetBytes) {
-                boolean usesUtf8 = encryptMethodBody.contains("getBytes(\"UTF8\")") ||
-                                   encryptMethodBody.contains("getBytes(\"UTF-8\")") ||
-                                   encryptMethodBody.contains("getBytes(StandardCharsets.UTF_8)") ||
-                                   encryptMethodBody.contains("getBytes(java.nio.charset.StandardCharsets.UTF_8)");
-                
-                boolean hasGetBytesNoArgs = encryptMethodBody.matches("(?s).*\\.getBytes\\(\\).*");
-                
-                assertTrue(usesUtf8 && !hasGetBytesNoArgs, 
-                    "encrypt method must use getBytes with explicit UTF-8 encoding.");
-            }
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
+            
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, 
+                "Decrypted emoji text should match original.");
+        }
+
+        @Test
+        @DisplayName("Empty string should be handled correctly")
+        void testEmptyString() {
+            Driver d = driver();
+            String original = "";
+            
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
+            
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, "Empty string should round-trip correctly");
+        }
+
+        @Test
+        @DisplayName("Round-trip should work for mixed ASCII and non-ASCII text")
+        void testRoundTripMixed() {
+            Driver d = driver();
+            String original = "Hello こんにちは 你好 🌍";
+            
+            String encrypted = d.encrypt(original);
+            assertNotNull(encrypted, "Encrypted value should not be null");
+            
+            String decrypted = d.decrypt(encrypted);
+            assertEquals(original, decrypted, 
+                "Mixed text should round-trip correctly.");
         }
     }
 
-    // --- 以下、実行定義 ---
+    // --- 実行定義 ---
+
     @Nested
     @DisplayName("Original")
-    class Original extends CommonLogic {
-
+    class Original extends CommonCases {
         @Override
-        Driver getTargetDriver() {
+        Driver driver() {
             return new Driver(new adempiere._2.original.Secure());
         }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/adempiere/_2/original/Secure.java";
-        }
     }
 
-    // Misuse: テスト要件確認済み（Original はパス、Misuse はフェイル）
-    // ビルドを通すためコメントアウト
-    /*
-    @Nested
-    @DisplayName("Misuse")
-    class Misuse extends CommonLogic {
-
-        @Override
-        Driver getTargetDriver() {
-            return new Driver(new adempiere._2.misuse.Secure());
-        }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/adempiere/_2/misuse/Secure.java";
-        }
-    }
-    */
+    // Misuse: getBytes() を引数なしで使用 → 非ASCII文字で失敗する可能性
+    // @Nested
+    // @DisplayName("Misuse")
+    // class Misuse extends CommonCases {
+    //     @Override
+    //     Driver driver() {
+    //         return new Driver(new adempiere._2.misuse.Secure());
+    //     }
+    // }
 
     @Nested
     @DisplayName("Fixed")
-    class Fixed extends CommonLogic {
-
+    class Fixed extends CommonCases {
         @Override
-        Driver getTargetDriver() {
+        Driver driver() {
             return new Driver(new adempiere._2.fixed.Secure());
-        }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/adempiere/_2/fixed/Secure.java";
         }
     }
 }

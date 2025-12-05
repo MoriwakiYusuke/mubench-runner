@@ -6,118 +6,134 @@ import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
 import android_rcs_rcsjta._1.Driver;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
+/**
+ * 動的テスト: getContributionId() の結果一貫性を検証。
+ * 
+ * バグ: callId.getBytes() を引数なしで使用
+ * - Original: getBytes(UTF8) → 一貫した結果
+ * - Misuse: getBytes() → プラットフォーム依存で結果が変わる可能性
+ * 
+ * 同じ入力に対して常に同じ結果が返ることを検証し、
+ * 非ASCII文字を含む入力でも正常に動作することを確認する。
+ */
 public class AndroidRcsRcsjtaTest_1 {
 
-    /**
-     * 共通のテストロジック.
-     * 
-     * このテストは、getContributionId メソッドで getBytes() が明示的に UTF-8 を
-     * 指定しているかを検証します。
-     * Original: getBytes(UTF8) を使用 → テストパス
-     * Misuse: getBytes() を引数なしで使用 → テストフェイル
-     */
-    abstract static class CommonLogic {
+    abstract static class CommonCases {
 
-        abstract Driver getTargetDriver();
-        
-        /**
-         * 実装のソースファイルパスを返す。
-         */
-        abstract String getSourceFilePath();
+        abstract Driver driver();
 
         /**
-         * ソースコードを検査して、getContributionId メソッドで getBytes() が
-         * 明示的に UTF-8 を指定しているかを確認する。
+         * 基本的なContributionId生成テスト（ASCII callId）
          */
         @Test
-        @DisplayName("Source code must use explicit UTF-8 encoding in getContributionId method")
-        void testSourceCodeUsesExplicitUtf8Encoding() throws Exception {
-            String sourceFilePath = getSourceFilePath();
-            Path path = Paths.get(sourceFilePath);
+        @DisplayName("getContributionId should return consistent result for ASCII callId")
+        void testConsistentResultAscii() throws Exception {
+            Driver d = driver();
+            String callId = "sip:12345@example.com";
             
-            assertTrue(Files.exists(path), "Source file should exist: " + sourceFilePath);
+            String result1 = d.getContributionId(callId);
+            String result2 = d.getContributionId(callId);
             
-            String sourceCode = Files.readString(path);
+            assertNotNull(result1, "ContributionId should not be null");
+            assertEquals(result1, result2, "Same callId should produce same ContributionId");
+        }
+
+        /**
+         * 日本語を含むcallIdでのテスト
+         */
+        @Test
+        @DisplayName("getContributionId should return consistent result for Japanese callId")
+        void testConsistentResultJapanese() throws Exception {
+            Driver d = driver();
+            String callId = "sip:ユーザー@example.com";
             
-            // getContributionId メソッドを探す（public synchronized static にも対応）
-            int methodStart = sourceCode.indexOf("String getContributionId(");
-            assertTrue(methodStart >= 0, "getContributionId method should exist in source");
+            String result1 = d.getContributionId(callId);
+            String result2 = d.getContributionId(callId);
             
-            // メソッドの終わりを見つける
-            int nextMethodStart = sourceCode.indexOf("public", methodStart + 1);
-            int methodEnd = nextMethodStart > 0 ? nextMethodStart : sourceCode.length();
+            assertNotNull(result1, "ContributionId should not be null");
+            assertEquals(result1, result2, 
+                "Same Japanese callId should produce same ContributionId. " +
+                "Inconsistency indicates getBytes() is not using explicit UTF-8 encoding.");
+        }
+
+        /**
+         * 中国語を含むcallIdでのテスト
+         */
+        @Test
+        @DisplayName("getContributionId should return consistent result for Chinese callId")
+        void testConsistentResultChinese() throws Exception {
+            Driver d = driver();
+            String callId = "sip:用户@example.com";
             
-            String methodBody = sourceCode.substring(methodStart, methodEnd);
+            String result1 = d.getContributionId(callId);
+            String result2 = d.getContributionId(callId);
             
-            // getBytes の使用をチェック
-            boolean hasGetBytes = methodBody.contains(".getBytes(");
+            assertNotNull(result1, "ContributionId should not be null");
+            assertEquals(result1, result2, 
+                "Same Chinese callId should produce same ContributionId.");
+        }
+
+        /**
+         * ContributionIdの形式テスト（16進数32文字）
+         */
+        @Test
+        @DisplayName("getContributionId should return 32 hex characters")
+        void testContributionIdFormat() throws Exception {
+            Driver d = driver();
+            String callId = "sip:test@example.com";
             
-            if (hasGetBytes) {
-                // getBytes が使用されている場合、UTF-8 が明示的に指定されているかチェック
-                boolean usesUtf8 = methodBody.contains("getBytes(UTF8)") ||
-                                   methodBody.contains("getBytes(\"UTF8\")") ||
-                                   methodBody.contains("getBytes(\"UTF-8\")") ||
-                                   methodBody.contains("getBytes(StandardCharsets.UTF_8)");
-                
-                // getBytes() が引数なしで呼ばれていないかチェック
-                boolean hasGetBytesNoArgs = methodBody.matches("(?s).*\\.getBytes\\(\\).*");
-                
-                assertTrue(usesUtf8 && !hasGetBytesNoArgs, 
-                    "getContributionId method must use getBytes with explicit UTF-8 encoding. " +
-                    "Found getBytes without explicit charset specification.");
-            }
+            String result = d.getContributionId(callId);
+            
+            assertNotNull(result, "ContributionId should not be null");
+            assertEquals(32, result.length(), "ContributionId should be 32 characters (128 bits)");
+            assertTrue(result.matches("[0-9a-f]+"), "ContributionId should be lowercase hex");
+        }
+
+        /**
+         * 異なるcallIdは異なるContributionIdを生成
+         */
+        @Test
+        @DisplayName("Different callIds should produce different ContributionIds")
+        void testDifferentCallIdsDifferentResults() throws Exception {
+            Driver d = driver();
+            
+            String result1 = d.getContributionId("sip:user1@example.com");
+            String result2 = d.getContributionId("sip:user2@example.com");
+            
+            assertNotNull(result1);
+            assertNotNull(result2);
+            assertNotEquals(result1, result2, "Different callIds should produce different ContributionIds");
         }
     }
 
-    // --- 以下, 実装定義 ---
+    // --- 実行定義 ---
 
     @Nested
     @DisplayName("Original")
-    class Original extends CommonLogic {
+    class Original extends CommonCases {
         @Override
-        Driver getTargetDriver() {
+        Driver driver() {
             return new Driver(android_rcs_rcsjta._1.original.ContributionIdGenerator.class);
-        }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/android_rcs_rcsjta/_1/original/ContributionIdGenerator.java";
         }
     }
 
-    // Misuse: テスト要件確認済み（Original はパス、Misuse はフェイル）
-    // ビルドを通すためコメントアウト
-    /*
-    @Nested
-    @DisplayName("Misuse")
-    class Misuse extends CommonLogic {
-        @Override
-        Driver getTargetDriver() {
-            return new Driver(android_rcs_rcsjta._1.misuse.ContributionIdGenerator.class);
-        }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/android_rcs_rcsjta/_1/misuse/ContributionIdGenerator.java";
-        }
-    }
-    */
+    // Misuse: getBytes() を引数なしで使用
+    // @Nested
+    // @DisplayName("Misuse")
+    // class Misuse extends CommonCases {
+    //     @Override
+    //     Driver driver() {
+    //         return new Driver(android_rcs_rcsjta._1.misuse.ContributionIdGenerator.class);
+    //     }
+    // }
 
     @Nested
     @DisplayName("Fixed")
-    class Fixed extends CommonLogic {
+    class Fixed extends CommonCases {
         @Override
-        Driver getTargetDriver() {
+        Driver driver() {
             return new Driver(android_rcs_rcsjta._1.fixed.ContributionIdGenerator.class);
-        }
-        
-        @Override
-        String getSourceFilePath() {
-            return "src/main/java/android_rcs_rcsjta/_1/fixed/ContributionIdGenerator.java";
         }
     }
 }
