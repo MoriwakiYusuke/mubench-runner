@@ -36,21 +36,21 @@ public class ChronologicalPanel extends BaseMultiSuitePanel {
     XMLStringBuffer xsb = new XMLStringBuffer(main.getCurrentIndent());
     List<IInvokedMethod> invokedMethods = suite.getAllInvokedMethods();
 
-    synchronized (invokedMethods) {
-      Collections.sort(invokedMethods, new Comparator<IInvokedMethod>() {
-        @Override
-        public int compare(IInvokedMethod arg0, IInvokedMethod arg1) {
-          return (int)
-              (arg0.getTestResult().getStartMillis() - arg1.getTestResult().getStartMillis());
-        }
-      });
+    Collections.sort(invokedMethods, new Comparator<IInvokedMethod>() {
+      @Override
+      public int compare(IInvokedMethod arg0, IInvokedMethod arg1) {
+        return (int)
+            (arg0.getTestResult().getStartMillis() - arg1.getTestResult().getStartMillis());
+      }
+    });
 
-      String currentClass = "";
-      long start = 0;
+    String currentClass = "";
+    long start = 0;
+    synchronized(invokedMethods) {
       for (IInvokedMethod im : invokedMethods) {
         ITestNGMethod m = im.getTestMethod();
-//    for (ITestResult tr : results) {
-//      ITestNGMethod m = tr.getMethod();
+//      for (ITestResult tr : results) {
+//        ITestNGMethod m = tr.getMethod();
         String cls = "test-method";
         if (m.isBeforeSuiteConfiguration()) {
           cls = "configuration-suite before";
