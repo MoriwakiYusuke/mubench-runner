@@ -12,11 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over m_allTests.
+ * 
+ * Tests include both static analysis and dynamic testing.
  */
 class TestngTest_18 {
     
     abstract static class CommonCases {
         abstract Driver driver();
+        
+        // ========== Static Analysis Tests ==========
         
         @Test
         void testGenerateReportMethodExists() throws Exception {
@@ -47,6 +51,31 @@ class TestngTest_18 {
             assertTrue(driver().isCorrectlyFixed(), 
                 "Iteration should be inside synchronized block");
         }
+        
+        // ========== Dynamic Tests ==========
+        
+        @Test
+        void testReporterInitialization() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            // If no exception, initialization succeeded
+        }
+        
+        @Test
+        void testGenerateReportInvocation() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            d.invokeGenerateReport(new Object());
+            // If no exception, invocation succeeded
+        }
+        
+        @Test
+        void testConcurrentAccess() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            boolean success = d.testConcurrentAccess(4);
+            assertTrue(success, "Concurrent access should not cause ConcurrentModificationException");
+        }
     }
     
     @Nested
@@ -57,16 +86,6 @@ class TestngTest_18 {
             return new Driver("original");
         }
     }
-    
-    // Misuse variant - tests FAIL as expected (synchronized block is missing)
-    // @Nested
-    // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
-    //     @Override
-    //     Driver driver() {
-    //         return new Driver("misuse");
-    //     }
-    // }
     
     @Nested
     @DisplayName("Fixed")

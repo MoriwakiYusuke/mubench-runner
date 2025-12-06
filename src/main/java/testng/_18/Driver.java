@@ -1,6 +1,8 @@
 package testng._18;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,10 +12,14 @@ import java.nio.file.Paths;
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over m_allTests.
+ * 
+ * Supports both static analysis and dynamic testing.
  */
 public class Driver {
     
+    private static final String BASE_PACKAGE = "testng._18";
     private final String variant;
+    private Object reporterInstance;
     
     public Driver(String variant) {
         this.variant = variant;
@@ -23,6 +29,62 @@ public class Driver {
         Path path = Paths.get("src/main/java/testng/_18/" + variant + "/JUnitXMLReporter.java");
         return Files.readString(path);
     }
+    
+    // ========== Dynamic Testing Methods ==========
+    
+    /**
+     * Initialize JUnitXMLReporter instance for dynamic testing.
+     */
+    public void initializeReporter() throws Exception {
+        String className = BASE_PACKAGE + "." + variant + ".JUnitXMLReporter";
+        Class<?> clazz = Class.forName(className);
+        Constructor<?> constructor = clazz.getConstructor();
+        this.reporterInstance = constructor.newInstance();
+    }
+    
+    /**
+     * Invoke generateReport method dynamically.
+     */
+    public void invokeGenerateReport(Object context) throws Exception {
+        if (reporterInstance == null) {
+            initializeReporter();
+        }
+        Method method = reporterInstance.getClass().getMethod("generateReport", Object.class);
+        method.invoke(reporterInstance, context);
+    }
+    
+    /**
+     * Test concurrent access to verify synchronization behavior.
+     */
+    public boolean testConcurrentAccess(int threadCount) throws Exception {
+        if (reporterInstance == null) {
+            initializeReporter();
+        }
+        
+        final boolean[] success = {true};
+        Thread[] threads = new Thread[threadCount];
+        
+        for (int i = 0; i < threadCount; i++) {
+            threads[i] = new Thread(() -> {
+                try {
+                    for (int j = 0; j < 10; j++) {
+                        invokeGenerateReport(new Object());
+                    }
+                } catch (Exception e) {
+                    if (e.getCause() instanceof java.util.ConcurrentModificationException) {
+                        success[0] = false;
+                    }
+                }
+            });
+        }
+        
+        for (Thread t : threads) t.start();
+        for (Thread t : threads) t.join();
+        
+        return success[0];
+    }
+    
+    // ========== Static Analysis Methods ==========
     
     /**
      * Check if generateReport method exists

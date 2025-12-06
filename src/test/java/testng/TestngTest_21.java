@@ -12,11 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over suite.getResults().
+ * 
+ * Tests include both static analysis and dynamic testing.
  */
 class TestngTest_21 {
     
     abstract static class CommonCases {
         abstract Driver driver();
+        
+        // ========== Static Analysis Tests ==========
         
         @Test
         void testInitMethodExists() throws Exception {
@@ -47,6 +51,23 @@ class TestngTest_21 {
             assertTrue(driver().isCorrectlyFixed(), 
                 "Iteration should be inside synchronized block");
         }
+        
+        // ========== Dynamic Tests ==========
+        
+        @Test
+        void testModelInitialization() throws Exception {
+            Driver d = driver();
+            d.initializeModel();
+            // If no exception, initialization succeeded
+        }
+        
+        @Test
+        void testGetSuites() throws Exception {
+            Driver d = driver();
+            d.initializeModel();
+            Object suites = d.getSuites();
+            assertNotNull(suites, "getSuites should return non-null");
+        }
     }
     
     @Nested
@@ -57,17 +78,6 @@ class TestngTest_21 {
             return new Driver("original");
         }
     }
-    
-    // Misuse variant - tests FAIL as expected (synchronized block is missing)
-    // Confirmed: testSynchronizedBlockPresent() and testCorrectlyFixed() fail
-    // @Nested
-    // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
-    //     @Override
-    //     Driver driver() {
-    //         return new Driver("misuse");
-    //     }
-    // }
     
     @Nested
     @DisplayName("Fixed")

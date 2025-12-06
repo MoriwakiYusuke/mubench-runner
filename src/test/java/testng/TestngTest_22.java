@@ -12,11 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over results map.
+ * 
+ * Tests include both static analysis and dynamic testing.
  */
 class TestngTest_22 {
     
     abstract static class CommonCases {
         abstract Driver driver();
+        
+        // ========== Static Analysis Tests ==========
         
         @Test
         void testGetSuiteAttributesMethodExists() throws Exception {
@@ -47,6 +51,31 @@ class TestngTest_22 {
             assertTrue(driver().isCorrectlyFixed(), 
                 "Iteration should be inside synchronized block");
         }
+        
+        // ========== Dynamic Tests ==========
+        
+        @Test
+        void testReporterInitialization() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            // If no exception, initialization succeeded
+        }
+        
+        @Test
+        void testGetSuiteAttributesInvocation() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            Object result = d.invokeGetSuiteAttributes(new Object());
+            assertNotNull(result, "getSuiteAttributes should return non-null");
+        }
+        
+        @Test
+        void testConcurrentAccess() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            boolean success = d.testConcurrentAccess(4);
+            assertTrue(success, "Concurrent access should not cause ConcurrentModificationException");
+        }
     }
     
     @Nested
@@ -57,16 +86,6 @@ class TestngTest_22 {
             return new Driver("original");
         }
     }
-    
-    // Misuse variant - tests FAIL as expected (synchronized block is missing)
-    // @Nested
-    // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
-    //     @Override
-    //     Driver driver() {
-    //         return new Driver("misuse");
-    //     }
-    // }
     
     @Nested
     @DisplayName("Fixed")
