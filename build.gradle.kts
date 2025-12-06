@@ -43,10 +43,12 @@ dependencies {
     implementation(files("libs/asterisk-java-3.41.0.jar"))
     // tap-apps用 Commons Codec (Base64)
     implementation(files("libs/commons-codec-1.16.0.jar"))
-    // testng用 Guice, javax.annotation
+    // testng用 Guice, javax.annotation, TestNG
     implementation("com.google.inject:guice:5.1.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation(files("libs/testng-6.9.4.jar"))
 }
+
 
 java {
     toolchain {

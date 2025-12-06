@@ -81,6 +81,12 @@
 | `Tbuktu_ntruTest_474.java` | 🔄 動的 | `writeTo()`出力検証、`writeToBuffered()`でflush動作を動的検証 |
 | `Tbuktu_ntruTest_475.java` | 📝+🔄 混合 | 動的（`getEncoded()`出力検証）+ 静的（`hasFlushOrCloseInGetEncoded()`でソース解析） |
 | `Tbuktu_ntruTest_476.java` | 📝+🔄 混合 | 動的（`getEncoded()`出力検証）+ 静的（`hasFlushOrCloseInGetEncoded()`でソース解析） |
+| **testng** | | |
+| `TestngTest_16.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializePanel()`, `invokeGetContent()`, `testConcurrentAccess()`） |
+| `TestngTest_17.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGenerateReport()`, `testConcurrentAccess()`） |
+| `TestngTest_18.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGenerateReport()`, `testConcurrentAccess()`） |
+| `TestngTest_21.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeModel()`, `getSuites()`） |
+| `TestngTest_22.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGetSuiteAttributes()`, `testConcurrentAccess()`） |
 
 ---
 
@@ -88,9 +94,9 @@
 
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
-| 📝 **静的テスト** | 8件 | 約19% |
-| 🔄 **動的テスト** | 28件 | 約67% |
-| 📝+🔄 **混合** | 6件 | 約14% |
-| **合計** | 42件 | 100% |
+| 📝 **静的テスト** | 8件 | 約17% |
+| 🔄 **動的テスト** | 28件 | 約60% |
+| 📝+🔄 **混合** | 11件 | 約23% |
+| **合計** | 47件 | 100% |
 
 ---
