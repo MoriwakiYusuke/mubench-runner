@@ -11,6 +11,9 @@ import java.util.Properties;
 
 import testng._22.requirements.org.testng.ISuite;
 import testng._22.requirements.org.testng.xml.XmlSuite;
+import testng._22.mocks.MockSuite;
+import testng._22.mocks.MockTestContext;
+import testng._22.mocks.MockSuiteResult;
 
 /**
  * Driver for TestNG Case 22 - XMLReporter synchronization bug.
@@ -29,6 +32,29 @@ public class Driver {
     
     public Driver(String variant) {
         this.variant = variant;
+    }
+    
+    // ========== Mock Factory Methods ==========
+    
+    /**
+     * Create a MockSuite for dynamic testing.
+     */
+    public MockSuite createMockSuite(String name) {
+        return new MockSuite(name);
+    }
+    
+    /**
+     * Create a MockTestContext for dynamic testing.
+     */
+    public MockTestContext createMockTestContext(String name) {
+        return new MockTestContext(name);
+    }
+    
+    /**
+     * Create a MockSuiteResult for dynamic testing.
+     */
+    public MockSuiteResult createMockSuiteResult(MockTestContext context) {
+        return new MockSuiteResult(context);
     }
     
     private String readSourceCode() throws IOException {

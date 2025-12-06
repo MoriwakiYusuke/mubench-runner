@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import testng._21.mocks.*;
 import testng._21.requirements.org.testng.*;
 
 /**
@@ -57,28 +56,6 @@ public class Driver {
         this.modelClass = Class.forName(className);
         Constructor<?> constructor = modelClass.getConstructor(List.class);
         this.modelInstance = constructor.newInstance(suites);
-    }
-    
-    /**
-     * Create a mock ISuite with test methods.
-     */
-    public ISuite createMockSuite(int methodCount) {
-        List<IInvokedMethod> methods = new ArrayList<>();
-        MockClass testClass = new MockClass("TestClass");
-        
-        for (int i = 0; i < methodCount; i++) {
-            MockTestNGMethod testMethod = new MockTestNGMethod("testMethod" + i, testClass);
-            MockTestResult testResult = new MockTestResult(
-                "testMethod" + i,
-                System.currentTimeMillis() + (i * 100),
-                ITestResult.SUCCESS,
-                testMethod,
-                testClass
-            );
-            methods.add(new MockInvokedMethod(testMethod, testResult, true));
-        }
-        
-        return new MockSuite("TestSuite", methods);
     }
     
     // ========== Original Class Method Coverage ==========

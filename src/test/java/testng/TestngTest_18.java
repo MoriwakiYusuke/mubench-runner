@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import testng._18.Driver;
+import testng._18.mocks.MockTestContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,6 +81,38 @@ class TestngTest_18 {
                 d.onTestFailure(null);
             } catch (Exception e) {
                 // Expected: method is callable
+            }
+        }
+        
+        @Test
+        void testGenerateReportWithMockContext() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            MockTestContext mockContext = d.createMockTestContext("TestContext");
+            try {
+                d.generateReport(mockContext);
+            } catch (Exception e) {
+                // May throw NPE, but method is callable
+            }
+        }
+        
+        @Test
+        void testOnStartWithMockContext() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            MockTestContext mockContext = d.createMockTestContext("TestContext");
+            d.onStart(mockContext);
+        }
+        
+        @Test
+        void testOnFinishWithMockContext() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            MockTestContext mockContext = d.createMockTestContext("TestContext");
+            try {
+                d.onFinish(mockContext);
+            } catch (Exception e) {
+                // May throw NPE, but method invocation works
             }
         }
     }

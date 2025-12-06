@@ -1,33 +1,30 @@
-package testng._21.mocks;
+package testng._18.mocks;
 
-import testng._21.requirements.org.testng.*;
-import testng._21.requirements.org.testng.internal.annotations.IAnnotationFinder;
-import testng._21.requirements.org.testng.xml.XmlSuite;
+import testng._18.requirements.org.testng.*;
+import testng._18.requirements.org.testng.internal.annotations.IAnnotationFinder;
+import testng._18.requirements.org.testng.xml.XmlSuite;
 import com.google.inject.Injector;
 
 import java.util.*;
 
 /**
- * Mock implementation of ISuite for testing ChronologicalPanel.
+ * Mock implementation of ISuite for testing JUnitXMLReporter.
  */
 public class MockSuite implements ISuite {
     
-    private final List<IInvokedMethod> invokedMethods;
     private final String name;
+    private final Map<String, Object> attributes = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, ISuiteResult> results = Collections.synchronizedMap(new HashMap<>());
     
-    public MockSuite(String name, List<IInvokedMethod> methods) {
+    public MockSuite(String name) {
         this.name = name;
-        this.invokedMethods = Collections.synchronizedList(new ArrayList<>(methods));
     }
-    
-    @Override
-    public List<IInvokedMethod> getAllInvokedMethods() { return invokedMethods; }
     
     @Override
     public String getName() { return name; }
     
     @Override
-    public Map<String, ISuiteResult> getResults() { return Collections.synchronizedMap(new HashMap<>()); }
+    public Map<String, ISuiteResult> getResults() { return results; }
     
     @Override
     public ITestObjectFactory getObjectFactory() { return null; }
@@ -49,6 +46,9 @@ public class MockSuite implements ISuite {
     
     @Override
     public Map<String, Collection<ITestNGMethod>> getMethodsByGroups() { return new HashMap<>(); }
+    
+    @Override
+    public List<IInvokedMethod> getAllInvokedMethods() { return new ArrayList<>(); }
     
     @Override
     public Collection<ITestNGMethod> getExcludedMethods() { return new ArrayList<>(); }
@@ -81,14 +81,14 @@ public class MockSuite implements ISuite {
     public List<ITestNGMethod> getAllMethods() { return new ArrayList<>(); }
     
     @Override
-    public Object getAttribute(String name) { return null; }
+    public Object getAttribute(String name) { return attributes.get(name); }
     
     @Override
-    public void setAttribute(String name, Object value) {}
+    public void setAttribute(String name, Object value) { attributes.put(name, value); }
     
     @Override
-    public Set<String> getAttributeNames() { return new HashSet<>(); }
+    public Set<String> getAttributeNames() { return attributes.keySet(); }
     
     @Override
-    public Object removeAttribute(String name) { return null; }
+    public Object removeAttribute(String name) { return attributes.remove(name); }
 }

@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import testng._18.mocks.MockTestContext;
 
 /**
  * Driver for TestNG Case 18 - JUnitXMLReporter synchronization bug.
@@ -24,6 +25,15 @@ public class Driver {
     
     public Driver(String variant) {
         this.variant = variant;
+    }
+    
+    // ========== Mock Factory Methods ==========
+    
+    /**
+     * Create a MockTestContext for dynamic testing.
+     */
+    public MockTestContext createMockTestContext(String name) {
+        return new MockTestContext(name);
     }
     
     private String readSourceCode() throws IOException {
