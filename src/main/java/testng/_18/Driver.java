@@ -20,6 +20,7 @@ public class Driver {
     private static final String BASE_PACKAGE = "testng._18";
     private final String variant;
     private Object reporterInstance;
+    private Class<?> reporterClass;
     
     public Driver(String variant) {
         this.variant = variant;
@@ -37,51 +38,97 @@ public class Driver {
      */
     public void initializeReporter() throws Exception {
         String className = BASE_PACKAGE + "." + variant + ".JUnitXMLReporter";
-        Class<?> clazz = Class.forName(className);
-        Constructor<?> constructor = clazz.getConstructor();
+        this.reporterClass = Class.forName(className);
+        Constructor<?> constructor = reporterClass.getConstructor();
         this.reporterInstance = constructor.newInstance();
     }
     
-    /**
-     * Invoke generateReport method dynamically.
-     */
-    public void invokeGenerateReport(Object context) throws Exception {
-        if (reporterInstance == null) {
-            initializeReporter();
-        }
-        Method method = reporterInstance.getClass().getMethod("generateReport", Object.class);
+    // ========== Original Class Method Coverage ==========
+    // All public methods from JUnitXMLReporter are exposed via reflection
+    
+    public void onTestStart(Object result) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onTestStart", 
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, result);
+    }
+    
+    public void beforeConfiguration(Object tr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("beforeConfiguration",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, tr);
+    }
+    
+    public void onTestSuccess(Object tr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onTestSuccess",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, tr);
+    }
+    
+    public void onTestFailedButWithinSuccessPercentage(Object tr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onTestFailedButWithinSuccessPercentage",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, tr);
+    }
+    
+    public void onTestFailure(Object tr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onTestFailure",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, tr);
+    }
+    
+    public void onTestSkipped(Object tr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onTestSkipped",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, tr);
+    }
+    
+    public void onStart(Object context) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onStart",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestContext"));
         method.invoke(reporterInstance, context);
     }
     
-    /**
-     * Test concurrent access to verify synchronization behavior.
-     */
-    public boolean testConcurrentAccess(int threadCount) throws Exception {
-        if (reporterInstance == null) {
-            initializeReporter();
-        }
-        
-        final boolean[] success = {true};
-        Thread[] threads = new Thread[threadCount];
-        
-        for (int i = 0; i < threadCount; i++) {
-            threads[i] = new Thread(() -> {
-                try {
-                    for (int j = 0; j < 10; j++) {
-                        invokeGenerateReport(new Object());
-                    }
-                } catch (Exception e) {
-                    if (e.getCause() instanceof java.util.ConcurrentModificationException) {
-                        success[0] = false;
-                    }
-                }
-            });
-        }
-        
-        for (Thread t : threads) t.start();
-        for (Thread t : threads) t.join();
-        
-        return success[0];
+    public void onFinish(Object context) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onFinish",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestContext"));
+        method.invoke(reporterInstance, context);
+    }
+    
+    public void onConfigurationFailure(Object itr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onConfigurationFailure",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, itr);
+    }
+    
+    public void onConfigurationSkip(Object itr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onConfigurationSkip",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, itr);
+    }
+    
+    public void onConfigurationSuccess(Object itr) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("onConfigurationSuccess",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestResult"));
+        method.invoke(reporterInstance, itr);
+    }
+    
+    public void generateReport(Object context) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getDeclaredMethod("generateReport",
+            Class.forName(BASE_PACKAGE + ".requirements.org.testng.ITestContext"));
+        method.setAccessible(true);  // protected method
+        method.invoke(reporterInstance, context);
     }
     
     // ========== Static Analysis Methods ==========

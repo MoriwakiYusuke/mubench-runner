@@ -92,20 +92,5 @@ class TestngTest_18 {
     //     Driver driver() {
     //         return new Driver("misuse");
     //     }
-    //     
-    //     // Override expectations for misuse version
-    //     @Override
-    //     @Test
-    //     void testSynchronizedBlockPresent() throws Exception {
-    //         assertFalse(driver().hasSynchronizedBlock(), 
-    //             "Misuse should NOT have synchronized(m_allTests) block");
-    //     }
-    //     
-    //     @Override
-    //     @Test
-    //     void testCorrectlyFixed() throws Exception {
-    //         assertFalse(driver().isCorrectlyFixed(), 
-    //             "Misuse should NOT be correctly fixed");
-    //     }
     // }
 }

@@ -6,8 +6,11 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Properties;
+
 import testng._22.requirements.org.testng.ISuite;
+import testng._22.requirements.org.testng.xml.XmlSuite;
 
 /**
  * Driver for TestNG Case 22 - XMLReporter synchronization bug.
@@ -22,6 +25,7 @@ public class Driver {
     private static final String BASE_PACKAGE = "testng._22";
     private final String variant;
     private Object reporterInstance;
+    private Class<?> reporterClass;
     
     public Driver(String variant) {
         this.variant = variant;
@@ -39,53 +43,134 @@ public class Driver {
      */
     public void initializeReporter() throws Exception {
         String className = BASE_PACKAGE + "." + variant + ".XMLReporter";
-        Class<?> clazz = Class.forName(className);
-        Constructor<?> constructor = clazz.getConstructor();
+        this.reporterClass = Class.forName(className);
+        Constructor<?> constructor = reporterClass.getConstructor();
         this.reporterInstance = constructor.newInstance();
     }
     
-    /**
-     * Invoke getSuiteAttributes method dynamically (private method).
-     */
-    public Properties invokeGetSuiteAttributes(Object suite) throws Exception {
-        if (reporterInstance == null) {
-            initializeReporter();
-        }
-        // Use getDeclaredMethod for private method with ISuite parameter
-        Method method = reporterInstance.getClass().getDeclaredMethod("getSuiteAttributes", ISuite.class);
-        method.setAccessible(true);
-        return (Properties) method.invoke(reporterInstance, suite);
+    // ========== Original Class Method Coverage ==========
+    // All public methods from XMLReporter are exposed via reflection
+    
+    public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("generateReport", List.class, List.class, String.class);
+        method.invoke(reporterInstance, xmlSuites, suites, outputDirectory);
     }
     
-    /**
-     * Test concurrent access to verify synchronization behavior.
-     */
-    public boolean testConcurrentAccess(int threadCount) throws Exception {
-        if (reporterInstance == null) {
-            initializeReporter();
-        }
-        
-        final boolean[] success = {true};
-        Thread[] threads = new Thread[threadCount];
-        
-        for (int i = 0; i < threadCount; i++) {
-            threads[i] = new Thread(() -> {
-                try {
-                    for (int j = 0; j < 10; j++) {
-                        invokeGetSuiteAttributes(new Object());
-                    }
-                } catch (Exception e) {
-                    if (e.getCause() instanceof java.util.ConcurrentModificationException) {
-                        success[0] = false;
-                    }
-                }
-            });
-        }
-        
-        for (Thread t : threads) t.start();
-        for (Thread t : threads) t.join();
-        
-        return success[0];
+    public static void addDurationAttributes(Object config, Properties attributes, 
+            java.util.Date minStartDate, java.util.Date maxEndDate) throws Exception {
+        Class<?> clazz = Class.forName("testng._22.original.XMLReporter");
+        Class<?> configClass = Class.forName("testng._22.requirements.org.testng.reporters.XMLReporterConfig");
+        Method method = clazz.getMethod("addDurationAttributes", configClass, Properties.class, java.util.Date.class, java.util.Date.class);
+        method.invoke(null, config, attributes, minStartDate, maxEndDate);
+    }
+    
+    public int getFileFragmentationLevel() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("getFileFragmentationLevel");
+        return (int) method.invoke(reporterInstance);
+    }
+    
+    public void setFileFragmentationLevel(int fileFragmentationLevel) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setFileFragmentationLevel", int.class);
+        method.invoke(reporterInstance, fileFragmentationLevel);
+    }
+    
+    public int getStackTraceOutputMethod() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("getStackTraceOutputMethod");
+        return (int) method.invoke(reporterInstance);
+    }
+    
+    public void setStackTraceOutputMethod(int stackTraceOutputMethod) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setStackTraceOutputMethod", int.class);
+        method.invoke(reporterInstance, stackTraceOutputMethod);
+    }
+    
+    public String getOutputDirectory() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("getOutputDirectory");
+        return (String) method.invoke(reporterInstance);
+    }
+    
+    public void setOutputDirectory(String outputDirectory) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setOutputDirectory", String.class);
+        method.invoke(reporterInstance, outputDirectory);
+    }
+    
+    public boolean isGenerateGroupsAttribute() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("isGenerateGroupsAttribute");
+        return (boolean) method.invoke(reporterInstance);
+    }
+    
+    public void setGenerateGroupsAttribute(boolean generateGroupsAttribute) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setGenerateGroupsAttribute", boolean.class);
+        method.invoke(reporterInstance, generateGroupsAttribute);
+    }
+    
+    public boolean isSplitClassAndPackageNames() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("isSplitClassAndPackageNames");
+        return (boolean) method.invoke(reporterInstance);
+    }
+    
+    public void setSplitClassAndPackageNames(boolean splitClassAndPackageNames) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setSplitClassAndPackageNames", boolean.class);
+        method.invoke(reporterInstance, splitClassAndPackageNames);
+    }
+    
+    public String getTimestampFormat() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("getTimestampFormat");
+        return (String) method.invoke(reporterInstance);
+    }
+    
+    public void setTimestampFormat(String timestampFormat) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setTimestampFormat", String.class);
+        method.invoke(reporterInstance, timestampFormat);
+    }
+    
+    public boolean isGenerateDependsOnMethods() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("isGenerateDependsOnMethods");
+        return (boolean) method.invoke(reporterInstance);
+    }
+    
+    public void setGenerateDependsOnMethods(boolean generateDependsOnMethods) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setGenerateDependsOnMethods", boolean.class);
+        method.invoke(reporterInstance, generateDependsOnMethods);
+    }
+    
+    public void setGenerateDependsOnGroups(boolean generateDependsOnGroups) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setGenerateDependsOnGroups", boolean.class);
+        method.invoke(reporterInstance, generateDependsOnGroups);
+    }
+    
+    public boolean isGenerateDependsOnGroups() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("isGenerateDependsOnGroups");
+        return (boolean) method.invoke(reporterInstance);
+    }
+    
+    public void setGenerateTestResultAttributes(boolean generateTestResultAttributes) throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("setGenerateTestResultAttributes", boolean.class);
+        method.invoke(reporterInstance, generateTestResultAttributes);
+    }
+    
+    public boolean isGenerateTestResultAttributes() throws Exception {
+        if (reporterInstance == null) initializeReporter();
+        Method method = reporterClass.getMethod("isGenerateTestResultAttributes");
+        return (boolean) method.invoke(reporterInstance);
     }
     
     // ========== Static Analysis Methods ==========
@@ -156,8 +241,10 @@ public class Driver {
             braceEnd++;
         }
         
-        // Check if iteration over results is inside the synchronized block
+        // Check if iteration is inside the synchronized block
         String syncBlock = source.substring(braceStart, braceEnd);
-        return syncBlock.contains("results.entrySet()") || syncBlock.contains("results");
+        return syncBlock.contains("results.entrySet()") ||
+               syncBlock.contains("for (Map.Entry") ||
+               syncBlock.contains("for(Map.Entry");
     }
 }

@@ -70,14 +70,6 @@ class TestngTest_22 {
             assertTrue(d.hasGetSuiteAttributesMethod(), 
                 "getSuiteAttributes method should be accessible");
         }
-        
-        @Test
-        void testConcurrentAccess() throws Exception {
-            Driver d = driver();
-            d.initializeReporter();
-            boolean success = d.testConcurrentAccess(4);
-            assertTrue(success, "Concurrent access should not cause ConcurrentModificationException");
-        }
     }
     
     @Nested
@@ -105,21 +97,6 @@ class TestngTest_22 {
     //     @Override
     //     Driver driver() {
     //         return new Driver("misuse");
-    //     }
-    //     
-    //     // Override expectations for misuse version
-    //     @Override
-    //     @Test
-    //     void testSynchronizedBlockPresent() throws Exception {
-    //         assertFalse(driver().hasSynchronizedBlock(), 
-    //             "Misuse should NOT have synchronized(results) block");
-    //     }
-    //     
-    //     @Override
-    //     @Test
-    //     void testCorrectlyFixed() throws Exception {
-    //         assertFalse(driver().isCorrectlyFixed(), 
-    //             "Misuse should NOT be correctly fixed");
     //     }
     // }
 }

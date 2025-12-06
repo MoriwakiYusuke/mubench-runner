@@ -8,10 +8,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import testng._21.mocks.*;
 import testng._21.requirements.org.testng.*;
-import testng._21.requirements.org.testng.reporters.jq.Model;
 
 /**
  * Driver for TestNG Case 21 - Model.java synchronization bug.
@@ -26,6 +26,7 @@ public class Driver {
     private static final String BASE_PACKAGE = "testng._21";
     private final String variant;
     private Object modelInstance;
+    private Class<?> modelClass;
     
     public Driver(String variant) {
         this.variant = variant;
@@ -43,11 +44,19 @@ public class Driver {
      */
     public void initializeModel() throws Exception {
         String className = BASE_PACKAGE + "." + variant + ".Model";
-        Class<?> clazz = Class.forName(className);
-        
-        // Model constructor takes List<ISuite>
-        Constructor<?> constructor = clazz.getConstructor(List.class);
+        this.modelClass = Class.forName(className);
+        Constructor<?> constructor = modelClass.getConstructor(List.class);
         this.modelInstance = constructor.newInstance(new ArrayList<ISuite>());
+    }
+    
+    /**
+     * Initialize Model with a list of mock suites.
+     */
+    public void initializeModelWithSuites(List<ISuite> suites) throws Exception {
+        String className = BASE_PACKAGE + "." + variant + ".Model";
+        this.modelClass = Class.forName(className);
+        Constructor<?> constructor = modelClass.getConstructor(List.class);
+        this.modelInstance = constructor.newInstance(suites);
     }
     
     /**
@@ -72,25 +81,103 @@ public class Driver {
         return new MockSuite("TestSuite", methods);
     }
     
-    /**
-     * Initialize Model with a list of mock suites.
-     */
-    public void initializeModelWithSuites(List<ISuite> suites) throws Exception {
-        String className = BASE_PACKAGE + "." + variant + ".Model";
-        Class<?> clazz = Class.forName(className);
-        Constructor<?> constructor = clazz.getConstructor(List.class);
-        this.modelInstance = constructor.newInstance(suites);
+    // ========== Original Class Method Coverage ==========
+    // All public methods from Model are exposed via reflection
+    
+    public List<ISuite> getSuites() throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getSuites");
+        return (List<ISuite>) method.invoke(modelInstance);
     }
     
-    /**
-     * Get the model's suites list.
-     */
-    public List<ISuite> getSuites() throws Exception {
-        if (modelInstance == null) {
-            initializeModel();
-        }
-        Method getSuitesMethod = modelInstance.getClass().getMethod("getSuites");
-        return (List<ISuite>) getSuitesMethod.invoke(modelInstance);
+    public Object getFailedResultsByClass(Object suite) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getFailedResultsByClass", ISuite.class);
+        return method.invoke(modelInstance, suite);
+    }
+    
+    public Object getSkippedResultsByClass(Object suite) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getSkippedResultsByClass", ISuite.class);
+        return method.invoke(modelInstance, suite);
+    }
+    
+    public Object getPassedResultsByClass(Object suite) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getPassedResultsByClass", ISuite.class);
+        return method.invoke(modelInstance, suite);
+    }
+    
+    public String getTag(Object tr) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getTag", ITestResult.class);
+        return (String) method.invoke(modelInstance, tr);
+    }
+    
+    public List<ITestResult> getTestResults(Object suite) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getTestResults", ISuite.class);
+        return (List<ITestResult>) method.invoke(modelInstance, suite);
+    }
+    
+    public static String getTestResultName(Object tr) throws Exception {
+        Class<?> modelClass = Class.forName("testng._21.original.Model");
+        Method method = modelClass.getMethod("getTestResultName", ITestResult.class);
+        return (String) method.invoke(null, tr);
+    }
+    
+    public List<ITestResult> getAllFailedResults() throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getAllFailedResults");
+        return (List<ITestResult>) method.invoke(modelInstance);
+    }
+    
+    public static String getImage(String tagClass) throws Exception {
+        Class<?> modelClass = Class.forName("testng._21.original.Model");
+        Method method = modelClass.getMethod("getImage", String.class);
+        return (String) method.invoke(null, tagClass);
+    }
+    
+    public String getStatusForSuite(String suiteName) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getStatusForSuite", String.class);
+        return (String) method.invoke(modelInstance, suiteName);
+    }
+    
+    public <T> Set<T> nonnullSet(Set<T> l) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("nonnullSet", Set.class);
+        return (Set<T>) method.invoke(modelInstance, l);
+    }
+    
+    public <T> List<T> nonnullList(List<T> l) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("nonnullList", List.class);
+        return (List<T>) method.invoke(modelInstance, l);
+    }
+    
+    public List<String> getGroups(String name) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getGroups", String.class);
+        return (List<String>) method.invoke(modelInstance, name);
+    }
+    
+    public List<String> getMethodsInGroup(String groupName) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getMethodsInGroup", String.class);
+        return (List<String>) method.invoke(modelInstance, groupName);
+    }
+    
+    public List<ITestResult> getAllTestResults(Object suite) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getAllTestResults", ISuite.class);
+        return (List<ITestResult>) method.invoke(modelInstance, suite);
+    }
+    
+    public List<ITestResult> getAllTestResults(Object suite, boolean testsOnly) throws Exception {
+        if (modelInstance == null) initializeModel();
+        Method method = modelClass.getMethod("getAllTestResults", ISuite.class, boolean.class);
+        return (List<ITestResult>) method.invoke(modelInstance, suite, testsOnly);
     }
     
     // ========== Static Analysis Methods ==========
