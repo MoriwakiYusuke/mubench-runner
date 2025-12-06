@@ -328,6 +328,21 @@ public final class Utils {
     return buildStackTrace(t, toHtml, StackTraceType.SHORT);
   }
 
+  /**
+   * Helper that returns stack trace as array.
+   * Index 0 contains the short stack trace, index 1 contains the full stack trace.
+   *
+   * @param t - The {@link Throwable} exception
+   * @param toHtml - <code>true</code> if the stacktrace should be translated to html as well
+   * @return - A string array with [shortStackTrace, fullStackTrace]
+   */
+  public static String[] stackTrace(Throwable t, boolean toHtml) {
+    return new String[] {
+      shortStackTrace(t, toHtml),
+      longStackTrace(t, toHtml)
+    };
+  }
+
   private static String buildStackTrace(Throwable t, boolean toHtml, StackTraceType type) {
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);

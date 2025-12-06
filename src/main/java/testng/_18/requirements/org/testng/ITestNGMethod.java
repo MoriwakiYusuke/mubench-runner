@@ -1,5 +1,6 @@
 package testng._18.requirements.org.testng;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,11 @@ import testng._18.requirements.org.testng.xml.XmlTest;
  * <p>This interface is not meant to be implemented by users.
  */
 public interface ITestNGMethod extends Cloneable {
+
+  /**
+   * @return The Java method that this ITestNGMethod represents.
+   */
+  Method getMethod();
 
   /**
    * @return The real class on which this method was declared (can be different from

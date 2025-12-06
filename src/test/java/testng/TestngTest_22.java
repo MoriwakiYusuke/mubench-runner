@@ -95,4 +95,29 @@ class TestngTest_22 {
             return new Driver("fixed");
         }
     }
+    
+    // ========== Misuse Test (Commented out per guideline) ==========
+    // @Nested
+    // @DisplayName("Misuse")
+    // class Misuse extends CommonCases {
+    //     @Override
+    //     Driver driver() {
+    //         return new Driver("misuse");
+    //     }
+    //     
+    //     // Override expectations for misuse version
+    //     @Override
+    //     @Test
+    //     void testSynchronizedBlockPresent() throws Exception {
+    //         assertFalse(driver().hasSynchronizedBlock(), 
+    //             "Misuse should NOT have synchronized(results) block");
+    //     }
+    //     
+    //     @Override
+    //     @Test
+    //     void testCorrectlyFixed() throws Exception {
+    //         assertFalse(driver().isCorrectlyFixed(), 
+    //             "Misuse should NOT be correctly fixed");
+    //     }
+    // }
 }
