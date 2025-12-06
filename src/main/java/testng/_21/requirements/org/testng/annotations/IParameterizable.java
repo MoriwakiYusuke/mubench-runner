@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.annotations;
+package testng._21.requirements.org.testng.annotations;
 
 /** Parent interface for annotations that can receive parameters. */
 public interface IParameterizable extends IAnnotation {

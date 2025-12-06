@@ -1,9 +1,9 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 import java.util.Map;
 import java.util.Properties;
-import testng._16.requirements.org.testng.internal.Utils;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.internal.Utils;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 public class XmlUtils {
 

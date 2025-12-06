@@ -1,11 +1,11 @@
-package testng._16.requirements.org.testng.reporters.jq;
+package testng._21.requirements.org.testng.reporters.jq;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import testng._16.requirements.org.testng.ITestResult;
-import testng._16.requirements.org.testng.collections.ListMultiMap;
-import testng._16.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.ITestResult;
+import testng._21.requirements.org.testng.collections.ListMultiMap;
+import testng._21.requirements.org.testng.collections.Maps;
 
 public class ResultsByClass {
   public static final Comparator<ITestResult> METHOD_NAME_COMPARATOR =

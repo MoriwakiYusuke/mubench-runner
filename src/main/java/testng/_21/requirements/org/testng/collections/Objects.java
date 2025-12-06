@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng.collections;
+package testng._21.requirements.org.testng.collections;
 
 import java.util.List;
-import testng._16.requirements.org.testng.util.Strings;
+import testng._21.requirements.org.testng.util.Strings;
 
 public final class Objects {
 

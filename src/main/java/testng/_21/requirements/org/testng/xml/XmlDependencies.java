@@ -1,10 +1,10 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
-import static testng._16.requirements.org.testng.collections.CollectionUtils.hasElements;
+import static testng._21.requirements.org.testng.collections.CollectionUtils.hasElements;
 
 import java.util.Map;
-import testng._16.requirements.org.testng.collections.Maps;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 public class XmlDependencies {
 

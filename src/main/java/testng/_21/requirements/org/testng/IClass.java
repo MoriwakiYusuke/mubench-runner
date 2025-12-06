@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
-import testng._16.requirements.org.testng.xml.XmlClass;
-import testng._16.requirements.org.testng.xml.XmlTest;
+import testng._21.requirements.org.testng.xml.XmlClass;
+import testng._21.requirements.org.testng.xml.XmlTest;
 
 /** <code>IClass</code> represents a test class and a collection of its instances. */
 public interface IClass {

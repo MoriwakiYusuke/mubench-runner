@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.internal.reflect;
+package testng._21.requirements.org.testng.internal.reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import testng._16.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Lists;
 
 public class ReflectionHelper {
   /**

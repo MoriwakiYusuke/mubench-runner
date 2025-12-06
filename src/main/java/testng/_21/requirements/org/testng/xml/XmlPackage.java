@@ -1,13 +1,13 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import testng._16.requirements.org.testng.collections.Lists;
-import testng._16.requirements.org.testng.internal.PackageUtils;
-import testng._16.requirements.org.testng.internal.Utils;
-import testng._16.requirements.org.testng.internal.protocols.UnhandledIOException;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.internal.PackageUtils;
+import testng._21.requirements.org.testng.internal.Utils;
+import testng._21.requirements.org.testng.internal.protocols.UnhandledIOException;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 /** This class describes the tag <code>&lt;package&gt;</code> in testng.xml. */
 public class XmlPackage {

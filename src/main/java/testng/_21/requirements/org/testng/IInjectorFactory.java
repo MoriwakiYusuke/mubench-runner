@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 import com.google.inject.Injector;
 import com.google.inject.Module;

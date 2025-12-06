@@ -1,10 +1,10 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import testng._16.requirements.org.testng.TestNGException;
-import testng._16.requirements.org.testng.collections.Lists;
-import testng._16.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.TestNGException;
+import testng._21.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Maps;
 
 /** This class describes the tag &lt;test&gt; in testng.xml. */
 public class XmlTest implements Cloneable {

@@ -1,13 +1,13 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
-import static testng._16.requirements.org.testng.collections.CollectionUtils.hasElements;
-import static testng._16.requirements.org.testng.internal.Utils.isStringNotEmpty;
-import static testng._16.requirements.org.testng.xml.XmlSuite.*;
+import static testng._21.requirements.org.testng.collections.CollectionUtils.hasElements;
+import static testng._21.requirements.org.testng.internal.Utils.isStringNotEmpty;
+import static testng._21.requirements.org.testng.xml.XmlSuite.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 /**
  * This class provides String representation of both {@link XmlSuite} and {@link XmlTest} but adds

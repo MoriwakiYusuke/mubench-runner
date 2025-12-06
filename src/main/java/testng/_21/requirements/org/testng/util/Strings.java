@@ -1,10 +1,10 @@
-package testng._16.requirements.org.testng.util;
+package testng._21.requirements.org.testng.util;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import testng._16.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.collections.Maps;
 
 public final class Strings {
   private Strings() {

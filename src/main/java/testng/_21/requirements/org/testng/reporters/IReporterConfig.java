@@ -1,8 +1,8 @@
-package testng._16.requirements.org.testng.reporters;
+package testng._21.requirements.org.testng.reporters;
 
 import java.util.List;
-import testng._16.requirements.org.testng.internal.PropertyUtils;
-import testng._16.requirements.org.testng.internal.ReporterConfig;
+import testng._21.requirements.org.testng.internal.PropertyUtils;
+import testng._21.requirements.org.testng.internal.ReporterConfig;
 
 public interface IReporterConfig {
 

@@ -1,10 +1,10 @@
-package testng._16.requirements.org.testng.internal.objects;
+package testng._21.requirements.org.testng.internal.objects;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
-import testng._16.requirements.org.testng.TestNGException;
-import testng._16.requirements.org.testng.internal.ClassHelper;
+import testng._21.requirements.org.testng.TestNGException;
+import testng._21.requirements.org.testng.internal.ClassHelper;
 
 /** Utility class for object instantiations. */
 public final class InstanceCreator {

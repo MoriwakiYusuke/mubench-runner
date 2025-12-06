@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 /** Represents the capabilities of a XML serializer (As string) */
 public interface IWeaveXml {

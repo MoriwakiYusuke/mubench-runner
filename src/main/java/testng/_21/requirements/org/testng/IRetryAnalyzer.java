@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 /**
  * Interface to implement to be able to have a chance to retry a failed test.

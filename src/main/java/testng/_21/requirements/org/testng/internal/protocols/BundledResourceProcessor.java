@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.internal.protocols;
+package testng._21.requirements.org.testng.internal.protocols;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -7,7 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.List;
-import testng._16.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Lists;
 
 class BundledResourceProcessor extends Processor {
   @Override

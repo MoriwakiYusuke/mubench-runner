@@ -1,6 +1,6 @@
-package testng._16.requirements.org.testng.internal.thread;
+package testng._21.requirements.org.testng.internal.thread;
 
-import testng._16.requirements.org.testng.ITestNGMethod;
+import testng._21.requirements.org.testng.ITestNGMethod;
 
 /** Exception used to signal a thread timeout. */
 public class ThreadTimeoutException extends Exception {

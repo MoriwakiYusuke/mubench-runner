@@ -1,6 +1,6 @@
-package testng._16.requirements.org.testng.internal;
+package testng._21.requirements.org.testng.internal;
 
-import static testng._16.requirements.org.testng.annotations.Parameters.NULL_VALUE;
+import static testng._21.requirements.org.testng.annotations.Parameters.NULL_VALUE;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -8,8 +8,8 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import testng._16.requirements.org.testng.TestNGException;
-import testng._16.requirements.org.testng.log4testng.Logger;
+import testng._21.requirements.org.testng.TestNGException;
+import testng._21.requirements.org.testng.log4testng.Logger;
 
 /**
  * Utility class for setting JavaBeans-style properties on instances.

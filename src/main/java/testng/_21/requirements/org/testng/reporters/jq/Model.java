@@ -1,19 +1,19 @@
-package testng._16.requirements.org.testng.reporters.jq;
+package testng._21.requirements.org.testng.reporters.jq;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import testng._16.requirements.org.testng.IResultMap;
-import testng._16.requirements.org.testng.ISuite;
-import testng._16.requirements.org.testng.ISuiteResult;
-import testng._16.requirements.org.testng.ITestContext;
-import testng._16.requirements.org.testng.ITestResult;
-import testng._16.requirements.org.testng.collections.ListMultiMap;
-import testng._16.requirements.org.testng.collections.Lists;
-import testng._16.requirements.org.testng.collections.Maps;
-import testng._16.requirements.org.testng.collections.SetMultiMap;
-import testng._16.requirements.org.testng.internal.Utils;
+import testng._21.requirements.org.testng.IResultMap;
+import testng._21.requirements.org.testng.ISuite;
+import testng._21.requirements.org.testng.ISuiteResult;
+import testng._21.requirements.org.testng.ITestContext;
+import testng._21.requirements.org.testng.ITestResult;
+import testng._21.requirements.org.testng.collections.ListMultiMap;
+import testng._21.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.collections.SetMultiMap;
+import testng._21.requirements.org.testng.internal.Utils;
 
 public class Model {
   private final ListMultiMap<ISuite, ITestResult> m_model = Maps.newListMultiMap();

@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.collections;
+package testng._21.requirements.org.testng.collections;
 
 import java.util.Collections;
 import java.util.HashMap;

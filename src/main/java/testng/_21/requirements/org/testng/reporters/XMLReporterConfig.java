@@ -1,8 +1,8 @@
-package testng._16.requirements.org.testng.reporters;
+package testng._21.requirements.org.testng.reporters;
 
 import java.util.HashMap;
 import java.util.Map;
-import testng._16.requirements.org.testng.ITestResult;
+import testng._21.requirements.org.testng.ITestResult;
 
 @SuppressWarnings("unused")
 public class XMLReporterConfig implements IReporterConfig {

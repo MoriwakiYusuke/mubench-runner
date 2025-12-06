@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng.internal;
+package testng._21.requirements.org.testng.internal;
 
 import java.util.List;
-import testng._16.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Lists;
 
 /** Stores the information regarding the configuration of a pluggable report listener. */
 public class ReporterConfig {

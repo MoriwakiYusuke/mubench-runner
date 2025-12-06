@@ -1,8 +1,8 @@
-package testng._16.requirements.org.testng.log4testng;
+package testng._21.requirements.org.testng.log4testng;
 
 import java.util.Map;
 import org.slf4j.LoggerFactory;
-import testng._16.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.collections.Maps;
 
 /**
  * TestNG logging now uses slf4j logging facade to satisfy the logging needs. To control TestNG

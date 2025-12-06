@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.reporters;
+package testng._21.requirements.org.testng.reporters;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.nio.file.Files;
-import testng._16.requirements.org.testng.log4testng.Logger;
+import testng._21.requirements.org.testng.log4testng.Logger;
 
 /**
  * A string buffer that flushes its content to a temporary file whenever the internal string buffer

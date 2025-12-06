@@ -1,8 +1,8 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 import java.util.Properties;
-import testng._16.requirements.org.testng.TestNGException;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.TestNGException;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 /** This class describes the tag <code>&lt;method-selector&gt;</code> in testng.xml. */
 public class XmlMethodSelector {

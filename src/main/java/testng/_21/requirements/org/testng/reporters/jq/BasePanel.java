@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng.reporters.jq;
+package testng._21.requirements.org.testng.reporters.jq;
 
 import java.util.List;
-import testng._16.requirements.org.testng.ISuite;
+import testng._21.requirements.org.testng.ISuite;
 
 public abstract class BasePanel implements IPanel {
   public static final String C = "class";

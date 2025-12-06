@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.xml;
+package testng._21.requirements.org.testng.xml;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import testng._16.requirements.org.testng.collections.Lists;
-import testng._16.requirements.org.testng.collections.Maps;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.collections.Lists;
+import testng._21.requirements.org.testng.collections.Maps;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 public class XmlInclude {
 

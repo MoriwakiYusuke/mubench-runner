@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng.reporters;
+package testng._21.requirements.org.testng.reporters;
 
 public class Buffer {
   public static IBuffer create() {

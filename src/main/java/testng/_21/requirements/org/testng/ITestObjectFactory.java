@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 import java.lang.reflect.Constructor;
-import testng._16.requirements.org.testng.internal.objects.InstanceCreator;
+import testng._21.requirements.org.testng.internal.objects.InstanceCreator;
 
 /** Parent interface of all the object factories. */
 public interface ITestObjectFactory {

@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 /** This class represents the result of a suite run. */
 public interface ISuiteResult {

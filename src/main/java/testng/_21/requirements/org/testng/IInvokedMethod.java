@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 /**
  * An interface representing a method that has been invoked by TestNG.

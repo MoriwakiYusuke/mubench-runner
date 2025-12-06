@@ -1,7 +1,7 @@
-package testng._16.requirements.org.testng.reporters.jq;
+package testng._21.requirements.org.testng.reporters.jq;
 
-import testng._16.requirements.org.testng.ISuite;
-import testng._16.requirements.org.testng.reporters.XMLStringBuffer;
+import testng._21.requirements.org.testng.ISuite;
+import testng._21.requirements.org.testng.reporters.XMLStringBuffer;
 
 public abstract class BaseMultiSuitePanel extends BasePanel implements INavigatorPanel {
 

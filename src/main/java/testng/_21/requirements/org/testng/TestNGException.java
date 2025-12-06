@@ -1,4 +1,4 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 /** The base class for all exceptions thrown by TestNG. */
 public class TestNGException extends RuntimeException {

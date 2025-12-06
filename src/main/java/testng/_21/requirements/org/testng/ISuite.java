@@ -1,11 +1,11 @@
-package testng._16.requirements.org.testng;
+package testng._21.requirements.org.testng;
 
 import com.google.inject.Injector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import testng._16.requirements.org.testng.internal.annotations.IAnnotationFinder;
-import testng._16.requirements.org.testng.xml.XmlSuite;
+import testng._21.requirements.org.testng.internal.annotations.IAnnotationFinder;
+import testng._21.requirements.org.testng.xml.XmlSuite;
 
 /**
  * Interface defining a Test Suite.

@@ -1,6 +1,6 @@
-package testng._16.requirements.org.testng.reporters.jq;
+package testng._21.requirements.org.testng.reporters.jq;
 
-import testng._16.requirements.org.testng.ISuite;
+import testng._21.requirements.org.testng.ISuite;
 
 /** Panels that are accessible from the navigator. */
 public interface INavigatorPanel extends IPanel {
