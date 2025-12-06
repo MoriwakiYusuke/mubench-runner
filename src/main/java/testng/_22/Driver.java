@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import testng._22.requirements.org.testng.ISuite;
 
 /**
  * Driver for TestNG Case 22 - XMLReporter synchronization bug.
@@ -50,8 +51,8 @@ public class Driver {
         if (reporterInstance == null) {
             initializeReporter();
         }
-        // Use getDeclaredMethod for private method
-        Method method = reporterInstance.getClass().getDeclaredMethod("getSuiteAttributes", Object.class);
+        // Use getDeclaredMethod for private method with ISuite parameter
+        Method method = reporterInstance.getClass().getDeclaredMethod("getSuiteAttributes", ISuite.class);
         method.setAccessible(true);
         return (Properties) method.invoke(reporterInstance, suite);
     }

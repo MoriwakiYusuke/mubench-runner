@@ -27,6 +27,7 @@ public class Model {
   private Map<ISuite, ResultsByClass> m_skippedResultsByClass = Maps.newHashMap();
   private Map<ISuite, ResultsByClass> m_passedResultsByClass = Maps.newHashMap();
   private List<ITestResult> m_allFailedResults = Lists.newArrayList();
+  // Each suite is mapped to failed.png, skipped.png or nothing (which means passed.png)
   private Map<String, String> m_statusBySuiteName = Maps.newHashMap();
   private SetMultiMap<String, String> m_groupsBySuiteName = Maps.newSetMultiMap();
   private SetMultiMap<String, String> m_methodsByGroup = Maps.newSetMultiMap();
@@ -40,16 +41,15 @@ public class Model {
     return m_suites;
   }
 
-  // FIXED (Original): Synchronized block around iteration of synchronized map
   private void init() {
     int testCounter = 0;
     for (ISuite suite : m_suites) {
       List<ITestResult> passed = Lists.newArrayList();
       List<ITestResult> failed = Lists.newArrayList();
       List<ITestResult> skipped = Lists.newArrayList();
-      Map<String, ISuiteResult> results = suite.getResults();
-      synchronized (results) {
-        for (ISuiteResult sr : results.values()) {
+      Map<String, ISuiteResult> suiteResults = suite.getResults();
+      synchronized(suiteResults) {
+        for (ISuiteResult sr : suiteResults.values()) {
           ITestContext context = sr.getTestContext();
           m_testTags.put(context.getName(), "test-" + testCounter++);
           failed.addAll(context.getFailedTests().getAllResults());
@@ -68,57 +68,76 @@ public class Model {
         }
       }
 
-      processResults(suite, passed, failed, skipped);
-    }
-  }
+      // Process them in the order passed, skipped and failed, so that the failed
+      // icon overrides all the others and the skipped icon overrides passed.
 
-  private void processResults(ISuite suite, List<ITestResult> passed, 
-                              List<ITestResult> failed, List<ITestResult> skipped) {
-    // Passed
-    {
-      ResultsByClass rbc = new ResultsByClass();
-      for (ITestResult tr : passed) {
-        rbc.addResult(tr.getTestClass().getRealClass(), tr);
-        updateGroups(suite, tr);
+      // Passed
+      {
+        ResultsByClass rbc = new ResultsByClass();
+        for (ITestResult tr : passed) {
+          rbc.addResult(tr.getTestClass().getRealClass(), tr);
+          updateGroups(suite, tr);
+        }
+        m_passedResultsByClass.put(suite, rbc);
       }
-      m_passedResultsByClass.put(suite, rbc);
-    }
 
-    // Skipped
-    {
-      ResultsByClass rbc = new ResultsByClass();
-      for (ITestResult tr : skipped) {
-        m_statusBySuiteName.put(suite.getName(), "skipped");
-        rbc.addResult(tr.getTestClass().getRealClass(), tr);
-        updateGroups(suite, tr);
+      // Skipped
+      {
+        ResultsByClass rbc = new ResultsByClass();
+        for (ITestResult tr : skipped) {
+          m_statusBySuiteName.put(suite.getName(), "skipped");
+          rbc.addResult(tr.getTestClass().getRealClass(), tr);
+          updateGroups(suite, tr);
+        }
+        m_skippedResultsByClass.put(suite, rbc);
       }
-      m_skippedResultsByClass.put(suite, rbc);
-    }
 
-    // Failed
-    {
-      ResultsByClass rbc = new ResultsByClass();
-      for (ITestResult tr : failed) {
-        m_statusBySuiteName.put(suite.getName(), "failed");
-        rbc.addResult(tr.getTestClass().getRealClass(), tr);
-        m_allFailedResults.add(tr);
-        updateGroups(suite, tr);
+      // Failed
+      {
+        ResultsByClass rbc = new ResultsByClass();
+        for (ITestResult tr : failed) {
+          m_statusBySuiteName.put(suite.getName(), "failed");
+          rbc.addResult(tr.getTestClass().getRealClass(), tr);
+          m_allFailedResults.add(tr);
+          updateGroups(suite, tr);
+        }
+        m_failedResultsByClass.put(suite, rbc);
       }
-      m_failedResultsByClass.put(suite, rbc);
-    }
 
-    m_model.putAll(suite, failed);
-    m_model.putAll(suite, skipped);
-    m_model.putAll(suite, passed);
+      m_model.putAll(suite, failed);
+      m_model.putAll(suite, skipped);
+      m_model.putAll(suite, passed);
+    }
   }
 
   private void updateGroups(ISuite suite, ITestResult tr) {
     String[] groups = tr.getMethod().getGroups();
-    m_groupsBySuiteName.putAll(suite.getName(), Arrays.asList(groups));
+    m_groupsBySuiteName.putAll(suite.getName(),
+        Arrays.asList(groups));
     for (String group : groups) {
       m_methodsByGroup.put(group, tr.getMethod().getMethodName());
     }
   }
+
+  public ResultsByClass getFailedResultsByClass(ISuite suite) {
+    return m_failedResultsByClass.get(suite);
+  }
+
+  public ResultsByClass getSkippedResultsByClass(ISuite suite) {
+    return m_skippedResultsByClass.get(suite);
+  }
+
+  public ResultsByClass getPassedResultsByClass(ISuite suite) {
+    return m_passedResultsByClass.get(suite);
+  }
+
+  public String getTag(ITestResult tr) {
+    return m_testResultMap.get(tr);
+  }
+
+  public List<ITestResult> getTestResults(ISuite suite) {
+    return nonnullList(m_model.get(suite));
+   }
 
   public static String getTestResultName(ITestResult tr) {
     StringBuilder result = new StringBuilder(tr.getMethod().getMethodName());
@@ -131,17 +150,24 @@ public class Model {
         p.append(Utils.toString(parameters[i]));
       }
       if (p.length() > 100) {
-        result.append(p.toString().substring(0, 100)).append("...");
+        String s = p.toString().substring(0, 100);
+        s = s + "...";
+        result.append(s);
       } else {
         result.append(p.toString());
       }
       result.append(")");
     }
+
     return result.toString();
   }
 
   public List<ITestResult> getAllFailedResults() {
     return m_allFailedResults;
+  }
+
+  public static String getImage(String tagClass) {
+    return tagClass + ".png";
   }
 
   public String getStatusForSuite(String suiteName) {
@@ -155,5 +181,36 @@ public class Model {
 
   public <T> List<T> nonnullList(List<T> l) {
     return l != null ? l : Collections.<T>emptyList();
+  }
+
+  public List<String> getGroups(String name) {
+    List<String> result = Lists.newArrayList(nonnullSet(m_groupsBySuiteName.get(name)));
+    Collections.sort(result);
+    return result;
+  }
+
+  public List<String> getMethodsInGroup(String groupName) {
+    List<String> result = Lists.newArrayList(nonnullSet(m_methodsByGroup.get(groupName)));
+    Collections.sort(result);
+    return result;
+  }
+
+  public List<ITestResult> getAllTestResults(ISuite suite) {
+    return getAllTestResults(suite, true /* tests only */);
+  }
+
+  public List<ITestResult> getAllTestResults(ISuite suite, boolean testsOnly) {
+    List<ITestResult> result = Lists.newArrayList();
+    for (ISuiteResult sr : suite.getResults().values()) {
+      result.addAll(sr.getTestContext().getPassedTests().getAllResults());
+      result.addAll(sr.getTestContext().getFailedTests().getAllResults());
+      result.addAll(sr.getTestContext().getSkippedTests().getAllResults());
+      if (! testsOnly) {
+        result.addAll(sr.getTestContext().getPassedConfigurations().getAllResults());
+        result.addAll(sr.getTestContext().getFailedConfigurations().getAllResults());
+        result.addAll(sr.getTestContext().getSkippedConfigurations().getAllResults());
+      }
+    }
+    return result;
   }
 }

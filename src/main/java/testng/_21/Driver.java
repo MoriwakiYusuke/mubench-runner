@@ -127,7 +127,9 @@ public class Driver {
     public boolean hasSynchronizedBlock() throws IOException {
         String source = readSourceCode();
         return source.contains("synchronized (results)") || 
-               source.contains("synchronized(results)");
+               source.contains("synchronized(results)") ||
+               source.contains("synchronized (suiteResults)") ||
+               source.contains("synchronized(suiteResults)");
     }
     
     /**
@@ -140,6 +142,12 @@ public class Driver {
         int syncIndex = source.indexOf("synchronized (results)");
         if (syncIndex == -1) {
             syncIndex = source.indexOf("synchronized(results)");
+        }
+        if (syncIndex == -1) {
+            syncIndex = source.indexOf("synchronized (suiteResults)");
+        }
+        if (syncIndex == -1) {
+            syncIndex = source.indexOf("synchronized(suiteResults)");
         }
         if (syncIndex == -1) {
             return false;
@@ -165,6 +173,7 @@ public class Driver {
         String syncBlock = source.substring(braceStart, braceEnd);
         return syncBlock.contains("for (ISuiteResult sr :") || 
                syncBlock.contains("for(ISuiteResult sr :") ||
-               syncBlock.contains("results.values()");
+               syncBlock.contains("results.values()") ||
+               syncBlock.contains("suiteResults.values()");
     }
 }
