@@ -1,5 +1,6 @@
 package testng._21.misuse;
 
+import testng._21.requirements.org.testng.reporters.jq.ResultsByClass;
 import testng._21.requirements.org.testng.IResultMap;
 import testng._21.requirements.org.testng.ISuite;
 import testng._21.requirements.org.testng.ISuiteResult;
