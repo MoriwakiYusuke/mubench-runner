@@ -1,24 +1,3 @@
-# Java API Misuse Fix Request
-
-## Bug Type
-missing/condition/synchronization
-
-## Description
-In XMLReporter.java:158, the synchronized map, `results`,
-is iterated over in an unsynchronized manner, but according to the
-[Oracle Java 7 API specification](http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html#synchronizedMap%28java.util.Map%29),
-this is not thread-safe and can lead to non-deterministic behavior.
-This pull request adds a fix by synchronizing the iteration on results.
-
-## Location
-- File: org/testng/reporters/XMLReporter.java
-- Method: getSuiteAttributes(ISuite)
-
-## API
-java.util.Collections$SynchronizedCollection
-
-## Source Code with Bug
-```java
 package org.testng.reporters;
 
 import org.testng.IReporter;
@@ -140,8 +119,10 @@ public class XMLReporter implements IReporter {
 
     Map<String, ISuiteResult> results = suite.getResults();
     XMLSuiteResultWriter suiteResultWriter = new XMLSuiteResultWriter(config);
-    for (Map.Entry<String, ISuiteResult> result : results.entrySet()) {
-      suiteResultWriter.writeSuiteResult(xmlBuffer, result.getValue());
+    synchronized (results) {
+      for (Map.Entry<String, ISuiteResult> result : results.entrySet()) {
+        suiteResultWriter.writeSuiteResult(xmlBuffer, result.getValue());
+      }
     }
 
     xmlBuffer.pop();
@@ -176,15 +157,17 @@ public class XMLReporter implements IReporter {
     Date minStartDate = new Date();
     Date maxEndDate = null;
     // TODO: We could probably optimize this in order not to traverse this twice
-    for (Map.Entry<String, ISuiteResult> result : results.entrySet()) {
-      ITestContext testContext = result.getValue().getTestContext();
-      Date startDate = testContext.getStartDate();
-      Date endDate = testContext.getEndDate();
-      if (minStartDate.after(startDate)) {
-        minStartDate = startDate;
-      }
-      if (maxEndDate == null || maxEndDate.before(endDate)) {
-        maxEndDate = endDate != null ? endDate : startDate;
+    synchronized (results) {
+      for (Map.Entry<String, ISuiteResult> result : results.entrySet()) {
+        ITestContext testContext = result.getValue().getTestContext();
+        Date startDate = testContext.getStartDate();
+        Date endDate = testContext.getEndDate();
+        if (minStartDate.after(startDate)) {
+          minStartDate = startDate;
+        }
+        if (maxEndDate == null || maxEndDate.before(endDate)) {
+          maxEndDate = endDate != null ? endDate : startDate;
+        }
       }
     }
 
@@ -295,9 +278,3 @@ public class XMLReporter implements IReporter {
   }
 
 }
-```
-
-## Instructions
-Fix the API misuse in the source code above. Output ONLY the complete fixed Java source code.
-Do not include any explanation, comments about changes, or markdown formatting.
-The output should be valid Java code that can be directly saved as a .java file.
