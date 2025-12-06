@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import testng._16.Driver;
+import testng._16.requirements.org.testng.ISuite;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,11 +13,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over a synchronized collection.
+ * 
+ * Tests include both:
+ * - Static analysis: verify synchronized block in source code
+ * - Dynamic testing: instantiate panel and invoke methods
  */
 class TestngTest_16 {
     
     abstract static class CommonCases {
         abstract Driver driver();
+        
+        // ========== Static Analysis Tests ==========
         
         @Test
         void testGetContentMethodExists() throws Exception {
@@ -47,6 +54,42 @@ class TestngTest_16 {
             assertTrue(driver().isCorrectlyFixed(), 
                 "Sort and iteration should be inside synchronized block");
         }
+        
+        // ========== Dynamic Tests ==========
+        
+        @Test
+        void testPanelInitialization() throws Exception {
+            Driver d = driver();
+            d.initializePanel();
+            // If no exception, initialization succeeded
+        }
+        
+        @Test
+        void testGetContentWithMockSuite() throws Exception {
+            Driver d = driver();
+            d.initializePanel();
+            ISuite mockSuite = d.createMockSuite(5);
+            String content = d.invokeGetContent(mockSuite);
+            assertNotNull(content, "getContent should return non-null");
+        }
+        
+        @Test
+        void testGetContentWithEmptySuite() throws Exception {
+            Driver d = driver();
+            d.initializePanel();
+            ISuite mockSuite = d.createMockSuite(0);
+            String content = d.invokeGetContent(mockSuite);
+            assertNotNull(content, "getContent should handle empty suite");
+        }
+        
+        @Test
+        void testConcurrentAccess() throws Exception {
+            Driver d = driver();
+            d.initializePanel();
+            ISuite mockSuite = d.createMockSuite(10);
+            boolean success = d.testConcurrentAccess(mockSuite, 4);
+            assertTrue(success, "Concurrent access should not cause ConcurrentModificationException");
+        }
     }
     
     @Nested
@@ -57,17 +100,6 @@ class TestngTest_16 {
             return new Driver("original");
         }
     }
-    
-    // Misuse variant - tests FAIL as expected (synchronized block is missing)
-    // Confirmed: testSynchronizedBlockPresent() and testCorrectlyFixed() fail
-    // @Nested
-    // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
-    //     @Override
-    //     Driver driver() {
-    //         return new Driver("misuse");
-    //     }
-    // }
     
     @Nested
     @DisplayName("Fixed")

@@ -1,19 +1,31 @@
 package testng._21;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import testng._21.mocks.*;
+import testng._21.requirements.org.testng.*;
+import testng._21.requirements.org.testng.reporters.jq.Model;
 
 /**
  * Driver for TestNG Case 21 - Model.java synchronization bug.
  * 
  * Bug Type: missing/condition/synchronization
  * The bug is missing synchronized block when iterating over suite.getResults().
+ * 
+ * Supports both static analysis and dynamic testing.
  */
 public class Driver {
     
+    private static final String BASE_PACKAGE = "testng._21";
     private final String variant;
+    private Object modelInstance;
     
     public Driver(String variant) {
         this.variant = variant;
@@ -23,6 +35,65 @@ public class Driver {
         Path path = Paths.get("src/main/java/testng/_21/" + variant + "/Model.java");
         return Files.readString(path);
     }
+    
+    // ========== Dynamic Testing Methods ==========
+    
+    /**
+     * Initialize Model instance for dynamic testing.
+     */
+    public void initializeModel() throws Exception {
+        String className = BASE_PACKAGE + "." + variant + ".Model";
+        Class<?> clazz = Class.forName(className);
+        
+        // Model constructor takes List<ISuite>
+        Constructor<?> constructor = clazz.getConstructor(List.class);
+        this.modelInstance = constructor.newInstance(new ArrayList<ISuite>());
+    }
+    
+    /**
+     * Create a mock ISuite with test methods.
+     */
+    public ISuite createMockSuite(int methodCount) {
+        List<IInvokedMethod> methods = new ArrayList<>();
+        MockClass testClass = new MockClass("TestClass");
+        
+        for (int i = 0; i < methodCount; i++) {
+            MockTestNGMethod testMethod = new MockTestNGMethod("testMethod" + i, testClass);
+            MockTestResult testResult = new MockTestResult(
+                "testMethod" + i,
+                System.currentTimeMillis() + (i * 100),
+                ITestResult.SUCCESS,
+                testMethod,
+                testClass
+            );
+            methods.add(new MockInvokedMethod(testMethod, testResult, true));
+        }
+        
+        return new MockSuite("TestSuite", methods);
+    }
+    
+    /**
+     * Initialize Model with a list of mock suites.
+     */
+    public void initializeModelWithSuites(List<ISuite> suites) throws Exception {
+        String className = BASE_PACKAGE + "." + variant + ".Model";
+        Class<?> clazz = Class.forName(className);
+        Constructor<?> constructor = clazz.getConstructor(List.class);
+        this.modelInstance = constructor.newInstance(suites);
+    }
+    
+    /**
+     * Get the model's suites list.
+     */
+    public List<ISuite> getSuites() throws Exception {
+        if (modelInstance == null) {
+            initializeModel();
+        }
+        Method getSuitesMethod = modelInstance.getClass().getMethod("getSuites");
+        return (List<ISuite>) getSuitesMethod.invoke(modelInstance);
+    }
+    
+    // ========== Static Analysis Methods ==========
     
     /**
      * Check if init() method exists
