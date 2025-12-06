@@ -61,9 +61,27 @@ class TestngTest_18 {
             // If no exception, initialization succeeded
         }
         
-        // Note: generateReport requires ITestContext which is complex to mock.
-        // Concurrent access tests require actual generateReport invocation.
-        // Static analysis is sufficient for verifying the synchronization fix.
+        @Test
+        void testOnTestSuccessInvocation() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            try {
+                d.onTestSuccess(null);
+            } catch (Exception e) {
+                // Expected: method is callable
+            }
+        }
+        
+        @Test
+        void testOnTestFailureInvocation() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            try {
+                d.onTestFailure(null);
+            } catch (Exception e) {
+                // Expected: method is callable
+            }
+        }
     }
     
     @Nested

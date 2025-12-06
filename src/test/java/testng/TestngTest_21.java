@@ -68,6 +68,22 @@ class TestngTest_21 {
             Object suites = d.getSuites();
             assertNotNull(suites, "getSuites should return non-null");
         }
+        
+        @Test
+        void testGetAllFailedResults() throws Exception {
+            Driver d = driver();
+            d.initializeModel();
+            Object results = d.getAllFailedResults();
+            assertNotNull(results, "getAllFailedResults should return non-null");
+        }
+        
+        @Test
+        void testNonnullList() throws Exception {
+            Driver d = driver();
+            d.initializeModel();
+            Object result = d.nonnullList(null);
+            assertNotNull(result, "nonnullList(null) should return empty list");
+        }
     }
     
     @Nested

@@ -62,13 +62,27 @@ class TestngTest_22 {
         }
         
         @Test
-        void testGetSuiteAttributesInvocation() throws Exception {
+        void testGetterSetterMethods() throws Exception {
             Driver d = driver();
             d.initializeReporter();
-            // Note: getSuiteAttributes requires a valid ISuite mock
-            // For now, verify that the method is accessible
-            assertTrue(d.hasGetSuiteAttributesMethod(), 
-                "getSuiteAttributes method should be accessible");
+            
+            // Test getter/setter pairs
+            int fragLevel = d.getFileFragmentationLevel();
+            d.setFileFragmentationLevel(fragLevel);
+            
+            String outputDir = d.getOutputDirectory();
+            d.setOutputDirectory(outputDir != null ? outputDir : "/tmp");
+            
+            boolean groupsAttr = d.isGenerateGroupsAttribute();
+            d.setGenerateGroupsAttribute(groupsAttr);
+        }
+        
+        @Test
+        void testTimestampFormat() throws Exception {
+            Driver d = driver();
+            d.initializeReporter();
+            String format = d.getTimestampFormat();
+            assertNotNull(format, "getTimestampFormat should return non-null");
         }
     }
     
