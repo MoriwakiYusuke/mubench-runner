@@ -82,11 +82,11 @@
 | `Tbuktu_ntruTest_475.java` | 📝+🔄 混合 | 動的（`getEncoded()`出力検証）+ 静的（`hasFlushOrCloseInGetEncoded()`でソース解析） |
 | `Tbuktu_ntruTest_476.java` | 📝+🔄 混合 | 動的（`getEncoded()`出力検証）+ 静的（`hasFlushOrCloseInGetEncoded()`でソース解析） |
 | **testng** | | |
-| `TestngTest_16.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializePanel()`, `invokeGetContent()`, `testConcurrentAccess()`） |
-| `TestngTest_17.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGenerateReport()`, `testConcurrentAccess()`） |
-| `TestngTest_18.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGenerateReport()`, `testConcurrentAccess()`） |
-| `TestngTest_21.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeModel()`, `getSuites()`） |
-| `TestngTest_22.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`initializeReporter()`, `invokeGetSuiteAttributes()`, `testConcurrentAccess()`） |
+| `TestngTest_16.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testPanelInitialization()`, `testGetContentWithMockSuite()`, `testConcurrentAccess()`） |
+| `TestngTest_17.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testReporterInitialization()`, `testGenerateReportWithMockContext()`, `testOnStartWithMockContext()`） |
+| `TestngTest_18.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testReporterInitialization()`, `testGenerateReportWithMockContext()`, `testOnFinishWithMockContext()`） |
+| `TestngTest_21.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testModelInitialization()`, `testGetSuites()`, `testGetAllFailedResults()`） |
+| `TestngTest_22.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testReporterInitialization()`, `testGenerateReportWithMockSuite()`, `testMockSuiteAttributes()`） |
 
 ---
 

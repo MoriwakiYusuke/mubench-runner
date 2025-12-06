@@ -43,9 +43,12 @@ dependencies {
     implementation(files("libs/asterisk-java-3.41.0.jar"))
     // tap-apps用 Commons Codec (Base64)
     implementation(files("libs/commons-codec-1.16.0.jar"))
-    // testng用 Guice, javax.annotation, TestNG
-    implementation("com.google.inject:guice:5.1.0")
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    // testng用 Guice, javax.annotation, TestNG (ローカルJARで永続化)
+    implementation(files("libs/guice-5.1.0.jar"))
+    implementation(files("libs/javax.inject-1.jar"))
+    implementation(files("libs/aopalliance-1.0.jar"))
+    implementation(files("libs/javax.annotation-api-1.3.2.jar"))
+    implementation(files("libs/jsr305-3.0.2.jar"))  // @Nullable等のアノテーション
     implementation(files("libs/testng-6.9.4.jar"))
 }
 
