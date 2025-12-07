@@ -87,6 +87,10 @@
 | `TestngTest_18.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testReporterInitialization()`, `testGenerateReportWithMockContext()`, `testOnFinishWithMockContext()`） |
 | `TestngTest_21.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testModelInitialization()`, `testGetSuites()`, `testGetAllFailedResults()`） |
 | `TestngTest_22.java` | 📝+🔄 混合 | 静的（`hasSynchronizedBlock()`, `isCorrectlyFixed()`でソース解析）+ 動的（`testReporterInitialization()`, `testGenerateReportWithMockSuite()`, `testMockSuiteAttributes()`） |
+| **thomas_s_b_visualee** | | |
+| `Thomas_s_b_visualeeTest_29.java` | 🔄 動的 | Driver経由で`findAndSetPackage(JavaSource)`の実行結果を検証 |
+| `Thomas_s_b_visualeeTest_30.java` | 🔄 動的 | Driver経由で`jumpOverJavaToken(String, Scanner)`の実行結果を検証 |
+| `Thomas_s_b_visualeeTest_32.java` | 🔄 動的 | Driver経由で`scanAfterClosedParenthesis(String, Scanner)`の実行結果を検証 |
 
 ---
 
@@ -94,9 +98,9 @@
 
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
-| 📝 **静的テスト** | 8件 | 約17% |
-| 🔄 **動的テスト** | 28件 | 約60% |
-| 📝+🔄 **混合** | 11件 | 約23% |
-| **合計** | 47件 | 100% |
+| 📝 **静的テスト** | 8件 | 約16% |
+| 🔄 **動的テスト** | 31件 | 約62% |
+| 📝+🔄 **混合** | 11件 | 約22% |
+| **合計** | 50件 | 100% |
 
 ---
