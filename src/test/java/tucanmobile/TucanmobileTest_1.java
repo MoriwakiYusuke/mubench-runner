@@ -18,7 +18,7 @@ class TucanmobileTest_1 {
 
     private static final String BASE_PACKAGE = "tucanmobile._1";
 
-    abstract static class CommonCases {
+    abstract static class CommonLogic {
         abstract Driver createDriver();
 
         @Test
@@ -64,7 +64,7 @@ class TucanmobileTest_1 {
 
     @Nested
     @DisplayName("Original")
-    class Original extends CommonCases {
+    class Original extends CommonLogic {
         @Override
         Driver createDriver() {
             return new Driver(BASE_PACKAGE + ".original.SimpleSecureBrowser");
@@ -74,7 +74,7 @@ class TucanmobileTest_1 {
     // Misuseは常にコメントアウト（バグがあるため必ず失敗）
     // @Nested
     // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
+    // class Misuse extends CommonLogic {
     //     @Override
     //     Driver createDriver() {
     //         return new Driver(BASE_PACKAGE + ".misuse.SimpleSecureBrowser");
@@ -83,7 +83,7 @@ class TucanmobileTest_1 {
 
     @Nested
     @DisplayName("Fixed")
-    class Fixed extends CommonCases {
+    class Fixed extends CommonLogic {
         @Override
         Driver createDriver() {
             return new Driver(BASE_PACKAGE + ".fixed.SimpleSecureBrowser");

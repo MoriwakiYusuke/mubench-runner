@@ -95,6 +95,9 @@
 | `TucanmobileTest_1.java` | 🔄 動的 | Driver経由で`onPreExecute()`、`onPostExecute()`を実行し、`dialog.isShowing()`チェック有無を検証 |
 | **ushahidia** | | |
 | `UshahidiaTest_1.java` | 🔄 動的 | Driver経由で`getReportState()`を実行し、`Cursor.isClosed()`でリソース解放を検証 |
+| **wordpressa** | | |
+| `WordpressaTest_1.java` | 🔄 動的 | Driver経由で`restoreListScrollPosition()`を実行し、`isAdded()`チェック有無を検証 |
+| `WordpressaTest_3.java` | 🔄 動的 | Driver経由で`onClick(R.id.more)`を実行し、`mSelectionEnd > str.length()`のbounds check有無を検証 |
 
 ---
 
@@ -103,8 +106,8 @@
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
 | 📝 **静的テスト** | 8件 | 約15% |
-| 🔄 **動的テスト** | 33件 | 約63% |
-| 📝+🔄 **混合** | 11件 | 約21% |
-| **合計** | 52件 | 100% |
+| 🔄 **動的テスト** | 35件 | 約65% |
+| 📝+🔄 **混合** | 11件 | 約20% |
+| **合計** | 54件 | 100% |
 
 ---

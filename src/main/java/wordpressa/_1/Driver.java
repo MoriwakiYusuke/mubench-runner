@@ -178,4 +178,203 @@ public class Driver {
         // If isAdded check is missing (misuse), selection WILL be set
         return listView.getSelectionFromTop() == ListView.INVALID_POSITION;
     }
+
+    // ========== Public Methods from NotificationsListFragment ==========
+    // These methods are exposed to fulfill the "complete method coverage" requirement.
+
+    /**
+     * onCreateView - Fragment lifecycle method.
+     */
+    public Object onCreateView(Object inflater, Object container, Bundle savedInstanceState) {
+        try {
+            Method method = fragmentClass.getMethod("onCreateView", 
+                Class.forName("wordpressa._1.mocks.LayoutInflater"),
+                Class.forName("wordpressa._1.mocks.ViewGroup"),
+                Bundle.class);
+            return method.invoke(fragment, inflater, container, savedInstanceState);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onCreateView", e);
+        }
+    }
+
+    /**
+     * onActivityCreated - Fragment lifecycle method.
+     */
+    public void onActivityCreated(Bundle savedInstanceState) {
+        try {
+            Method method = fragmentClass.getMethod("onActivityCreated", Bundle.class);
+            method.invoke(fragment, savedInstanceState);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onActivityCreated", e);
+        }
+    }
+
+    /**
+     * onResume - Fragment lifecycle method.
+     */
+    public void onResume() {
+        try {
+            Method method = fragmentClass.getMethod("onResume");
+            method.invoke(fragment);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onResume", e);
+        }
+    }
+
+    /**
+     * onPause - Fragment lifecycle method.
+     */
+    public void onPause() {
+        try {
+            Method method = fragmentClass.getMethod("onPause");
+            method.invoke(fragment);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onPause", e);
+        }
+    }
+
+    /**
+     * onDestroy - Fragment lifecycle method.
+     */
+    public void onDestroy() {
+        try {
+            Method method = fragmentClass.getMethod("onDestroy");
+            method.invoke(fragment);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onDestroy", e);
+        }
+    }
+
+    /**
+     * onListItemClick - Called when an item in the list is clicked.
+     */
+    public void onListItemClick(ListView l, Object v, int position, long id) {
+        try {
+            Method method = fragmentClass.getMethod("onListItemClick", 
+                ListView.class,
+                Class.forName("wordpressa._1.mocks.View"),
+                int.class, long.class);
+            method.invoke(fragment, l, v, position, id);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onListItemClick", e);
+        }
+    }
+
+    /**
+     * setOnNoteClickListener - Set the note click listener.
+     */
+    public void setOnNoteClickListener(Object listener) {
+        try {
+            // Get the inner interface class
+            Class<?> listenerClass = Class.forName(fragmentClass.getName() + "$OnNoteClickListener");
+            Method method = fragmentClass.getMethod("setOnNoteClickListener", listenerClass);
+            method.invoke(fragment, listener);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call setOnNoteClickListener", e);
+        }
+    }
+
+    /**
+     * setNoteIsHidden - Set whether a note is hidden.
+     */
+    public void setNoteIsHidden(String noteId, boolean isHidden) {
+        try {
+            Method method = fragmentClass.getMethod("setNoteIsHidden", String.class, boolean.class);
+            method.invoke(fragment, noteId, isHidden);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call setNoteIsHidden", e);
+        }
+    }
+
+    /**
+     * setNoteIsModerating - Set whether a note is moderating.
+     */
+    public void setNoteIsModerating(String noteId, boolean isModerating) {
+        try {
+            Method method = fragmentClass.getMethod("setNoteIsModerating", String.class, boolean.class);
+            method.invoke(fragment, noteId, isModerating);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call setNoteIsModerating", e);
+        }
+    }
+
+    /**
+     * onSaveInstanceState - Save instance state.
+     */
+    public void onSaveInstanceState(Bundle outState) {
+        try {
+            Method method = fragmentClass.getMethod("onSaveInstanceState", Bundle.class);
+            method.invoke(fragment, outState);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onSaveInstanceState", e);
+        }
+    }
+
+    /**
+     * getScrollPosition - Get the current scroll position.
+     */
+    public int getScrollPosition() {
+        try {
+            Method method = fragmentClass.getMethod("getScrollPosition");
+            return (int) method.invoke(fragment);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call getScrollPosition", e);
+        }
+    }
+
+    /**
+     * onSaveObject - Bucket listener callback.
+     */
+    public void onSaveObject(Object bucket, Object object) {
+        try {
+            Class<?> bucketClass = Class.forName("wordpressa._1.mocks.Bucket");
+            Class<?> noteClass = Class.forName("wordpressa._1.mocks.Note");
+            Method method = fragmentClass.getMethod("onSaveObject", bucketClass, noteClass);
+            method.invoke(fragment, bucket, object);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onSaveObject", e);
+        }
+    }
+
+    /**
+     * onDeleteObject - Bucket listener callback.
+     */
+    public void onDeleteObject(Object bucket, Object object) {
+        try {
+            Class<?> bucketClass = Class.forName("wordpressa._1.mocks.Bucket");
+            Class<?> noteClass = Class.forName("wordpressa._1.mocks.Note");
+            Method method = fragmentClass.getMethod("onDeleteObject", bucketClass, noteClass);
+            method.invoke(fragment, bucket, object);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onDeleteObject", e);
+        }
+    }
+
+    /**
+     * onChange - Bucket listener callback.
+     */
+    public void onChange(Object bucket, Object changeType, String key) {
+        try {
+            Class<?> bucketClass = Class.forName("wordpressa._1.mocks.Bucket");
+            Class<?> changeTypeClass = Class.forName("wordpressa._1.mocks.Bucket$ChangeType");
+            Method method = fragmentClass.getMethod("onChange", bucketClass, changeTypeClass, String.class);
+            method.invoke(fragment, bucket, changeType, key);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onChange", e);
+        }
+    }
+
+    /**
+     * onBeforeUpdateObject - Bucket listener callback.
+     */
+    public void onBeforeUpdateObject(Object bucket, Object object) {
+        try {
+            Class<?> bucketClass = Class.forName("wordpressa._1.mocks.Bucket");
+            Class<?> noteClass = Class.forName("wordpressa._1.mocks.Note");
+            Method method = fragmentClass.getMethod("onBeforeUpdateObject", bucketClass, noteClass);
+            method.invoke(fragment, bucket, object);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to call onBeforeUpdateObject", e);
+        }
+    }
 }

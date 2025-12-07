@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class UshahidiaTest_1 {
 
-    abstract static class CommonCases {
+    abstract static class CommonLogic {
         abstract Driver createDriver() throws Exception;
 
         @Test
@@ -86,7 +86,7 @@ class UshahidiaTest_1 {
 
     @Nested
     @DisplayName("Original")
-    class Original extends CommonCases {
+    class Original extends CommonLogic {
         @Override
         Driver createDriver() throws Exception {
             return new Driver("original");
@@ -96,7 +96,7 @@ class UshahidiaTest_1 {
     // Misuseはバグがあるため必ず失敗（Cursor.close()が呼ばれない）
     // @Nested
     // @DisplayName("Misuse")
-    // class Misuse extends CommonCases {
+    // class Misuse extends CommonLogic {
     //     @Override
     //     Driver createDriver() throws Exception {
     //         return new Driver("misuse");
@@ -105,7 +105,7 @@ class UshahidiaTest_1 {
 
     @Nested
     @DisplayName("Fixed")
-    class Fixed extends CommonCases {
+    class Fixed extends CommonLogic {
         @Override
         Driver createDriver() throws Exception {
             return new Driver("fixed");

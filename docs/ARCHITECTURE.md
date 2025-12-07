@@ -60,6 +60,7 @@ src/main/java/<project>/_<case>/
 | thomas_s_b_visualee | 3 |
 | tucanmobile | 1 |
 | ushahidia | 1 |
+| wordpressa | 2 |
 
 ### 例外事項
 

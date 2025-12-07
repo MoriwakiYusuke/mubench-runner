@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class WordpressaTest_1 {
 
-    abstract static class CommonCases {
+    abstract static class CommonLogic {
 
         abstract Driver driver();
 
@@ -75,7 +75,7 @@ class WordpressaTest_1 {
 
     @Nested
     @DisplayName("Original")
-    class Original extends CommonCases {
+    class Original extends CommonLogic {
 
         @Override
         Driver driver() {
@@ -85,7 +85,7 @@ class WordpressaTest_1 {
 
     @Nested
     @DisplayName("Fixed")
-    class Fixed extends CommonCases {
+    class Fixed extends CommonLogic {
 
         @Override
         Driver driver() {
@@ -95,7 +95,7 @@ class WordpressaTest_1 {
 
 //    @Nested
 //    @DisplayName("Misuse")
-//    class Misuse extends CommonCases {
+//    class Misuse extends CommonLogic {
 //
 //        @Override
 //        Driver driver() {
