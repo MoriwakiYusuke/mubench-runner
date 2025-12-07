@@ -25,6 +25,7 @@ import thomas_s_b_visualee._29.requirements.source.entity.JavaSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import thomas_s_b_visualee._29.mocks.examiner.Examiner;
 import java.util.Map;
 
 /**

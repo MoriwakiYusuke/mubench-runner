@@ -12,11 +12,33 @@ public class Driver {
     
     private final Class<?> examinerClass;
     private final Method findAndSetPackageMethod;
+    private final Method examineMethod;
+    private final Object examinerInstance;
     
     public Driver(Class<?> examinerClass) throws Exception {
         this.examinerClass = examinerClass;
         this.findAndSetPackageMethod = examinerClass.getDeclaredMethod("findAndSetPackage", JavaSource.class);
         this.findAndSetPackageMethod.setAccessible(true);
+        this.examineMethod = examinerClass.getMethod("examine", JavaSource.class);
+        this.examinerInstance = examinerClass.getDeclaredConstructor().newInstance();
+    }
+    
+    /**
+     * Invokes the examine method on the given JavaSource.
+     * 
+     * @param javaSource the JavaSource to examine
+     * @throws Exception if an error occurs during invocation
+     */
+    public void examine(JavaSource javaSource) throws Exception {
+        try {
+            examineMethod.invoke(examinerInstance, javaSource);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw e;
+        }
     }
     
     /**

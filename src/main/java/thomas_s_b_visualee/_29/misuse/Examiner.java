@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public abstract class Examiner {
+public class Examiner {
 
    private static final String[] JAVA_TOKENS = {
       "void",
@@ -51,11 +51,16 @@ public abstract class Examiner {
    public Examiner() {
    }
 
-   protected abstract boolean isRelevantType(DependencyType type);
+   protected boolean isRelevantType(DependencyType type) {
+      return false;
+   }
 
-   protected abstract DependencyType getTypeFromToken(String token);
+   protected DependencyType getTypeFromToken(String token) {
+      return null;
+   }
 
-   protected abstract void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type);
+   protected void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type) {
+   }
 
    public void examine(JavaSource javaSource) {
       try (Scanner scanner = getSourceCodeScanner(getClassBody(javaSource.getSourceCodeWithoutComments()))) {
@@ -147,7 +152,7 @@ public abstract class Examiner {
       whilestack:
       do {
          // NOTE: 型を完全修飾名に変更。Javaの型システム制約により、パッケージ/インポート変更のみでは解決不可能なためガイドライン例外として許容。
-         for (thomas_s_b_visualee._29.requirements.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
+         for (thomas_s_b_visualee._29.mocks.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
             if (examiner.getTypeFromToken(token) != null) {
                break whilestack;
             }

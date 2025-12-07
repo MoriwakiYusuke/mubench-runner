@@ -1,5 +1,6 @@
 package thomas_s_b_visualee._30;
 
+import thomas_s_b_visualee._30.requirements.source.entity.JavaSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Scanner;
@@ -13,6 +14,8 @@ public class Driver {
     private final Class<?> examinerClass;
     private final Method jumpOverJavaTokenMethod;
     private final Method getSourceCodeScannerMethod;
+    private final Method examineMethod;
+    private final Object examinerInstance;
     
     public Driver(Class<?> examinerClass) throws Exception {
         this.examinerClass = examinerClass;
@@ -20,6 +23,26 @@ public class Driver {
         this.jumpOverJavaTokenMethod.setAccessible(true);
         this.getSourceCodeScannerMethod = examinerClass.getDeclaredMethod("getSourceCodeScanner", String.class);
         this.getSourceCodeScannerMethod.setAccessible(true);
+        this.examineMethod = examinerClass.getMethod("examine", JavaSource.class);
+        this.examinerInstance = examinerClass.getDeclaredConstructor().newInstance();
+    }
+    
+    /**
+     * Invokes the examine method on the given JavaSource.
+     * 
+     * @param javaSource the JavaSource to examine
+     * @throws Exception if an error occurs during invocation
+     */
+    public void examine(JavaSource javaSource) throws Exception {
+        try {
+            examineMethod.invoke(examinerInstance, javaSource);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw e;
+        }
     }
     
     /**

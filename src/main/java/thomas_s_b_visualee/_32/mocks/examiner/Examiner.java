@@ -1,4 +1,4 @@
-package thomas_s_b_visualee._29.requirements.examiner;
+package thomas_s_b_visualee._32.mocks.examiner;
 
 /*
  * #%L
@@ -19,8 +19,8 @@ package thomas_s_b_visualee._29.requirements.examiner;
  * limitations under the License.
  * #L%
  */
-import thomas_s_b_visualee._29.requirements.dependency.entity.DependencyType;
-import thomas_s_b_visualee._29.requirements.source.entity.JavaSource;
+import thomas_s_b_visualee._32.requirements.dependency.entity.DependencyType;
+import thomas_s_b_visualee._32.requirements.source.entity.JavaSource;
 import java.util.Scanner;
 
 /**
@@ -29,18 +29,24 @@ import java.util.Scanner;
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public abstract class Examiner {
+public class Examiner {
 
    public Examiner() {
    }
 
-   protected abstract boolean isRelevantType(DependencyType type);
+   protected boolean isRelevantType(DependencyType type) {
+      return false;
+   }
 
-   public abstract DependencyType getTypeFromToken(String token);
+   public DependencyType getTypeFromToken(String token) {
+      return null;
+   }
 
-   protected abstract void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type);
+   protected void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type) {
+   }
 
-   public abstract void examine(JavaSource javaSource);
+   public void examine(JavaSource javaSource) {
+   }
 
    protected static Scanner getSourceCodeScanner(String sourceCode) {
       Scanner scanner = new Scanner(sourceCode);
@@ -48,7 +54,7 @@ public abstract class Examiner {
       return scanner;
    }
 
-   protected static void findAndSetPackage(JavaSource javaSource) {
+   public static void findAndSetPackage(JavaSource javaSource) {
       Scanner scanner = Examiner.getSourceCodeScanner(javaSource.getSourceCode());
       while (scanner.hasNext()) {
          String token = scanner.next();

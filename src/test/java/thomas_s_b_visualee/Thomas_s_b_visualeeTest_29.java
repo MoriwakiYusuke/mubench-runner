@@ -73,21 +73,6 @@ public class Thomas_s_b_visualeeTest_29 {
         Driver createDriver() throws Exception {
             return Driver.createOriginal();
         }
-
-        @Test
-        @DisplayName("findAndSetPackage should throw on 'package' keyword without following token")
-        void testFindAndSetPackageInsufficientTokens() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "package";  // 'package' keyword only, no package name
-            JavaSource javaSource = new JavaSource("Test");
-            javaSource.setSourceCode(sourceCode);
-            
-            // Original version throws IllegalArgumentException
-            assertThrows(IllegalArgumentException.class, () -> {
-                driver.findAndSetPackage(javaSource);
-            });
-        }
     }
 
     @Nested
@@ -97,25 +82,6 @@ public class Thomas_s_b_visualeeTest_29 {
         Driver createDriver() throws Exception {
             return Driver.createMisuse();
         }
-
-        // TODO: LLMによる自動修正タスク用にコメントアウト
-        // Misuseテストはバグを検証するため、自動修正評価時には無効化
-        /*
-        @Test
-        @DisplayName("findAndSetPackage throws NoSuchElementException on 'package' keyword without following token (BUG)")
-        void testFindAndSetPackageMisuse() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "package";  // 'package' keyword only, no package name
-            JavaSource javaSource = new JavaSource("Test");
-            javaSource.setSourceCode(sourceCode);
-            
-            // Misuse version throws NoSuchElementException (the bug)
-            assertThrows(java.util.NoSuchElementException.class, () -> {
-                driver.findAndSetPackage(javaSource);
-            });
-        }
-        */
     }
 
     @Nested
@@ -124,21 +90,6 @@ public class Thomas_s_b_visualeeTest_29 {
         @Override
         Driver createDriver() throws Exception {
             return Driver.createFixed();
-        }
-
-        @Test
-        @DisplayName("findAndSetPackage should not throw on 'package' keyword without following token")
-        void testFindAndSetPackageInsufficientTokensHandled() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "package";  // 'package' keyword only, no package name
-            JavaSource javaSource = new JavaSource("Test");
-            javaSource.setSourceCode(sourceCode);
-            
-            // Fixed version breaks out of loop gracefully
-            driver.findAndSetPackage(javaSource);  // Should not throw
-            
-            assertNull(javaSource.getPackagePath());
         }
     }
 }

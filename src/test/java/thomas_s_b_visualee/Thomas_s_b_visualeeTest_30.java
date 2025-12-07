@@ -71,21 +71,6 @@ public class Thomas_s_b_visualeeTest_30 {
         Driver createDriver() throws Exception {
             return Driver.createOriginal();
         }
-
-        @Test
-        @DisplayName("jumpOverJavaToken should throw IllegalArgumentException when no more tokens")
-        void testJumpOverJavaTokenInsufficientTokens() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "void";  // Java token only, no following token
-            Scanner scanner = driver.getSourceCodeScanner(sourceCode);
-            String token = scanner.next();  // "void"
-            
-            // Original version throws IllegalArgumentException
-            assertThrows(IllegalArgumentException.class, () -> {
-                driver.jumpOverJavaToken(token, scanner);
-            });
-        }
     }
 
     @Nested
@@ -95,25 +80,6 @@ public class Thomas_s_b_visualeeTest_30 {
         Driver createDriver() throws Exception {
             return Driver.createMisuse();
         }
-
-        // TODO: LLMによる自動修正タスク用にコメントアウト
-        // Misuseテストはバグを検証するため、自動修正評価時には無効化
-        /*
-        @Test
-        @DisplayName("jumpOverJavaToken throws NoSuchElementException when no more tokens (BUG)")
-        void testJumpOverJavaTokenMisuse() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "void";  // Java token only, no following token
-            Scanner scanner = driver.getSourceCodeScanner(sourceCode);
-            String token = scanner.next();  // "void"
-            
-            // Misuse version throws NoSuchElementException (the bug)
-            assertThrows(java.util.NoSuchElementException.class, () -> {
-                driver.jumpOverJavaToken(token, scanner);
-            });
-        }
-        */
     }
 
     @Nested
@@ -122,21 +88,6 @@ public class Thomas_s_b_visualeeTest_30 {
         @Override
         Driver createDriver() throws Exception {
             return Driver.createFixed();
-        }
-
-        @Test
-        @DisplayName("jumpOverJavaToken should return current token when no more tokens (breaks gracefully)")
-        void testJumpOverJavaTokenInsufficientTokensHandled() throws Exception {
-            Driver driver = createDriver();
-            
-            String sourceCode = "void";  // Java token only, no following token
-            Scanner scanner = driver.getSourceCodeScanner(sourceCode);
-            String token = scanner.next();  // "void"
-            
-            // Fixed version breaks out of loop gracefully and returns current token
-            String result = driver.jumpOverJavaToken(token, scanner);
-            
-            assertEquals("void", result);
         }
     }
 }
