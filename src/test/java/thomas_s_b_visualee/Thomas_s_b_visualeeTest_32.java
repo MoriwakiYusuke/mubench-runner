@@ -102,6 +102,9 @@ public class Thomas_s_b_visualeeTest_32 {
             return Driver.createMisuse();
         }
 
+        // TODO: LLMによる自動修正タスク用にコメントアウト
+        // Misuseテストはバグを検証するため、自動修正評価時には無効化
+        /*
         @Test
         @DisplayName("scanAfterClosedParenthesis throws NoSuchElementException when no more tokens (BUG)")
         void testScanAfterClosedParenthesisMisuse() throws Exception {
@@ -133,6 +136,7 @@ public class Thomas_s_b_visualeeTest_32 {
                 driver.scanAfterClosedParenthesis(token, scanner);
             });
         }
+        */
     }
 
     @Nested

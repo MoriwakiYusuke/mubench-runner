@@ -35,7 +35,7 @@ public class DependencyFilter {
 
    public static Set<Dependency> filterDependencies(DependencyType... dependencyTypes) {
       Set<Dependency> filteredDependencies = new HashSet<>();
-      for (Dependency dependency : DependencyContainer.getDependencies()) {
+      for (Dependency dependency : DependencyContainer.getInstance().getDependencies()) {
          for (DependencyType dependencyType : dependencyTypes) {
             if (dependency.getDependencyType() == dependencyType) {
                filteredDependencies.add(dependency);

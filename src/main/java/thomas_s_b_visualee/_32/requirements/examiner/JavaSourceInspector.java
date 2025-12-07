@@ -19,13 +19,70 @@ package thomas_s_b_visualee._32.requirements.examiner;
  * limitations under the License.
  * #L%
  */
+import thomas_s_b_visualee._32.requirements.logging.LogProvider;
+import thomas_s_b_visualee._32.requirements.source.boundary.JavaSourceContainer;
 import thomas_s_b_visualee._32.requirements.source.entity.JavaSource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public interface JavaSourceInspector {
+public final class JavaSourceInspector {
 
-   void examine(JavaSource javaSource);
+   private static final List<Examiner> examiners = new ArrayList<>();
+
+   private static class JavaSourceExaminerHolder {
+
+      private static final JavaSourceInspector INSTANCE = new JavaSourceInspector();
+   }
+
+   private JavaSourceInspector() {
+   }
+
+   public static JavaSourceInspector getInstance() {
+      return JavaSourceExaminerHolder.INSTANCE;
+   }
+
+   public void registerExaminer(Examiner examiner) {
+      examiners.add(examiner);
+   }
+
+   public List<Examiner> getExaminers() {
+      return examiners;
+   }
+
+   public void examine() {
+      // Init javaSources
+      for (JavaSource javaSource : JavaSourceContainer.getInstance().getJavaSources()) {
+         Examiner.findAndSetPackage(javaSource);
+      }
+      // Examine javaSources
+      for (JavaSource javaSource : JavaSourceContainer.getInstance().getJavaSources()) {
+         LogProvider.getInstance().debug("Examining: " + javaSource.getFullClassName());
+         for (Examiner examiner : getExaminers()) {
+            examiner.examine(javaSource);
+         }
+      }
+      setGroupNrs();
+   }
+
+   void setGroupNrs() {
+      // all javasources from the same package should have the same groupNr
+      Map<String, Integer> packagePaths = new HashMap<>();
+      int groupNr = 1;
+      for (JavaSource javaSource : JavaSourceContainer.getInstance().getJavaSources()) {
+         if (!packagePaths.containsKey(javaSource.getPackagePath())) {
+            packagePaths.put(javaSource.getPackagePath(), groupNr);
+            groupNr++;
+         }
+      }
+      for (JavaSource javaSource : JavaSourceContainer.getInstance().getJavaSources()) {
+         int group = packagePaths.get(javaSource.getPackagePath());
+         javaSource.setGroup(group);
+      }
+   }
 }

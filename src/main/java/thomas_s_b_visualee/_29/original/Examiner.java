@@ -25,6 +25,7 @@ import thomas_s_b_visualee._29.requirements.dependency.entity.DependencyType;
 import thomas_s_b_visualee._29.requirements.logging.LogProvider;
 import thomas_s_b_visualee._29.requirements.source.boundary.JavaSourceContainer;
 import thomas_s_b_visualee._29.requirements.source.entity.JavaSource;
+import thomas_s_b_visualee._29.requirements.examiner.JavaSourceInspector;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Scanner;
@@ -55,6 +56,27 @@ public abstract class Examiner {
    protected abstract DependencyType getTypeFromToken(String token);
 
    protected abstract void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type);
+
+   public void examine(JavaSource javaSource) {
+      try (Scanner scanner = getSourceCodeScanner(getClassBody(javaSource.getSourceCodeWithoutComments()))) {
+         while (scanner.hasNext()) {
+            String token = scanner.next();
+            try {
+               //ignore relevant Annotations (e.g. @Inject) if they are in quotes
+//               while (token.contains("\"") && countChar(token, '"') < 2) {
+//                  scanAfterQuote(token, scanner);
+//                  token = scanner.next();
+//               }
+               DependencyType type = getTypeFromToken(token);
+               if (isRelevantType(type)) {
+                  examineDetail(javaSource, scanner, token, type);
+               }
+            } catch (Exception e) {
+               LogProvider.getInstance().error("### Problems while examining " + javaSource.getPackagePath() + "." + javaSource + " actual token was " + token, e);
+            }
+         }
+      }
+   }
 
    protected static Scanner getSourceCodeScanner(String sourceCode) {
       Scanner scanner = new Scanner(sourceCode);
@@ -107,6 +129,7 @@ public abstract class Examiner {
       return token;
    }
 
+   // TODO simplify
    protected static String scanAfterClosedParenthesis(String currentToken, Scanner scanner) {
       int countParenthesisOpen = countChar(currentToken, '(');
       int countParenthesisClose = countChar(currentToken, ')');
@@ -121,7 +144,13 @@ public abstract class Examiner {
       }
       String token = scanner.next();
 
+      whilestack:
       do {
+         for (thomas_s_b_visualee._29.requirements.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
+            if (examiner.getTypeFromToken(token) != null) {
+               break whilestack;
+            }
+         }
          if (token.indexOf('(') > -1) {
             int countOpenParenthesis = countChar(token, '(');
             for (int iCount = 0; iCount < countOpenParenthesis; iCount++) {
@@ -147,6 +176,7 @@ public abstract class Examiner {
    protected static String cleanPrimitives(String className) {
       String cleanedClassName = className;
       String arrayToken = "";
+      // e.g. int[] should be Integer[]
       if (className.indexOf('[') > -1) {
          cleanedClassName = className.substring(0, className.indexOf('['));
          arrayToken = className.substring(className.indexOf('['));
@@ -178,6 +208,24 @@ public abstract class Examiner {
             break;
       }
       return cleanedClassName + arrayToken;
+   }
+
+   protected void createDependency(String classNameIn, DependencyType type, JavaSource javaSource) {
+      //Need to convert primitives-names to wrapper-classnames (e.g. @Produces Integer xyz => @Inject int xyz
+      String className = cleanPrimitives(classNameIn);
+      JavaSource injectedJavaSource = JavaSourceContainer.getInstance().getJavaSourceByName(className);
+      if (injectedJavaSource == null) {
+         // Generate a new JavaSource, which is not explicit in the sources (e.g. Integer, String etc.)
+         injectedJavaSource = new JavaSource(className);
+         JavaSourceContainer.getInstance().add(injectedJavaSource);
+         if (isAValidClassName(className)) {
+            LogProvider.getInstance().debug("Created new JavaSource with name: " + className);
+         } else {
+            LogProvider.getInstance().debug("Created new JavaSource (type=" + type.name() + ") with a suspicious name: " + className + " - Found in " + javaSource.getFullClassName());
+         }
+      }
+      Dependency dependency = new Dependency(type, javaSource, injectedJavaSource);
+      DependencyContainer.getInstance().add(dependency);
    }
 
    protected static boolean isAJavaToken(String token) {
@@ -222,6 +270,8 @@ public abstract class Examiner {
    }
 
    protected static String cleanupGeneric(String className) {
+      //clears Genericsyntax from a classname
+      //e.g. "DataCollector<?" becomes "DataCollector"
       String cleanedName = className;
       int posGeneric = className.indexOf('<');
       if (posGeneric > -1) {
@@ -232,6 +282,7 @@ public abstract class Examiner {
 
    protected static String extractClassInstanceOrEvent(String token) {
       String className = token;
+      // e.g. Instance<Person> becomes Person
       if (token.startsWith("Instance<") || token.startsWith("Event<")) {
          className = token.substring(token.indexOf('<') + 1, token.indexOf('>'));
       }

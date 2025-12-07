@@ -98,6 +98,9 @@ public class Thomas_s_b_visualeeTest_29 {
             return Driver.createMisuse();
         }
 
+        // TODO: LLMによる自動修正タスク用にコメントアウト
+        // Misuseテストはバグを検証するため、自動修正評価時には無効化
+        /*
         @Test
         @DisplayName("findAndSetPackage throws NoSuchElementException on 'package' keyword without following token (BUG)")
         void testFindAndSetPackageMisuse() throws Exception {
@@ -112,6 +115,7 @@ public class Thomas_s_b_visualeeTest_29 {
                 driver.findAndSetPackage(javaSource);
             });
         }
+        */
     }
 
     @Nested

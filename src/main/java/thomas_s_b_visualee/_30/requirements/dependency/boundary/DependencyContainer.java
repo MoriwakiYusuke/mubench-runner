@@ -21,33 +21,47 @@ package thomas_s_b_visualee._30.requirements.dependency.boundary;
  */
 import thomas_s_b_visualee._30.requirements.dependency.entity.Dependency;
 import thomas_s_b_visualee._30.requirements.source.entity.JavaSource;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public class DependencyContainer {
+public final class DependencyContainer {
 
-   private static Set<Dependency> dependencies = new HashSet<>();
+   private static final List<Dependency> dependencies = new ArrayList<>();
+
+   private static class DependencyContainerHolder {
+      private static final DependencyContainer INSTANCE = new DependencyContainer();
+   }
 
    private DependencyContainer() {
    }
 
-   public static void clear() {
+   public static DependencyContainer getInstance() {
+      return DependencyContainerHolder.INSTANCE;
+   }
+
+   public void clear() {
       dependencies.clear();
    }
 
-   public static Set<Dependency> getDependencies() {
+   public List<Dependency> getDependencies() {
       return dependencies;
    }
 
-   public static void addDependency(Dependency dependency) {
+   public void add(Dependency dependency) {
       dependencies.add(dependency);
    }
 
-   public static Set<Dependency> findAllDependencyTo(JavaSource javaSource) {
+   public void addDependency(Dependency dependency) {
+      dependencies.add(dependency);
+   }
+
+   public Set<Dependency> findAllDependencyTo(JavaSource javaSource) {
       Set<Dependency> dependencyList = new HashSet<>();
       for (Dependency dependency : dependencies) {
          if (dependency.getJavaSourceTo().equals(javaSource)) {
@@ -57,7 +71,7 @@ public class DependencyContainer {
       return dependencyList;
    }
 
-   public static Set<Dependency> findAllDependencyFrom(JavaSource javaSource) {
+   public Set<Dependency> findAllDependencyFrom(JavaSource javaSource) {
       Set<Dependency> dependencyList = new HashSet<>();
       for (Dependency dependency : dependencies) {
          if (dependency.getJavaSourceFrom().equals(javaSource)) {

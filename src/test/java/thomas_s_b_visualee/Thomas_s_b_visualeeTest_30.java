@@ -96,6 +96,9 @@ public class Thomas_s_b_visualeeTest_30 {
             return Driver.createMisuse();
         }
 
+        // TODO: LLMによる自動修正タスク用にコメントアウト
+        // Misuseテストはバグを検証するため、自動修正評価時には無効化
+        /*
         @Test
         @DisplayName("jumpOverJavaToken throws NoSuchElementException when no more tokens (BUG)")
         void testJumpOverJavaTokenMisuse() throws Exception {
@@ -110,6 +113,7 @@ public class Thomas_s_b_visualeeTest_30 {
                 driver.jumpOverJavaToken(token, scanner);
             });
         }
+        */
     }
 
     @Nested

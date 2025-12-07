@@ -20,38 +20,47 @@ package thomas_s_b_visualee._29.requirements.source.boundary;
  * #L%
  */
 import thomas_s_b_visualee._29.requirements.source.entity.JavaSource;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public class JavaSourceContainer {
+public final class JavaSourceContainer {
 
-   private static Set<JavaSource> javaSources = new HashSet<>();
+   private static final Map<String, JavaSource> javaSources = new ConcurrentHashMap<>();
+
+   private static class JavaSourceContainerHolder {
+      private static final JavaSourceContainer INSTANCE = new JavaSourceContainer();
+   }
 
    private JavaSourceContainer() {
    }
 
-   public static void clear() {
+   public static JavaSourceContainer getInstance() {
+      return JavaSourceContainerHolder.INSTANCE;
+   }
+
+   public Collection<JavaSource> getJavaSources() {
+      return javaSources.values();
+   }
+
+   public void clear() {
       javaSources.clear();
    }
 
-   public static Set<JavaSource> getJavaSources() {
-      return javaSources;
-   }
-
-   public static void addJavaSource(JavaSource javaSource) {
-      javaSources.add(javaSource);
-   }
-
-   public static JavaSource find(String name) {
-      for (JavaSource javaSource : javaSources) {
-         if (javaSource.getName().equals(name)) {
-            return javaSource;
-         }
+   public void add(JavaSource javaSource) {
+      if (javaSource == null) {
+         return;
       }
-      return null;
+      if (!javaSources.containsKey(javaSource.getName())) {
+         javaSources.put(javaSource.getName(), javaSource);
+      }
+   }
+
+   public JavaSource getJavaSourceByName(String n) {
+      return javaSources.get(n);
    }
 }
