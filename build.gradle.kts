@@ -51,7 +51,7 @@ dependencies {
     implementation(files("libs/jsr305-3.0.2.jar"))  // @Nullable等のアノテーション
     implementation(files("libs/testng-6.9.4.jar"))
     // thomas-s-b-visualee用 Maven Plugin API (LogProvider用)
-    implementation("org.apache.maven:maven-plugin-api:3.1.0")
+    implementation(files("libs/maven-plugin-api-3.1.0.jar"))
 }
 
 
