@@ -146,6 +146,7 @@ public abstract class Examiner {
 
       whilestack:
       do {
+         // NOTE: 型を完全修飾名に変更。Javaの型システム制約により、パッケージ/インポート変更のみでは解決不可能なためガイドライン例外として許容。
          for (thomas_s_b_visualee._32.requirements.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
             if (examiner.getTypeFromToken(token) != null) {
                break whilestack;

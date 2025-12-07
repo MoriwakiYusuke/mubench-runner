@@ -53,6 +53,25 @@ src/main/java/<project>/_<case>/
 | openaiab | 1 |
 | pawotag | 1 |
 | rhino | 1 |
+| screen_notifications | 1 |
+| tap_apps | 1 |
+| tbuktu_ntru | 4 |
+| testng | 5 |
+| thomas_s_b_visualee | 3 |
+
+### 例外事項
+
+#### thomas_s_b_visualee
+
+Javaの型システム制約により、パッケージ/インポート変更のみでは解決不可能なケースがある。
+
+**問題**: `Examiner.java`内の`for (Examiner examiner : JavaSourceInspector.getInstance().getExaminers())`で、ループ変数の型`Examiner`が同一パッケージ内の自クラスを参照している。各バリアントを異なるパッケージに配置すると、`JavaSourceInspector.getExaminers()`の戻り値`List<Examiner>`の型と一致しなくなる。
+
+**対応**: for-each文のループ変数の型を完全修飾名に変更。ガイドライン例外として許容。
+```java
+// NOTE: 型を完全修飾名に変更。Javaの型システム制約により、パッケージ/インポート変更のみでは解決不可能なためガイドライン例外として許容。
+for (thomas_s_b_visualee._29.requirements.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
+```
 
 ## パッケージ命名規則
 
