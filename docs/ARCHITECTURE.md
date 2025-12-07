@@ -70,7 +70,7 @@ Javaの型システム制約により、パッケージ/インポート変更の
 **対応**: for-each文のループ変数の型を完全修飾名に変更。ガイドライン例外として許容。
 ```java
 // NOTE: 型を完全修飾名に変更。Javaの型システム制約により、パッケージ/インポート変更のみでは解決不可能なためガイドライン例外として許容。
-for (thomas_s_b_visualee._29.requirements.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
+for (thomas_s_b_visualee._29.mocks.examiner.Examiner examiner : JavaSourceInspector.getInstance().getExaminers()) {
 ```
 
 ## パッケージ命名規則

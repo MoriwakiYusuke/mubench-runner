@@ -1,6 +1,5 @@
 package thomas_s_b_visualee._32;
 
-import thomas_s_b_visualee._32.requirements.source.entity.JavaSource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Scanner;
@@ -14,8 +13,6 @@ public class Driver {
     private final Class<?> examinerClass;
     private final Method scanAfterClosedParenthesisMethod;
     private final Method getSourceCodeScannerMethod;
-    private final Method examineMethod;
-    private final Object examinerInstance;
     
     public Driver(Class<?> examinerClass) throws Exception {
         this.examinerClass = examinerClass;
@@ -23,8 +20,6 @@ public class Driver {
         this.scanAfterClosedParenthesisMethod.setAccessible(true);
         this.getSourceCodeScannerMethod = examinerClass.getDeclaredMethod("getSourceCodeScanner", String.class);
         this.getSourceCodeScannerMethod.setAccessible(true);
-        this.examineMethod = examinerClass.getMethod("examine", JavaSource.class);
-        this.examinerInstance = examinerClass.getDeclaredConstructor().newInstance();
     }
     
     /**
@@ -57,24 +52,6 @@ public class Driver {
      */
     public Scanner getSourceCodeScanner(String sourceCode) throws Exception {
         return (Scanner) getSourceCodeScannerMethod.invoke(null, sourceCode);
-    }
-    
-    /**
-     * Invokes the examine method on the examiner instance.
-     * 
-     * @param javaSource the JavaSource to examine
-     * @throws Exception if an error occurs during invocation
-     */
-    public void examine(JavaSource javaSource) throws Exception {
-        try {
-            examineMethod.invoke(examinerInstance, javaSource);
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            }
-            throw e;
-        }
     }
     
     /**

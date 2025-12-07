@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public class Examiner {
+public abstract class Examiner {
 
    private static final String[] JAVA_TOKENS = {
       "void",
@@ -52,16 +52,11 @@ public class Examiner {
    public Examiner() {
    }
 
-   protected boolean isRelevantType(DependencyType type) {
-      return false;
-   }
+   protected abstract boolean isRelevantType(DependencyType type);
 
-   protected DependencyType getTypeFromToken(String token) {
-      return null;
-   }
+   protected abstract DependencyType getTypeFromToken(String token);
 
-   protected void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type) {
-   }
+   protected abstract void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type);
 
    public void examine(JavaSource javaSource) {
       try (Scanner scanner = getSourceCodeScanner(getClassBody(javaSource.getSourceCodeWithoutComments()))) {

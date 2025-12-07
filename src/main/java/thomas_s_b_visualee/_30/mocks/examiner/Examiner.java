@@ -29,24 +29,18 @@ import java.util.Scanner;
  *
  * @author Thomas Struller-Baumann <thomas at struller-baumann.de>
  */
-public class Examiner {
+public abstract class Examiner {
 
    public Examiner() {
    }
 
-   protected boolean isRelevantType(DependencyType type) {
-      return false;
-   }
+   protected abstract boolean isRelevantType(DependencyType type);
 
-   public DependencyType getTypeFromToken(String token) {
-      return null;
-   }
+   public abstract DependencyType getTypeFromToken(String token);
 
-   protected void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type) {
-   }
+   protected abstract void examineDetail(JavaSource javaSource, Scanner scanner, String token, DependencyType type);
 
-   public void examine(JavaSource javaSource) {
-   }
+   public abstract void examine(JavaSource javaSource);
 
    protected static Scanner getSourceCodeScanner(String sourceCode) {
       Scanner scanner = new Scanner(sourceCode);
