@@ -6,31 +6,105 @@ import java.lang.reflect.Method;
 import java.util.Scanner;
 
 /**
- * Driver class for testing jumpOverJavaToken method.
- * Uses reflection to access the protected static method.
+ * Driver class for testing Examiner methods.
+ * Uses reflection to access the protected static methods.
  */
 public class Driver {
     
     private final Class<?> examinerClass;
-    private final Method jumpOverJavaTokenMethod;
+    private final Method findAndSetPackageMethod;
     private final Method getSourceCodeScannerMethod;
+    private final Method getClassBodyMethod;
+    private final Method countCharMethod;
+    private final Method scanAfterQuoteMethod;
+    private final Method scanAfterClosedParenthesisMethod;
+    private final Method isAJavaTokenMethod;
+    private final Method jumpOverJavaTokenMethod;
+    private final Method extractClassInstanceOrEventMethod;
     
     public Driver(Class<?> examinerClass) throws Exception {
         this.examinerClass = examinerClass;
-        this.jumpOverJavaTokenMethod = examinerClass.getDeclaredMethod("jumpOverJavaToken", String.class, Scanner.class);
-        this.jumpOverJavaTokenMethod.setAccessible(true);
+        
+        this.findAndSetPackageMethod = examinerClass.getDeclaredMethod("findAndSetPackage", JavaSource.class);
+        this.findAndSetPackageMethod.setAccessible(true);
+        
         this.getSourceCodeScannerMethod = examinerClass.getDeclaredMethod("getSourceCodeScanner", String.class);
         this.getSourceCodeScannerMethod.setAccessible(true);
+        
+        this.getClassBodyMethod = examinerClass.getDeclaredMethod("getClassBody", String.class);
+        this.getClassBodyMethod.setAccessible(true);
+        
+        this.countCharMethod = examinerClass.getDeclaredMethod("countChar", String.class, char.class);
+        this.countCharMethod.setAccessible(true);
+        
+        this.scanAfterQuoteMethod = examinerClass.getDeclaredMethod("scanAfterQuote", String.class, Scanner.class);
+        this.scanAfterQuoteMethod.setAccessible(true);
+        
+        this.scanAfterClosedParenthesisMethod = examinerClass.getDeclaredMethod("scanAfterClosedParenthesis", String.class, Scanner.class);
+        this.scanAfterClosedParenthesisMethod.setAccessible(true);
+        
+        this.isAJavaTokenMethod = examinerClass.getDeclaredMethod("isAJavaToken", String.class);
+        this.isAJavaTokenMethod.setAccessible(true);
+        
+        this.jumpOverJavaTokenMethod = examinerClass.getDeclaredMethod("jumpOverJavaToken", String.class, Scanner.class);
+        this.jumpOverJavaTokenMethod.setAccessible(true);
+        
+        this.extractClassInstanceOrEventMethod = examinerClass.getDeclaredMethod("extractClassInstanceOrEvent", String.class);
+        this.extractClassInstanceOrEventMethod.setAccessible(true);
     }
     
-    /**
-     * Invokes the jumpOverJavaToken method.
-     * 
-     * @param token the initial token
-     * @param scanner the scanner to read from
-     * @return the next non-Java-token
-     * @throws Exception if an error occurs during invocation
-     */
+    public void findAndSetPackage(JavaSource javaSource) throws Exception {
+        try {
+            findAndSetPackageMethod.invoke(null, javaSource);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw e;
+        }
+    }
+    
+    public Scanner getSourceCodeScanner(String sourceCode) throws Exception {
+        return (Scanner) getSourceCodeScannerMethod.invoke(null, sourceCode);
+    }
+    
+    public String getClassBody(String sourceCode) throws Exception {
+        return (String) getClassBodyMethod.invoke(null, sourceCode);
+    }
+    
+    public int countChar(String string, char char2Find) throws Exception {
+        return (int) countCharMethod.invoke(null, string, char2Find);
+    }
+    
+    public String scanAfterQuote(String currentToken, Scanner scanner) throws Exception {
+        try {
+            return (String) scanAfterQuoteMethod.invoke(null, currentToken, scanner);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw e;
+        }
+    }
+    
+    public String scanAfterClosedParenthesis(String currentToken, Scanner scanner) throws Exception {
+        try {
+            return (String) scanAfterClosedParenthesisMethod.invoke(null, currentToken, scanner);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw e;
+        }
+    }
+    
+    public boolean isAJavaToken(String token) throws Exception {
+        return (boolean) isAJavaTokenMethod.invoke(null, token);
+    }
+    
     public String jumpOverJavaToken(String token, Scanner scanner) throws Exception {
         try {
             return (String) jumpOverJavaTokenMethod.invoke(null, token, scanner);
@@ -43,15 +117,8 @@ public class Driver {
         }
     }
     
-    /**
-     * Creates a source code scanner for the given source code.
-     * 
-     * @param sourceCode the source code to scan
-     * @return a Scanner configured for source code
-     * @throws Exception if an error occurs during invocation
-     */
-    public Scanner getSourceCodeScanner(String sourceCode) throws Exception {
-        return (Scanner) getSourceCodeScannerMethod.invoke(null, sourceCode);
+    public String extractClassInstanceOrEvent(String token) throws Exception {
+        return (String) extractClassInstanceOrEventMethod.invoke(null, token);
     }
     
     /**
