@@ -91,6 +91,8 @@
 | `Thomas_s_b_visualeeTest_29.java` | 🔄 動的 | Driver経由で`findAndSetPackage(JavaSource)`の実行結果を検証 |
 | `Thomas_s_b_visualeeTest_30.java` | 🔄 動的 | Driver経由で`jumpOverJavaToken(String, Scanner)`の実行結果を検証 |
 | `Thomas_s_b_visualeeTest_32.java` | 🔄 動的 | Driver経由で`scanAfterClosedParenthesis(String, Scanner)`の実行結果を検証 |
+| **tucanmobile** | | |
+| `TucanmobileTest_1.java` | 🔄 動的 | Driver経由で`onPreExecute()`、`onPostExecute()`を実行し、`dialog.isShowing()`チェック有無を検証 |
 
 ---
 
@@ -99,8 +101,8 @@
 | 種類 | 件数 | 割合 |
 |---|:---:|:---:|
 | 📝 **静的テスト** | 8件 | 約16% |
-| 🔄 **動的テスト** | 31件 | 約62% |
-| 📝+🔄 **混合** | 11件 | 約22% |
-| **合計** | 50件 | 100% |
+| 🔄 **動的テスト** | 32件 | 約63% |
+| 📝+🔄 **混合** | 11件 | 約21% |
+| **合計** | 51件 | 100% |
 
 ---

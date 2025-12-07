@@ -58,6 +58,7 @@ src/main/java/<project>/_<case>/
 | tbuktu_ntru | 4 |
 | testng | 5 |
 | thomas_s_b_visualee | 3 |
+| tucanmobile | 1 |
 
 ### 例外事項
 
