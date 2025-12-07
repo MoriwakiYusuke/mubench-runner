@@ -1,23 +1,3 @@
-## Instruction
-You are a software engineer specializing in REST API.
-Use the guidelines below to make any necessary modifications.
-
-### Modification Procedure
-0. First, familiarise yourself with the following steps and ### Notes.
-1. Check the technical specifications of the Java API that you have studied or in the official documentation. If you don't know, output the ### Input Code as it is.
-2. Based on the technical specifications of the Java API you have reviewed in step 1, identify the code according to the deprecated specifications contained in the ### Input Code. In this case, the deprecated specifications are the Java API calls that have been deprecated. If no code according to the deprecated specification is found, identify code that is not based on best practice. If you are not sure, output the ### Input Code as it is.
-3. If you find code according to the deprecated specification or not based on best practice in step 2, check the technical specifications in the Java API that you have studied or in the official documentation. If you are not sure, output the ### Input Code as it is.
-4. With attention to the points listed in ### Notes below, modify the code identified in step 2 to follow the recommended specification analysed in step 3.
-5. Verify again that the modified code works correctly.
-6. If you determine that it works correctly, output the modified code.
-7. If it is judged to fail, output the ### Input Code as it is.
-8. If you are not sure, output the ### Input Code as it is.
-
-### Notes.
-- You must follow the ## Context.
-
-## Input Code
-```java
 package de.strullerbaumann.visualee.examiner;
 
 /*
@@ -136,6 +116,9 @@ public abstract class Examiner {
    protected static String scanAfterQuote(String currentToken, Scanner scanner) {
       String token = currentToken;
       if (token.contains("\"") && countChar(token, '"') < 2) {
+         if (!scanner.hasNext()) {
+            return token;
+         }
          token = scanner.next();
          while (!token.contains("\"")) {
             if (scanner.hasNext()) {
@@ -154,12 +137,19 @@ public abstract class Examiner {
       int countParenthesisClose = countChar(currentToken, ')');
 
       if (countParenthesisOpen == countParenthesisClose) {
-         return scanner.next();
+         if (scanner.hasNext()) {
+            return scanner.next();
+         } else {
+            return currentToken;
+         }
       }
 
       Deque<Integer> stack = new ArrayDeque<>();
       for (int iCount = 0; iCount < countParenthesisOpen - countParenthesisClose; iCount++) {
          stack.push(1);
+      }
+      if (!scanner.hasNext()) {
+         return currentToken;
       }
       String token = scanner.next();
 
@@ -179,7 +169,9 @@ public abstract class Examiner {
          if (token.indexOf(')') > -1) {
             int countClosedParenthesis = countChar(token, ')');
             for (int iCount = 0; iCount < countClosedParenthesis; iCount++) {
-               stack.pop();
+               if (!stack.isEmpty()) {
+                  stack.pop();
+               }
             }
          }
          if (scanner.hasNext()) {
@@ -259,12 +251,15 @@ public abstract class Examiner {
    protected static String jumpOverJavaToken(String token, Scanner scanner) {
       String nextToken = token;
       while (isAJavaToken(nextToken)) {
-         if (!scanner.hasNext()) {
-            throw new IllegalArgumentException("Insufficient number of tokens to jump over");
-         }
          if (nextToken.startsWith("@") && nextToken.indexOf('(') > -1 && !nextToken.endsWith(")")) {
+            if (!scanner.hasNext()) {
+               break;
+            }
             nextToken = scanAfterClosedParenthesis(nextToken, scanner);
          } else {
+            if (!scanner.hasNext()) {
+               break;
+            }
             nextToken = scanner.next();
          }
       }
@@ -276,6 +271,9 @@ public abstract class Examiner {
       while (scanner.hasNext()) {
          String token = scanner.next();
          if (javaSource.getPackagePath() == null && token.equals("package")) {
+            if (!scanner.hasNext()) {
+               break;
+            }
             token = scanner.next();
             if (token.endsWith(";")) {
                String packagePath = token.substring(0, token.indexOf(';'));
@@ -311,15 +309,3 @@ public abstract class Examiner {
       return m.matches();
    }
 }
-```
-
-## Context
-
-**Bug Location**: File `de/strullerbaumann/visualee/examiner/Examiner.java`, Method `scanAfterClosedParenthesis(String, Scanner)`
-**Bug Type**: missing/condition/value_or_state - `Examiner.java` calls `java.util.Scanner.next()` without first checking whether there are more elements using `hasNext()`. Because the scanner is built from the `JavaSource` parameter that can be invalid (e.g., no token after opening parenthesis), this can lead to a `NoSuchElementException` without a useful error message.
-
-Can you identify and fix it?
-
-## Output Indicator
-Update the ### Input Code as per the latest API specification, making necessary modifications.
-Ensure the structure and format remain as close as possible to the original, but deprecated code must be updated. Output the all revised code without additional explanations or comments.

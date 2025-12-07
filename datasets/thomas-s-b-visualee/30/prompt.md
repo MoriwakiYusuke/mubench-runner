@@ -259,9 +259,6 @@ public abstract class Examiner {
    protected static String jumpOverJavaToken(String token, Scanner scanner) {
       String nextToken = token;
       while (isAJavaToken(nextToken)) {
-         if (!scanner.hasNext()) {
-            throw new IllegalArgumentException("Insufficient number of tokens to jump over");
-         }
          if (nextToken.startsWith("@") && nextToken.indexOf('(') > -1 && !nextToken.endsWith(")")) {
             nextToken = scanAfterClosedParenthesis(nextToken, scanner);
          } else {
@@ -315,8 +312,8 @@ public abstract class Examiner {
 
 ## Context
 
-**Bug Location**: File `de/strullerbaumann/visualee/examiner/Examiner.java`, Method `scanAfterClosedParenthesis(String, Scanner)`
-**Bug Type**: missing/condition/value_or_state - `Examiner.java` calls `java.util.Scanner.next()` without first checking whether there are more elements using `hasNext()`. Because the scanner is built from the `JavaSource` parameter that can be invalid (e.g., no token after opening parenthesis), this can lead to a `NoSuchElementException` without a useful error message.
+**Bug Location**: File `de/strullerbaumann/visualee/examiner/Examiner.java`, Method `jumpOverJavaToken(String, Scanner)`
+**Bug Type**: missing/condition/value_or_state - `Examiner.java` calls `java.util.Scanner.next()` without first checking whether there are more elements using `hasNext()`. Because the scanner is built from the `JavaSource` parameter that can be invalid (e.g., an empty source), this can lead to a `NoSuchElementException` without a useful error message.
 
 Can you identify and fix it?
 
